@@ -165,3 +165,32 @@ Known limits:
 - The bag must not move between the scan and the overlay.
 - The cavity assumes a 50/50 clamshell.
 Blocked on: device time with an iPhone Pro and a real suitcase.
+
+## 2026-10-24 section-2 AR tap-measure for phones without LiDAR (branch `arjun99ab/lidar-ar`)
+Built:
+- **The guided flow now runs on any ARKit iPhone** (`DeviceCapabilities.supportsAR`), not only on LiDAR models.
+  - It uses ARKit world tracking (camera plus motion sensors, in metric units) and plane detection. There is no depth map.
+  - Apple's coaching overlay guides the user until the floor is found.
+- **Bag:** tap three inside corners of the open shell: back-left, back-right, then a front one.
+  - Length and width are measured from the taps. Depth comes from the trip's preset bag.
+  - The container is recorded as method `.manual` with confidence 0.7.
+  - This 3-tap flow is also the LiDAR fallback now, replacing the 2-tap one.
+- **Items:** tap two bottom corners along one side, a bottom corner on the opposite side, then the top edge facing you.
+  - Height comes from a surface hit over the item when ARKit has one. Otherwise it's where the tap ray meets the item's front face.
+  - Length, width and height steppers allow correction before "Add item".
+  - LiDAR phones can switch to this with "Measure by tapping".
+- **Labelling:** tap-measured items are sent and stored as `.manual`, with confidence 0.65–0.75, so the badge reads "Check the size".
+  - The app keeps their IDs in `ItemsStore.tapMeasuredIDs` and shows "Measured with AR taps".
+- **Overlay:** the plan inside the bag works the same on these phones, anchored to the tapped corners.
+- **Code:** the geometry is pure and unit-tested in `Scan/Measurement/TapMeasure.swift`.
+Run:
+- Same as before; any ARKit iPhone opens "Scan & pack" after a trip is picked.
+- The simulator still uses presets and manual entry.
+Measured:
+- 28/28 unit tests pass, 7 of them new for taps.
+- Device build compiles.
+- Simulator routing checked.
+- **Not yet run on a device.** Tap accuracy (expected 1–3 cm on footprints; height is worse) still to measure.
+Known limits:
+- Bag depth is not measured without LiDAR.
+- Plain, shiny or dark surfaces make ARKit's floor and the surface hits less reliable.
