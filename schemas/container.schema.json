@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://packfit.local/schemas/container.schema.json",
+  "title": "Container",
+  "description": "A bag. outer and compartment dims are [w, h, d] in cm.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "type", "outer", "compartments", "weightLimitKg"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "type": { "enum": ["suitcase", "duffel", "backpack"] },
+    "outer": { "$ref": "#/$defs/dims" },
+    "compartments": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/compartment" }
+    },
+    "weightLimitKg": { "type": "number", "exclusiveMinimum": 0 },
+    "wheelsSide": { "enum": ["back", "bottom"] },
+    "measurement": { "$ref": "item.schema.json#/$defs/measurement" }
+  },
+  "$defs": {
+    "dims": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "type": "number", "exclusiveMinimum": 0 }
+    },
+    "compartment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "dims", "compressibility"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "dims": { "$ref": "#/$defs/dims" },
+        "compressibility": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

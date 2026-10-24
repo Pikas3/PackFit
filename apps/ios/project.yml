@@ -1,0 +1,71 @@
+name: PackFit
+options:
+  bundleIdPrefix: com.packfit
+  deploymentTarget:
+    iOS: "18.0"
+  xcodeVersion: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    TARGETED_DEVICE_FAMILY: "1"
+    GENERATE_INFOPLIST_FILE: NO
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: "1.0"
+configs:
+  Debug: debug
+  Release: release
+configFiles:
+  Debug: Config/Example.xcconfig
+  Release: Config/Example.xcconfig
+packages:
+  PackFitSchemas:
+    path: ../../Packages/PackFitSchemas
+  Packer:
+    path: ../../Packages/Packer
+targets:
+  PackFit:
+    type: application
+    platform: iOS
+    sources:
+      - path: PackFit
+        excludes:
+          - Voice/**
+          - Temp/**
+    dependencies:
+      - package: PackFitSchemas
+      - package: Packer
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.packfit.app
+        INFOPLIST_FILE: PackFit/Info.plist
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    info:
+      path: PackFit/Info.plist
+      properties:
+        UILaunchScreen: {}
+  PackFitTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - PackFitTests
+    dependencies:
+      - target: PackFit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.packfit.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  PackFit:
+    build:
+      targets:
+        PackFit: all
+        PackFitTests: [test]
+    test:
+      targets:
+        - PackFitTests
+    run:
+      config: Debug
