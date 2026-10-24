@@ -70,6 +70,36 @@ enum Copy {
         static let measuredReference = "Scaled from credit card"
     }
 
+    enum Guided {
+        static let title = "Scan & pack"
+        static let findFloor = "Point at the floor and move the phone slowly."
+        static let bag = "Open your suitcase on the floor. Aim the dot at the bottom of the empty shell."
+        static let bagStable = "Got it. Tap “Use this bag”."
+        static let useBag = "Use this bag"
+        static let tapCorners = "Tap the two inside back corners"
+        static let tapCornerLeft = "Tap the inside back-left corner."
+        static let tapCornerRight = "Now tap the inside back-right corner."
+        static let cornersTooClose = "Those corners are too close. Try again."
+        static let items = "Spread your items a hand apart on the floor, then pan slowly over all of them."
+        static let itemsHint = "Tap a box to remove it."
+        static let itemsFound = "items found"
+        static let done = "Done"
+        static let identifying = "Identifying your items…"
+        static let review = "Check your items"
+        static let packIt = "Pack it"
+        static let rescan = "Scan again"
+        static let packing = "Working out the plan…"
+        static let overlay = "Follow the steps. Each box shows where an item goes."
+        static let underLid = "Above the rim: this goes under the lid."
+        static let unknownItem = "Item"
+        static let usePresets = "Use bag presets instead"
+        static let addManually = "Add one manually"
+        static let view3D = "3D view"
+        static let itemsLink = "Items"
+        static let restart = "Start over"
+        static let noLidar = "This iPhone has no LiDAR. Choose a bag preset instead."
+    }
+
     enum Viewer {
         static let title = "Packing plan"
         static let play = "Play"

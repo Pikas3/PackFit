@@ -4,6 +4,7 @@
 !.env.example
 apps/ios/Config/Debug.xcconfig
 apps/ios/Config/Release.xcconfig
+apps/ios/Config/Local.xcconfig
 
 # Node
 node_modules/

@@ -28,9 +28,7 @@
 	4BB7994D087A33E99C8171A3 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E75621B8FBCFDC67E72FEE /* OnboardingView.swift */; };
 	7AD5AF99560544CCBA5FCDE6 /* RuleFreshness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0AE81C52B847861EB9A0BA /* RuleFreshness.swift */; };
 	1C6FECAA6DA3EE3D84D0B600 /* RulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E16EAEAAA83259437104DE /* RulesView.swift */; };
-	47F31A462B02383DDD919AC6 /* ARScanRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 553BD5AA1B3BA645ECA5C7D5 /* ARScanRepresentable.swift */; };
 	B9C1A04462EFEE8567B08177 /* ImageCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9B039218A877058BD20208 /* ImageCapture.swift */; };
-	A8786DA1D190BEEBD60199D6 /* LidarSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCF56D28590CE64525A6E31 /* LidarSessionController.swift */; };
 	B5853417EA8FD10643516233 /* MeasurementMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = D039890D9726C4C97A6C288F /* MeasurementMath.swift */; };
 	2F765AB914536D55CB4CA660 /* ReviewCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D8A43DD535E7BF1BBEF46E /* ReviewCardView.swift */; };
 	EBF10FA8A7805DD06308DF1D /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC741861ECD4DFC4978C2FA /* ScanView.swift */; };
@@ -47,7 +45,26 @@
 	84E1A9AA802DA01A2CD49B9D /* SceneBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38669DE6D35F140DD245C56 /* SceneBuilder.swift */; };
 	F4BA7A26C39806719BC98BA7 /* MeasurementMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */; };
 	8D54DC65EEEAC96AD8ECDE15 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58A12493A45D71A84E6E9B01 /* Assets.xcassets */; };
+	043A044D40058B4FD93034A2 /* RectFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51101A24C29803BD819ACA7 /* RectFit.swift */; };
+	4D4002BD7214C36FD4391DF8 /* HeightMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604D7496338569D36C744497 /* HeightMap.swift */; };
+	681FB817A8CCCE365BC0EEBE /* BoxFitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF769D9F6593836DC624115 /* BoxFitter.swift */; };
+	D989AFDB4FCBBA5CB60E2331 /* CavityFitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9126468D97F786A32DA5873D /* CavityFitter.swift */; };
+	004FA21739B1B90F8A2658FE /* FitStabilizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59B11F6E2AE098928CA5F9E8 /* FitStabilizer.swift */; };
+	DBB9A09DC7E5E24052A96F0C /* DepthSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D873DCD704B727D1968A02 /* DepthSnapshot.swift */; };
+	2B15ACE254F057D482DFC578 /* ContainerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158BDD27A320E6198404E50A /* ContainerFactory.swift */; };
+	23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */; };
+	F1868E5F66FD26B84771A1C2 /* ScanWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AD58CDFC5D218BF5B46C926 /* ScanWorker.swift */; };
+	1C46D20F58A43F6F9216E207 /* PlanStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3689EFA54397898E0E1B0F77 /* PlanStepper.swift */; };
+	2E335B9FFBC70F6475D61E5A /* PlanStepControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795D693A63556DAA91798028 /* PlanStepControls.swift */; };
+	DE64128BF3B0859AEDF5C682 /* WireBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7F407471A0EC0D0DCAC89B /* WireBox.swift */; };
+	AF195091621E2C2E6D615A79 /* GuidedSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66C29C9109E89FCD4392361 /* GuidedSession.swift */; };
+	0C970C06CB51ED08C26AED24 /* GuidedARView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672E033FC3C0BB05772F27AA /* GuidedARView.swift */; };
+	6DE82B905DC99550B43DA85E /* GuidedScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1F4ADDD97AABA1893CE03F /* GuidedScanView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+	6A0E4C1F2B3D4E5F60718293 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = 1D47969A85F9A42BBD9D38A3 /* Project object */; proxyType = 1; remoteGlobalIDString = 998E39BF3A0CE5C1401D22A1; remoteInfo = PackFit; };
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 	03A3523DF5FBF2CC57EE8249 /* PackFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PackFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -77,9 +94,7 @@
 	E5E75621B8FBCFDC67E72FEE /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Onboarding/OnboardingView.swift"; sourceTree = "<group>"; };
 	1D0AE81C52B847861EB9A0BA /* RuleFreshness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Rules/RuleFreshness.swift"; sourceTree = "<group>"; };
 	47E16EAEAAA83259437104DE /* RulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Rules/RulesView.swift"; sourceTree = "<group>"; };
-	553BD5AA1B3BA645ECA5C7D5 /* ARScanRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ARScanRepresentable.swift"; sourceTree = "<group>"; };
 	0A9B039218A877058BD20208 /* ImageCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ImageCapture.swift"; sourceTree = "<group>"; };
-	6FCF56D28590CE64525A6E31 /* LidarSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/LidarSessionController.swift"; sourceTree = "<group>"; };
 	D039890D9726C4C97A6C288F /* MeasurementMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/MeasurementMath.swift"; sourceTree = "<group>"; };
 	86D8A43DD535E7BF1BBEF46E /* ReviewCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ReviewCardView.swift"; sourceTree = "<group>"; };
 	EAC741861ECD4DFC4978C2FA /* ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ScanView.swift"; sourceTree = "<group>"; };
@@ -95,6 +110,21 @@
 	1950DD945B6CC68218F0DC64 /* PlanViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/PlanViewerView.swift"; sourceTree = "<group>"; };
 	B38669DE6D35F140DD245C56 /* SceneBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/SceneBuilder.swift"; sourceTree = "<group>"; };
 	7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MeasurementMathTests.swift"; sourceTree = "<group>"; };
+	B51101A24C29803BD819ACA7 /* RectFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/RectFit.swift"; sourceTree = "<group>"; };
+	604D7496338569D36C744497 /* HeightMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/HeightMap.swift"; sourceTree = "<group>"; };
+	6DF769D9F6593836DC624115 /* BoxFitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/BoxFitter.swift"; sourceTree = "<group>"; };
+	9126468D97F786A32DA5873D /* CavityFitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/CavityFitter.swift"; sourceTree = "<group>"; };
+	59B11F6E2AE098928CA5F9E8 /* FitStabilizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/FitStabilizer.swift"; sourceTree = "<group>"; };
+	32D873DCD704B727D1968A02 /* DepthSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/DepthSnapshot.swift"; sourceTree = "<group>"; };
+	158BDD27A320E6198404E50A /* ContainerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bag/ContainerFactory.swift"; sourceTree = "<group>"; };
+	B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DepthPipelineTests.swift"; sourceTree = "<group>"; };
+	8AD58CDFC5D218BF5B46C926 /* ScanWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/ScanWorker.swift"; sourceTree = "<group>"; };
+	3689EFA54397898E0E1B0F77 /* PlanStepper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/PlanStepper.swift"; sourceTree = "<group>"; };
+	795D693A63556DAA91798028 /* PlanStepControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/PlanStepControls.swift"; sourceTree = "<group>"; };
+	7D7F407471A0EC0D0DCAC89B /* WireBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guided/WireBox.swift"; sourceTree = "<group>"; };
+	F66C29C9109E89FCD4392361 /* GuidedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guided/GuidedSession.swift"; sourceTree = "<group>"; };
+	672E033FC3C0BB05772F27AA /* GuidedARView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guided/GuidedARView.swift"; sourceTree = "<group>"; };
+	4A1F4ADDD97AABA1893CE03F /* GuidedScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guided/GuidedScanView.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +138,20 @@
 	1098403B55AF3C1CDA92BD33 /* PackFit */ = {
 		isa = PBXGroup;
 		children = (
+			4A1F4ADDD97AABA1893CE03F /* GuidedScanView.swift */,
+			672E033FC3C0BB05772F27AA /* GuidedARView.swift */,
+			F66C29C9109E89FCD4392361 /* GuidedSession.swift */,
+			7D7F407471A0EC0D0DCAC89B /* WireBox.swift */,
+			795D693A63556DAA91798028 /* PlanStepControls.swift */,
+			3689EFA54397898E0E1B0F77 /* PlanStepper.swift */,
+			8AD58CDFC5D218BF5B46C926 /* ScanWorker.swift */,
+			158BDD27A320E6198404E50A /* ContainerFactory.swift */,
+			32D873DCD704B727D1968A02 /* DepthSnapshot.swift */,
+			59B11F6E2AE098928CA5F9E8 /* FitStabilizer.swift */,
+			9126468D97F786A32DA5873D /* CavityFitter.swift */,
+			6DF769D9F6593836DC624115 /* BoxFitter.swift */,
+			604D7496338569D36C744497 /* HeightMap.swift */,
+			B51101A24C29803BD819ACA7 /* RectFit.swift */,
 			3058F8F659288DFDF70F961A /* APIClient.swift */,
 			08F3A3360D4792AB0E26C18F /* APIModels.swift */,
 			FC42A8E2E5AB9B31725AD363 /* LiveAPIClient.swift */,
@@ -130,9 +174,7 @@
 			E5E75621B8FBCFDC67E72FEE /* OnboardingView.swift */,
 			1D0AE81C52B847861EB9A0BA /* RuleFreshness.swift */,
 			47E16EAEAAA83259437104DE /* RulesView.swift */,
-			553BD5AA1B3BA645ECA5C7D5 /* ARScanRepresentable.swift */,
 			0A9B039218A877058BD20208 /* ImageCapture.swift */,
-			6FCF56D28590CE64525A6E31 /* LidarSessionController.swift */,
 			D039890D9726C4C97A6C288F /* MeasurementMath.swift */,
 			86D8A43DD535E7BF1BBEF46E /* ReviewCardView.swift */,
 			EAC741861ECD4DFC4978C2FA /* ScanView.swift */,
@@ -156,6 +198,7 @@
 	A155AA44B1D1618D2F5AF75E /* PackFitTests */ = {
 		isa = PBXGroup;
 		children = (
+			B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
 			7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */,
 		);
 		path = PackFitTests;
@@ -176,7 +219,7 @@
 		productReference = 03A3523DF5FBF2CC57EE8249;
 		productType = "com.apple.product-type.application";
 	};
-	DB3E39D852D8A00F57495F08 /* PackFitTests */ = { isa = PBXNativeTarget; buildConfigurationList = 53164C758C4968133EEF70B9; buildPhases = (11E68E1234980A6E737D024A /* Sources */); buildRules = (); dependencies = (); name = PackFitTests; productName = PackFitTests; productReference = F71B9DAE26775B429CF08342; productType = "com.apple.product-type.bundle.unit-test"; };
+	DB3E39D852D8A00F57495F08 /* PackFitTests */ = { isa = PBXNativeTarget; buildConfigurationList = 53164C758C4968133EEF70B9; buildPhases = (11E68E1234980A6E737D024A /* Sources */); buildRules = (); dependencies = (7B1F5D2A3C4E5F60718293A4 /* PBXTargetDependency */); name = PackFitTests; productName = PackFitTests; productReference = F71B9DAE26775B429CF08342; productType = "com.apple.product-type.bundle.unit-test"; };
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -203,6 +246,20 @@
 
 /* Begin PBXSourcesBuildPhase section */
 	1A190EB2A888CEB4E47C3A22 /* Sources */ = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			6DE82B905DC99550B43DA85E /* GuidedScanView.swift in Sources */,
+			0C970C06CB51ED08C26AED24 /* GuidedARView.swift in Sources */,
+			AF195091621E2C2E6D615A79 /* GuidedSession.swift in Sources */,
+			DE64128BF3B0859AEDF5C682 /* WireBox.swift in Sources */,
+			2E335B9FFBC70F6475D61E5A /* PlanStepControls.swift in Sources */,
+			1C46D20F58A43F6F9216E207 /* PlanStepper.swift in Sources */,
+			F1868E5F66FD26B84771A1C2 /* ScanWorker.swift in Sources */,
+			2B15ACE254F057D482DFC578 /* ContainerFactory.swift in Sources */,
+			DBB9A09DC7E5E24052A96F0C /* DepthSnapshot.swift in Sources */,
+			004FA21739B1B90F8A2658FE /* FitStabilizer.swift in Sources */,
+			D989AFDB4FCBBA5CB60E2331 /* CavityFitter.swift in Sources */,
+			681FB817A8CCCE365BC0EEBE /* BoxFitter.swift in Sources */,
+			4D4002BD7214C36FD4391DF8 /* HeightMap.swift in Sources */,
+			043A044D40058B4FD93034A2 /* RectFit.swift in Sources */,
 			DBA5E5729F6C84D710C69309 /* APIClient.swift in Sources */,
 			2A4A9FF8FC681FEB293AEDE5 /* APIModels.swift in Sources */,
 			8AF00A0F049540687D771375 /* LiveAPIClient.swift in Sources */,
@@ -225,9 +282,7 @@
 			4BB7994D087A33E99C8171A3 /* OnboardingView.swift in Sources */,
 			7AD5AF99560544CCBA5FCDE6 /* RuleFreshness.swift in Sources */,
 			1C6FECAA6DA3EE3D84D0B600 /* RulesView.swift in Sources */,
-			47F31A462B02383DDD919AC6 /* ARScanRepresentable.swift in Sources */,
 			B9C1A04462EFEE8567B08177 /* ImageCapture.swift in Sources */,
-			A8786DA1D190BEEBD60199D6 /* LidarSessionController.swift in Sources */,
 			B5853417EA8FD10643516233 /* MeasurementMath.swift in Sources */,
 			2F765AB914536D55CB4CA660 /* ReviewCardView.swift in Sources */,
 			EBF10FA8A7805DD06308DF1D /* ScanView.swift in Sources */,
@@ -244,17 +299,22 @@
 			84E1A9AA802DA01A2CD49B9D /* SceneBuilder.swift in Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 	11E68E1234980A6E737D024A /* Sources */ = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
 			F4BA7A26C39806719BC98BA7 /* MeasurementMathTests.swift in Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+	7B1F5D2A3C4E5F60718293A4 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 998E39BF3A0CE5C1401D22A1 /* PackFit */; targetProxy = 6A0E4C1F2B3D4E5F60718293 /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
-	6838C20AC32FE1FB9963CE9D /* Debug */ = { isa = XCBuildConfiguration; baseConfigurationReference = 5C3B4B3D43BC697E8A223126; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = dwarf; GCC_DYNAMIC_NO_PIC = NO; GCC_OPTIMIZATION_LEVEL = 0; GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)"); IPHONEOS_DEPLOYMENT_TARGET = 18.0; ONLY_ACTIVE_ARCH = YES; SDKROOT = iphoneos; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)"; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; SWIFT_VERSION = 6.0; }; name = Debug; };
+	6838C20AC32FE1FB9963CE9D /* Debug */ = { isa = XCBuildConfiguration; baseConfigurationReference = 5C3B4B3D43BC697E8A223126; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = dwarf; ENABLE_TESTABILITY = YES; GCC_DYNAMIC_NO_PIC = NO; GCC_OPTIMIZATION_LEVEL = 0; GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)"); IPHONEOS_DEPLOYMENT_TARGET = 18.0; ONLY_ACTIVE_ARCH = YES; SDKROOT = iphoneos; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)"; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; SWIFT_VERSION = 6.0; }; name = Debug; };
 	DB74CB8EAA9BD297D1099A04 /* Release */ = { isa = XCBuildConfiguration; baseConfigurationReference = 5C3B4B3D43BC697E8A223126; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; IPHONEOS_DEPLOYMENT_TARGET = 18.0; SDKROOT = iphoneos; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_VERSION = 6.0; }; name = Release; };
-	36CC0473D6D9A0D7E04DBE4F /* Debug */ = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = PackFit/Info.plist; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks"); MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_APPROACHABLE_CONCURRENCY = YES; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; }; name = Debug; };
-	F638EAE0D6C07B1C966317A3 /* Release */ = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = PackFit/Info.plist; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks"); MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_APPROACHABLE_CONCURRENCY = YES; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; }; name = Release; };
-	C30F3787DC3F798E8003E787 /* Debug */ = { isa = XCBuildConfiguration; buildSettings = { BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app.tests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PackFit.app/${PRODUCT_NAME}/PackFit"; }; name = Debug; };
-	FA0CCF0ACE1B162DEBFDFF4B /* Release */ = { isa = XCBuildConfiguration; buildSettings = { BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app.tests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PackFit.app/${PRODUCT_NAME}/PackFit"; }; name = Release; };
+	36CC0473D6D9A0D7E04DBE4F /* Debug */ = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = PackFit/Info.plist; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks"); MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = "$(PACKFIT_BUNDLE_ID)"; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_APPROACHABLE_CONCURRENCY = YES; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; }; name = Debug; };
+	F638EAE0D6C07B1C966317A3 /* Release */ = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = PackFit/Info.plist; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks"); MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = "$(PACKFIT_BUNDLE_ID)"; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_APPROACHABLE_CONCURRENCY = YES; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; }; name = Release; };
+	C30F3787DC3F798E8003E787 /* Debug */ = { isa = XCBuildConfiguration; buildSettings = { BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = "$(PACKFIT_BUNDLE_ID).tests"; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PackFit.app/PackFit"; }; name = Debug; };
+	FA0CCF0ACE1B162DEBFDFF4B /* Release */ = { isa = XCBuildConfiguration; buildSettings = { BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = "$(PACKFIT_BUNDLE_ID).tests"; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PackFit.app/PackFit"; }; name = Release; };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */

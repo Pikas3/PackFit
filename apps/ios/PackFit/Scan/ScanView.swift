@@ -5,7 +5,6 @@ struct ScanView: View {
     @Environment(DeviceCapabilities.self) private var caps
     @Environment(\.dismiss) private var dismiss
 
-    @State private var controller: LidarSessionController
     @State private var showReview = false
     @State private var draft: Item?
     @State private var alternatives: [ItemAlternative] = []
@@ -15,22 +14,16 @@ struct ScanView: View {
     @State private var manualD = "15"
     @State private var hint = ""
     @State private var errorText: String?
-    @State private var useManualForm = false
 
     private let client: any APIClient
 
-    init(client: any APIClient, hasLidar: Bool) {
+    init(client: any APIClient) {
         self.client = client
-        _controller = State(initialValue: LidarSessionController(hasLidar: hasLidar))
     }
 
     var body: some View {
         ZStack {
-            if caps.isSimulator || useManualForm || !caps.hasLidar {
-                manualForm
-            } else {
-                lidarStack
-            }
+            manualForm
 
             if isIdentifying {
                 Color.black.opacity(0.35).ignoresSafeArea()
@@ -46,14 +39,6 @@ struct ScanView: View {
         }
         .navigationTitle(Copy.Scan.title)
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            if caps.hasLidar && !caps.isSimulator {
-                controller.start()
-            } else {
-                useManualForm = true
-            }
-        }
-        .onDisappear { controller.stop() }
         .sheet(isPresented: $showReview) {
             if let draft {
                 ReviewCardView(
@@ -68,43 +53,6 @@ struct ScanView: View {
                 )
                 .presentationDetents([.medium, .large])
             }
-        }
-    }
-
-    private var lidarStack: some View {
-        VStack(spacing: 0) {
-            Text(caps.measurementModeLabel)
-                .font(Tokens.TypeScale.caption)
-                .frame(maxWidth: .infinity)
-                .padding(Tokens.Spacing.sm)
-                .background(Tokens.Color.brandSecondary.opacity(0.25))
-
-            ARScanRepresentable(controller: controller)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
-                Text(controller.statusText)
-                    .font(Tokens.TypeScale.body)
-                if let box = controller.previewBox {
-                    Text(String(format: "%.1f × %.1f × %.1f cm", box.w, box.h, box.d))
-                        .font(Tokens.TypeScale.title)
-                    ConfidenceBadge(confidence: box.confidence)
-                    HStack {
-                        Button(Copy.Scan.retap) { controller.resetMeasurement() }
-                        Spacer()
-                        Button(Copy.Scan.capture) { Task { await identify(measured: box) } }
-                            .buttonStyle(.borderedProminent)
-                            .tint(Tokens.Color.brand)
-                    }
-                }
-                if let errorText {
-                    Text(errorText).foregroundStyle(Tokens.Color.banned).font(Tokens.TypeScale.caption)
-                }
-                Button("Enter dimensions instead") { useManualForm = true }
-                    .font(Tokens.TypeScale.caption)
-            }
-            .packFitScreenPadding()
-            .background(Tokens.Color.surface)
         }
     }
 
@@ -151,7 +99,7 @@ struct ScanView: View {
         isIdentifying = true
         errorText = nil
         defer { isIdentifying = false }
-        let image = controller.lastCapturedBase64 ?? ImageCapture.placeholderBase64()
+        let image = ImageCapture.placeholderBase64()
         let dims = MeasuredDims(
             w: measured.w,
             h: measured.h,

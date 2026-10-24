@@ -112,3 +112,56 @@ Run:
 Measured: not re-run on device in this change (Windows host)
 Blocked on: Section 3 live API; device fps / LiDAR MAE as before
 Schema changes: none
+
+## 2026-10-24 section-2 guided LiDAR flow (branch `arjun99ab/lidar-ar`)
+Built:
+- **Guided flow is the main path on LiDAR iPhones.** After picking a trip, the app goes to
+  `Route.guidedScan` (`PackFit/Guided/`):
+  1. Scan the open suitcase on the floor. The app measures the inner cavity and keeps it anchored.
+  2. Pan over the items spread on the floor. Every separate object gets a numbered box.
+  3. Identify all items in parallel through `/scan/item`, with cropped photos and LiDAR dims.
+  4. Review the list, then pack. The plan is drawn inside the real bag, with step and play controls.
+  Non-LiDAR devices and the simulator keep the old path: presets, manual entry, item list, 3D viewer.
+- **Depth pipeline** (`Scan/Measurement/`, pure and unit-tested):
+  - `DepthSnapshot`: a Sendable copy of the frame's depth, with intrinsics scaled to the depth resolution.
+  - `HeightMap`: a persistent 1 cm world grid, taking the median of the last 8 per-snapshot top heights.
+  - `BoxFitter`: components, convex hull and minimum-area rectangle.
+  - `CavityFitter`: a basin flood-fill from the reticle point, measuring rim minus cavity floor.
+  - `FitStabilizer`: EMA smoothing; a fit is stable after 6 fits within tolerance.
+  - `ScanWorker`: an actor that runs all of this off the main thread at 5 Hz.
+- **Shared plan stepping:** `PlanStepper` drives both the 3D viewer and the AR overlay. It conforms to
+  `PlanViewerControlling`, so the voice coach can drive either one. `PlanStepControls` is the shared UI.
+- **Container from a scan:** `ContainerFactory.fromCavity` gives inner `[long, 2 × shell depth, short]`,
+  outer = inner + 6, method `.lidar`, `wheelsSide .back`.
+- **Fallbacks:**
+  - If the cavity isn't stable after 8 s, the user taps the two inside back corners. The other
+    sizes come from the trip's preset bag.
+  - "Add one manually" opens the manual scan form; "Use bag presets instead" goes to bag setup.
+  - Tapping a box drops a false positive.
+- **Fixes:**
+  - `Category` is now unambiguous.
+  - Bundle ID per team: put `DEVELOPMENT_TEAM` in the gitignored `Config/Local.xcconfig`.
+  - Test target: `TEST_HOST` and target dependency fixed.
+  - The 3D viewer's bag volume was opaque and hid the items. It is translucent now.
+  - The viewer uses the inner dims and the first compartment only.
+  - Materials are cached per (category, opacity).
+Retired: `LidarSessionController` and `ARScanRepresentable` (tap-corner item scan). `ScanView` is
+the manual and non-LiDAR form only.
+Cut: occlusion toggle; per-item 3D labels in the overlay (the name shows in the step panel).
+Run:
+- Open `apps/ios/PackFit.xcodeproj` and add `Config/Local.xcconfig` with `DEVELOPMENT_TEAM = <team>`.
+- Run on an iPhone Pro.
+- Unit tests:
+  `xcodebuild -scheme PackFit -destination 'platform=iOS Simulator,name=iPhone 18 Pro' test`
+Measured:
+- 21/21 unit tests pass on the simulator. They cover synthetic boxes within ±1 cm and ±3°, cavity
+  inner dims within ±1.5 cm, and the frame orthonormal with its origin at the back-left corner.
+- Device build compiles.
+- Simulator smoke test: trip → presets → manual item → pack → viewer works.
+- **Not yet run on a LiDAR device.** Bag accuracy against a tape, item MAE, overlay alignment and
+  end-to-end time are still to measure.
+Known limits:
+- Items must be spread about a hand apart; touching or stacked items merge into one box.
+- The bag must not move between the scan and the overlay.
+- The cavity assumes a 50/50 clamshell.
+Blocked on: device time with an iPhone Pro and a real suitcase.

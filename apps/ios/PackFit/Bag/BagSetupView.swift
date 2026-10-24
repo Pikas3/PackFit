@@ -10,8 +10,6 @@ struct BagSetupView: View {
     @State private var pendingBag: Container?
     @State private var showBackpackEditor = false
 
-    private let wallInsetCm: Double = 3
-
     var body: some View {
         List {
             Section(Copy.Bag.presets) {
@@ -38,11 +36,7 @@ struct BagSetupView: View {
             }
             Section(Copy.Bag.custom) {
                 if caps.hasLidar && !caps.isSimulator {
-                    Button(Copy.Bag.measureLidar) {
-                        // Demo path: seed a LiDAR-measured checked bag quickly.
-                        pendingBag = makeCustom(outer: [75, 50, 30], method: .lidar, confidence: 0.92)
-                        showWheels = true
-                    }
+                    Button(Copy.Bag.measureLidar) { path.append(.guidedScan) }
                 }
                 Button(Copy.Bag.measureManual) { showManual = true }
             }
@@ -50,7 +44,7 @@ struct BagSetupView: View {
         .navigationTitle(Copy.Bag.title)
         .sheet(isPresented: $showManual) {
             ManualBagView { outer, limit in
-                pendingBag = makeCustom(outer: outer, method: .manual, confidence: 1, weightLimit: limit)
+                pendingBag = ContainerFactory.custom(outer: outer, method: .manual, confidence: 1, weightLimit: limit)
                 showManual = false
                 showWheels = true
             }
@@ -75,26 +69,6 @@ struct BagSetupView: View {
         bag.wheelsSide = side
         tripStore.setBag(bag)
         path.append(.itemList)
-    }
-
-    private func makeCustom(
-        outer: [Double],
-        method: MeasureMethod,
-        confidence: Double,
-        weightLimit: Double = 23
-    ) -> Container {
-        let inner = outer.map { max(1, $0 - wallInsetCm * 2) }
-        // Keep height inset consistent with "3 cm per side".
-        return Container(
-            id: UUID().uuidString,
-            name: "Custom bag",
-            type: .suitcase,
-            outer: outer,
-            compartments: [Compartment(name: "main", dims: inner, compressibility: 0.1)],
-            weightLimitKg: weightLimit,
-            wheelsSide: .bottom,
-            measurement: Measurement(method: method, confidence: confidence, deviceHasLidar: method == .lidar)
-        )
     }
 
     private func dimsLabel(_ outer: [Double]) -> String {

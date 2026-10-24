@@ -14,7 +14,7 @@ enum SceneBuilder {
         let h = Float(outer[1]) * cmToMeters
         let d = Float(outer[2]) * cmToMeters
 
-        let fill = UnlitMaterial(color: UIColor.white.withAlphaComponent(0.08))
+        let fill = translucent(.white, opacity: 0.08)
         let volume = ModelEntity(mesh: .generateBox(size: [w, h, d]), materials: [fill])
         volume.position = [w / 2, h / 2, d / 2]
         root.addChild(volume)
@@ -25,7 +25,7 @@ enum SceneBuilder {
 
         let lid = ModelEntity(
             mesh: .generatePlane(width: w * 0.98, depth: d * 0.98),
-            materials: [UnlitMaterial(color: UIColor.systemTeal.withAlphaComponent(0.35))]
+            materials: [translucent(.systemTeal, opacity: 0.35)]
         )
         lid.position = [w / 2, h, d / 2]
         lid.orientation = simd_quatf(angle: -.pi / 2, axis: [1, 0, 0])
@@ -65,6 +65,14 @@ enum SceneBuilder {
             entity.addChild(frameRoot)
         }
         return entity
+    }
+
+    /// Unlit colour with real alpha blending; a colour's alpha alone renders opaque.
+    @MainActor
+    static func translucent(_ color: UIColor, opacity: Float) -> UnlitMaterial {
+        var material = UnlitMaterial(color: color)
+        material.blending = .transparent(opacity: .init(floatLiteral: opacity))
+        return material
     }
 
     @MainActor
