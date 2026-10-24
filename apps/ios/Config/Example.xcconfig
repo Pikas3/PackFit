@@ -1,0 +1,6 @@
+// Copy to Debug.xcconfig / Release.xcconfig (gitignored) for machine-specific values.
+// Project falls back to this file so a clean clone still builds in mock mode.
+
+API_BASE_URL = http:/$()/localhost:8787
+APP_TOKEN = local-dev-token
+MOCK_API = YES

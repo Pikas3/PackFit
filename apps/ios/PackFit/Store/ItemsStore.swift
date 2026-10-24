@@ -1,0 +1,32 @@
+import Foundation
+
+@Observable
+@MainActor
+final class ItemsStore {
+    var items: [Item] = []
+
+    func append(_ item: Item) {
+        if let index = items.firstIndex(where: { $0.id == item.id }) {
+            items[index] = item
+        } else {
+            items.append(item)
+        }
+    }
+
+    func update(_ item: Item) {
+        append(item)
+    }
+
+    func remove(id: String) {
+        items.removeAll { $0.id == id }
+    }
+
+    func remove(at offsets: IndexSet) {
+        items.remove(atOffsets: offsets)
+    }
+
+    /// Seeds the first three fixture items for a cold demo if needed.
+    func loadDemoSeed() {
+        items = Array(Fixtures.items().prefix(3))
+    }
+}
