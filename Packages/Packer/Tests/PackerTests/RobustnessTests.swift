@@ -76,6 +76,17 @@ import Testing
         #expect(failures == 0)
     }
 
+    @Test func heavyItemsGoToTheWheelEnd() {
+        var bag = suitcase
+        bag.wheelsSide = .bottom
+        let clothes = (0..<3).map { item("c\($0)", 10, 5, 40, kg: 0.3, hardness: 0.1, soft: true) }
+        let items = clothes + [item("books", 10, 5, 20, kg: 4, hardness: 0.9)]
+        let plan = pack(items, into: bag)
+        let heavy = plan.placed.first { $0.itemId == "books" }!
+        #expect(heavy.x < 1e-9 && heavy.y < 1e-9, "heavy item at the wheel end, on the bottom: \(heavy)")
+        #expect(validatePlan(plan, items: items, container: bag) == [])
+    }
+
     @Test func weightWarnings() {
         let heavy = (0..<5).map { item("h\($0)", 20, 10, 15, kg: 5) }
         let over = pack(heavy, into: suitcase)

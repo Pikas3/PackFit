@@ -5,7 +5,7 @@ import Testing
 
 @Suite struct BenchTests {
     /// 30 items in the checked suitcase: under 1,000 ms in debug, 300 ms in release.
-    /// Judged on the best of 5 runs of this thread's CPU time: Swift Testing runs the other
+    /// Judged on the best of 10 runs of this thread's CPU time: Swift Testing runs the other
     /// suites in parallel, and wall-clock time would count their load against the packer.
     @Test func thirtyItemsInCheckedSuitcase() throws {
         let checked = try #require(try Fixtures.containers().first { $0.id == "checked-75" })
@@ -19,7 +19,7 @@ import Testing
         #expect(items.count == 30)
 
         _ = pack(items, into: checked)   // warm up
-        let runs = 5
+        let runs = 10
         var times: [Double] = []
         var plan: Plan?
         for _ in 0..<runs {

@@ -148,6 +148,12 @@ enum Copy {
         static let checkingRules = "Checking TSA, airline and destination rules…"
         static let decideBans = "Some items aren’t allowed in this bag. Remove them or keep them anyway to pack."
         static let keepAnyway = "Keep anyway"
+        static let wheelsPrompt = "Which end of the bag has the wheels? Heavy things go there."
+        static let wheelsLeft = "Left end"
+        static let wheelsRight = "Right end"
+        static let wheelsNone = "No wheels"
+        static let wheelsLeftMark = "Left"
+        static let wheelsRightMark = "Right"
     }
 
     enum Viewer {

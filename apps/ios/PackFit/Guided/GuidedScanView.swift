@@ -105,6 +105,7 @@ struct GuidedScanView: View {
             case .top: return Copy.Guided.tapItemTop
             case .adjust: return Copy.Guided.tapItemAdjust
             }
+        case .wheels: return Copy.Guided.wheelsPrompt
         case .identifying: return Copy.Guided.identifying
         case .review: return Copy.Guided.review
         case .packing: return Copy.Guided.packing
@@ -138,6 +139,19 @@ struct GuidedScanView: View {
                     .frame(maxWidth: .infinity)
             case .bag:
                 bagPanel
+            case .wheels:
+                HStack {
+                    Button(Copy.Guided.wheelsLeft) { session.setWheelEnd(.left) }
+                        .buttonStyle(.borderedProminent)
+                        .tint(Tokens.Color.brand)
+                    Spacer()
+                    Button(Copy.Guided.wheelsNone) { session.setWheelEnd(.none) }
+                        .font(Tokens.TypeScale.caption)
+                    Spacer()
+                    Button(Copy.Guided.wheelsRight) { session.setWheelEnd(.right) }
+                        .buttonStyle(.borderedProminent)
+                        .tint(Tokens.Color.brand)
+                }
             case .items:
                 itemsPanel
             case .identifying:

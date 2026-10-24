@@ -13,6 +13,8 @@ final class GuidedSession {
     enum Phase: Equatable {
         case findFloor
         case bag
+        /// The bag is measured; which short end has the wheels?
+        case wheels
         case items
         case identifying
         case review
@@ -321,7 +323,7 @@ final class GuidedSession {
         let camera = frame.camera.transform.columns.3
         bagTransform = fit.transform(cameraXZ: [camera.x, camera.z])
         showLockedCavity(fit)
-        enterItems()
+        askWheelEnd()
     }
 
     var hullBagReady: Bool { liveBag?.stable ?? false }
@@ -369,7 +371,7 @@ final class GuidedSession {
             lidFraction: bagKind.lidFraction
         )
         showLockedCavity(fit)
-        enterItems()
+        askWheelEnd()
     }
 
     private func showLockedCavity(_ fit: CavityFit) {
@@ -427,7 +429,7 @@ final class GuidedSession {
         isCornerMode = false
         cornerTaps = []
         showLockedCavity(fit)
-        enterItems()
+        askWheelEnd()
     }
 
     // MARK: Taps
@@ -647,6 +649,54 @@ final class GuidedSession {
     }
 
     private func round1(_ v: Float) -> Double { (Double(v) * 10).rounded() / 10 }
+
+    // MARK: Wheels
+
+    enum WheelEnd: Equatable { case left, right, none }
+
+    private var wheelMarkers: [WireBox] = []
+
+    /// Marks both short ends of the measured bag so the user can say which has the wheels.
+    private func askWheelEnd() {
+        phase = .wheels
+        errorText = nil
+        guard let fit = lockedCavity, let t = bagTransform else { return }
+        let long = fit.box.rect.long, short = fit.box.rect.short
+        // The frame's x runs from the user's left to right, so x = 0 is the left end.
+        for (x, name) in [(Float(0.04), Copy.Guided.wheelsLeftMark), (long - 0.04, Copy.Guided.wheelsRightMark)] {
+            let marker = WireBox(name: "wheels-\(name)")
+            var m = t
+            m.columns.3 = t * SIMD4(x, 0.03, short / 2, 1)
+            marker.update(size: [0.06, 0.06, short * 0.8], transform: m, color: .systemOrange)
+            marker.setLabel(name)
+            worldRoot.addChild(marker.entity)
+            wheelMarkers.append(marker)
+        }
+    }
+
+    /// Turns the bag's frame so the wheel end is x = 0 (`wheelsSide: .bottom`, wheels at the
+    /// bottom when the bag stands up), so the packer puts heavy things there.
+    func setWheelEnd(_ end: WheelEnd) {
+        wheelMarkers.forEach { $0.entity.removeFromParent() }
+        wheelMarkers = []
+        guard var bag = container else { return enterItems() }
+        switch end {
+        case .left:
+            bag.wheelsSide = .bottom
+        case .right:
+            bag.wheelsSide = .bottom
+            if let fit = lockedCavity, let frame = session.currentFrame {
+                // Viewing from the other side flips both x and z: a half turn, same bag.
+                let camera = frame.camera.transform.columns.3
+                let c = fit.box.rect.center
+                bagTransform = fit.transform(cameraXZ: 2 * c - SIMD2(camera.x, camera.z))
+            }
+        case .none:
+            bag.wheelsSide = .back
+        }
+        container = bag
+        enterItems()
+    }
 
     // MARK: Items
 
@@ -947,6 +997,8 @@ final class GuidedSession {
         isTapMeasuring = false
         showCornerFallback = false
         isCornerMode = false
+        wheelMarkers.forEach { $0.entity.removeFromParent() }
+        wheelMarkers = []
         liveBag = nil
         hullActive = false
         hullHint = nil

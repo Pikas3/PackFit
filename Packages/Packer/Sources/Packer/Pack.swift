@@ -3,7 +3,8 @@ import PackFitSchemas
 
 public enum HeavyBias: Sendable, Equatable {
     /// Suitcases: top-quartile-by-weight items are packed first so they land low and,
-    /// with `wheelsSide == .back`, near the back (low z).
+    /// with `wheelsSide == .back`, near the back (low z). With `.bottom` (a scanned bag
+    /// whose frame puts the wheel end at x = 0) they also prefer low x.
     case wheels
     case none
 }
@@ -169,10 +170,15 @@ func packCompartment(
         regular = regular.filter { !$0.fragile } + regular.filter(\.fragile)
     }
 
+    // Heavy items lean toward the wheel end when the frame says where it is.
+    let wheelEnd = strategy.heavyFirst && options.heavyBias == .wheels && container.type == .suitcase
+        && container.wheelsSide == .bottom
+    let heavy = wheelEnd ? topQuartileByWeight(regular) : []
     var placed: [Placement] = []
     for item in regular + security {
         if var p = placeOne(item, placed: placed, compartment: compartment, container: container,
-                            items: byId, options: options, flatFirst: strategy.flatFirst) {
+                            items: byId, options: options, flatFirst: strategy.flatFirst,
+                            towardWheelEnd: heavy.contains(item.id)) {
             p.order = placed.count
             placed.append(p)
         }
@@ -193,7 +199,7 @@ func topQuartileByWeight(_ items: [Item]) -> Set<String> {
 /// - otherwise: across all orientations, the lowest top (y + h) wins; flat-first breaks ties.
 func placeOne(
     _ item: Item, placed: [Placement], compartment: Compartment, container: Container,
-    items: [String: Item], options: PackOptions, flatFirst: Bool
+    items: [String: Item], options: PackOptions, flatFirst: Bool, towardWheelEnd: Bool = false
 ) -> Placement? {
     // The uncertainty gap is a preference: an item that fits nowhere with it tries without.
     var tight = options
@@ -203,7 +209,7 @@ func placeOne(
         : [orientations(for: item, options: options)]
     for set in sets {
         if let p = placeOne(item, orientations: set, placed: placed, compartment: compartment, container: container,
-                            items: items, options: options, flatFirst: flatFirst) {
+                            items: items, options: options, flatFirst: flatFirst, xFirst: towardWheelEnd) {
             return p
         }
     }
@@ -212,14 +218,14 @@ func placeOne(
 
 private func placeOne(
     _ item: Item, orientations: [Orientation], placed: [Placement], compartment: Compartment, container: Container,
-    items: [String: Item], options: PackOptions, flatFirst: Bool
+    items: [String: Item], options: PackOptions, flatFirst: Bool, xFirst: Bool
 ) -> Placement? {
     let size = compartment.size
     let name = compartment.name == mainCompartment ? nil : compartment.name
     var best: Placement?
     for o in orientations {
         guard o.w <= size.w + eps, o.h <= size.h + eps, o.d <= size.d + eps else { continue }
-        for point in candidatePoints(w: o.w, h: o.h, d: o.d, placed: placed, size: size) {
+        for point in candidatePoints(w: o.w, h: o.h, d: o.d, placed: placed, size: size, xFirst: xFirst) {
             if !flatFirst, let b = best, point.y + o.h >= b.y + b.h - eps { break }
             let candidate = Placement(itemId: item.id, x: point.x, y: point.y, z: point.z,
                                       w: o.w, h: o.h, d: o.d, order: placed.count, compartment: name)

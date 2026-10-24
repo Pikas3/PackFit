@@ -13,9 +13,10 @@ struct Point: Equatable {
 /// Extreme points in the floor plane: x from the left wall, the right wall, and both sides of
 /// every placed item (snug against its right edge or its left edge); z likewise. Each (x, z) is dropped under gravity onto the highest
 /// surface its footprint overlaps, so candidates never intersect anything below and are
-/// never under anything. Sorted by (y, z, x): lowest, then back-most, then left-most.
+/// never under anything. Sorted by (y, z, x): lowest, then back-most, then left-most; with
+/// `xFirst`, left-most (the wheel end) before back-most.
 func candidatePoints(
-    w: Double, h: Double, d: Double, placed: [Placement], size: Size
+    w: Double, h: Double, d: Double, placed: [Placement], size: Size, xFirst: Bool = false
 ) -> [Point] {
     let xs = edges(placed, alongX: true, size: w, limit: size.w - w)
     let zs = edges(placed, alongX: false, size: d, limit: size.d - d)
@@ -43,6 +44,7 @@ func candidatePoints(
     // orientation, and tuple comparison is slow outside optimised builds.
     points.sort { a, b in
         if a.y != b.y { return a.y < b.y }
+        if xFirst, a.x != b.x { return a.x < b.x }
         if a.z != b.z { return a.z < b.z }
         return a.x < b.x
     }

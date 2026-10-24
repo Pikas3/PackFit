@@ -100,7 +100,9 @@ Rules the solver must enforce (the existing prototype covers the first five):
 6. **New:** 6-orientation toggle. `upright == true` items only try orientations that keep
    their original `h` vertical.
 7. **New:** heavy near wheels. For `.suitcase`, bias items with `kg` in the top quartile
-   toward low `y` and, when `wheelsSide == .back`, low `z`.
+   toward low `y` and, when `wheelsSide == .back`, low `z`. `.bottom` means the bag's frame
+   puts the wheel end at x = 0 (the guided scan asks which end and orients the frame), so
+   heavy items also prefer low `x`.
 8. **New:** `neededAtSecurity == true` items are placed last and must be on the top layer or
    touching the opening (max `y`; see rule 12).
 9. **New:** compartments. For backpacks, `laptop` accepts only `category == .electronics`
