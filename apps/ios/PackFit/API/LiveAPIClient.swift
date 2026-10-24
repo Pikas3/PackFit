@@ -67,6 +67,18 @@ struct LiveAPIClient: APIClient, Sendable {
         return try await post(path: "/trip/suggest", body: Body(trip: trip))
     }
 
+    func lookupFlight(airline: String, flightNumber: String, departDate: String?) async throws -> FlightLookupResponse {
+        struct Body: Encodable {
+            var airline: String
+            var flightNumber: String
+            var departDate: String?
+        }
+        return try await post(
+            path: "/trip/lookup",
+            body: Body(airline: airline, flightNumber: flightNumber, departDate: departDate)
+        )
+    }
+
     private func post<B: Encodable, R: Decodable>(path: String, body: B) async throws -> R {
         var request = URLRequest(url: config.apiBaseURL.appending(path: path))
         request.httpMethod = "POST"

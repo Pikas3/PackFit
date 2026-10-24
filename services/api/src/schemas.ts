@@ -186,6 +186,36 @@ export const RulesAskResponseSchema = z.object({
   meta: MetaSchema,
 });
 
+export const TripLookupRequestSchema = z.object({
+  airline: z.string().min(1),
+  flightNumber: z.string().min(1),
+  departDate: z.string().optional(),
+});
+
+export const TripLookupResponseSchema = z.object({
+  airline: z.string(),
+  flightNumber: z.string(),
+  flightLabel: z.string(),
+  from: z.string(),
+  to: z.string(),
+  fromName: z.string(),
+  toName: z.string(),
+  fromCountry: z.string().nullable(),
+  toCountry: z.string().nullable(),
+  departDate: z.string().nullable(),
+  international: z.boolean(),
+  source: z.enum(["live", "fixture"]),
+  routeNotices: z.array(
+    z.object({
+      text: z.string(),
+      sourceUrl: z.string(),
+      lastVerified: z.string(),
+      scope: z.enum(["tsa", "country"]),
+    }),
+  ),
+  meta: MetaSchema,
+});
+
 export const TripSuggestRequestSchema = z.object({
   trip: TripSchema,
 });

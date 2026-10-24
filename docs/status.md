@@ -316,3 +316,12 @@ Run:
 Measured: API unit tests green on Windows host
 Blocked on: device build; live Anthropic/Apify keys for non-mock demo
 Schema changes: none to `schemas/*.schema.json`; additive API DTOs only
+
+## 2026-10-24 trip lookup by flight number
+Built:
+- Replaced sample-trip list with airline + flight number lookup (POST /trip/lookup)
+- Weather / suggestions / before-you-go load only after the user confirms the found flight
+- Route notices: TSA when US involved; destination-country customs when international
+- Demo fixtures offline; optional `AVIATIONSTACK_API_KEY` for live lookup
+Run: enter UA / 88 ? Use this flight ? weather for DEL + rules appear
+Cut: browsing a dropdown of all sample trips as the primary path

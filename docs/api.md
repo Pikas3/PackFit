@@ -24,6 +24,23 @@ mirror `schemas/*.schema.json`.
 
 `200 { ok: true, version: string, rulesLastSynced: string | null }`
 
+## POST /trip/lookup
+
+Resolve a commercial flight from airline IATA + flight number. Used by trip setup instead of
+picking a sample trip from a list.
+
+Request:
+```json
+{ "airline": "UA", "flightNumber": "88", "departDate": "2026-11-01" }
+```
+
+Response includes `from` / `to` airports, country codes, `international`, and `routeNotices`
+(TSA and destination-country tips with `sourceUrl`). Live data uses AviationStack when
+`AVIATIONSTACK_API_KEY` is set; otherwise demo fixture flights (UA 88, BA 178, AS 204, …).
+
+Weather is **not** included here — call `POST /trip/suggest` only after the user confirms the flight
+so the forecast is for the selected destination.
+
 ## POST /scan/item  (WS3 server, Section 3)
 
 Claude vision acts as an object-detection model on the photo and returns an `Item`.

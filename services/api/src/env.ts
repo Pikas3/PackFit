@@ -36,6 +36,8 @@ export const env = {
   anthropicModel: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5-20250929",
   anthropicModelFast: process.env.ANTHROPIC_MODEL_FAST ?? "claude-haiku-4-5-20251001",
   apifyToken: process.env.APIFY_TOKEN ?? "",
+  /** Optional. When empty, /trip/lookup uses demo fixture flights only. */
+  aviationStackKey: process.env.AVIATIONSTACK_API_KEY ?? "",
   mockClaude: flag("MOCK_CLAUDE", !process.env.ANTHROPIC_API_KEY),
   version: "0.1.0",
 };

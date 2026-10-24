@@ -66,6 +66,54 @@ extension RuleSeverity: CaseIterable {
 }
 
 extension AppFixtures {
+    /// Offline `/trip/lookup` for airline + flight number.
+    static func flightLookupFallback(airline: String, flightNumber: String, departDate: String?) -> FlightLookupResponse {
+        let a = airline.uppercased().filter(\.isLetter)
+        let n = flightNumber.filter(\.isNumber)
+        let key = "\(String(a.prefix(2)))\(n)"
+        let table: [String: (String, String, String, String)] = [
+            "UA88": ("SFO", "DEL", "San Francisco", "Delhi"),
+            "AI173": ("SFO", "DEL", "San Francisco", "Delhi"),
+            "AS204": ("SEA", "KEF", "Seattle", "Reykjavik"),
+            "DL188": ("LAX", "ICN", "Los Angeles", "Seoul Incheon"),
+            "BA178": ("JFK", "LHR", "New York JFK", "London Heathrow"),
+            "AA100": ("SFO", "LAX", "San Francisco", "Los Angeles"),
+            "UA900": ("SFO", "NRT", "San Francisco", "Tokyo Narita"),
+        ]
+        let hit = table[key] ?? ("SFO", "DEL", "San Francisco", "Delhi")
+        let fromCountry = AirportCatalog.country(for: hit.0)
+        let toCountry = AirportCatalog.country(for: hit.1)
+        var notices: [RouteNotice] = []
+        if fromCountry == "US" || toCountry == "US" {
+            notices.append(RouteNotice(
+                text: "TSA liquid and battery rules apply for US security screening.",
+                sourceUrl: "https://www.tsa.gov/travel/security-screening/whatcanibring",
+                lastVerified: "2026-09-20",
+                scope: "tsa"
+            ))
+        }
+        if let toCountry, fromCountry != toCountry {
+            notices.append(contentsOf: countryTips(for: toCountry).map {
+                RouteNotice(text: $0.text, sourceUrl: $0.sourceUrl, lastVerified: $0.lastVerified, scope: "country")
+            })
+        }
+        return FlightLookupResponse(
+            airline: String(a.prefix(2)),
+            flightNumber: n.isEmpty ? "88" : n,
+            flightLabel: key.isEmpty ? "UA88" : key,
+            from: hit.0,
+            to: hit.1,
+            fromName: hit.2,
+            toName: hit.3,
+            fromCountry: fromCountry,
+            toCountry: toCountry,
+            departDate: departDate ?? "2026-11-01",
+            international: fromCountry != toCountry,
+            source: "fixture",
+            routeNotices: notices
+        )
+    }
+
     /// Offline `/trip/suggest` payload so trip setup and suggestions work without the network.
     static func tripSuggestFallback(for trip: Trip) -> TripSuggestResponse {
         let country = AirportCatalog.country(for: trip.to) ?? "US"

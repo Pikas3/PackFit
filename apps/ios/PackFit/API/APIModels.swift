@@ -144,3 +144,27 @@ struct TripSuggestResponse: Codable, Sendable {
     var beforeYouGo: BeforeYouGoPanel?
     var destinationCountry: String?
 }
+
+struct RouteNotice: Codable, Sendable, Equatable, Identifiable {
+    var id: String { "\(scope)-\(text)" }
+    var text: String
+    var sourceUrl: String
+    var lastVerified: String
+    var scope: String
+}
+
+struct FlightLookupResponse: Codable, Sendable, Equatable {
+    var airline: String
+    var flightNumber: String
+    var flightLabel: String
+    var from: String
+    var to: String
+    var fromName: String
+    var toName: String
+    var fromCountry: String?
+    var toCountry: String?
+    var departDate: String?
+    var international: Bool
+    var source: String
+    var routeNotices: [RouteNotice]
+}

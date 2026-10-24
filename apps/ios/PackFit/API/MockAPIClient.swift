@@ -73,4 +73,9 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
         try await Task.sleep(for: .milliseconds(400))
         return AppFixtures.tripSuggestFallback(for: trip)
     }
+
+    func lookupFlight(airline: String, flightNumber: String, departDate: String?) async throws -> FlightLookupResponse {
+        try await Task.sleep(for: .milliseconds(300))
+        return AppFixtures.flightLookupFallback(airline: airline, flightNumber: flightNumber, departDate: departDate)
+    }
 }

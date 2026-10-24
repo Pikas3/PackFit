@@ -11,6 +11,8 @@ protocol APIClient: Sendable {
     func checkRules(items: [Item], trip: Trip, bag: String) async throws -> RulesCheckResponse
 
     func suggestTrip(_ trip: Trip) async throws -> TripSuggestResponse
+
+    func lookupFlight(airline: String, flightNumber: String, departDate: String?) async throws -> FlightLookupResponse
 }
 
 struct MeasuredDims: Codable, Sendable, Equatable {

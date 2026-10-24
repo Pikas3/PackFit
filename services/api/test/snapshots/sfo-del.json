@@ -2,45 +2,63 @@
   "suggestions": [
     {
       "name": "T-shirt stack (1)",
-      "category": "clothing"
+      "category": "clothing",
+      "reason": "Everyday tops for 21 nights",
+      "essential": true
     },
     {
       "name": "T-shirt stack (2)",
-      "category": "clothing"
+      "category": "clothing",
+      "reason": "Everyday tops for 21 nights",
+      "essential": true
     },
     {
       "name": "T-shirt stack (3)",
-      "category": "clothing"
+      "category": "clothing",
+      "reason": "Everyday tops for 21 nights",
+      "essential": true
     },
     {
       "name": "T-shirt stack (4)",
-      "category": "clothing"
+      "category": "clothing",
+      "reason": "Everyday tops for 21 nights",
+      "essential": true
     },
     {
       "name": "T-shirt stack (5)",
-      "category": "clothing"
+      "category": "clothing",
+      "reason": "Everyday tops for 21 nights",
+      "essential": true
     },
     {
       "name": "Jeans",
-      "category": "clothing"
+      "category": "clothing",
+      "reason": "One durable pair for the trip",
+      "essential": false
     },
     {
       "name": "Toiletry pouch",
-      "category": "toiletries"
+      "category": "toiletries",
+      "reason": "Basics for the trip length",
+      "essential": true
     },
     {
       "name": "Phone charger cable",
-      "category": "electronics"
+      "category": "electronics",
+      "reason": "Keep devices charged",
+      "essential": true
     },
     {
       "name": "Passport wallet",
-      "category": "documents"
+      "category": "documents",
+      "reason": "International documents",
+      "essential": true
     }
   ],
   "warnings": [
     {
       "kind": "weather_unavailable",
-      "message": "Open-Meteo unavailable"
+      "message": "Open-Meteo unavailable; offline defaults applied."
     },
     {
       "kind": "souvenir_space",
@@ -48,10 +66,39 @@
     }
   ],
   "weather": {
-    "summary": "Live weather fetch failed; using mild defaults.",
+    "summary": "Live weather is unavailable — using a mild default. Pack layers to be safe.",
     "lowC": 12,
     "highC": 22,
     "precipChance": 0.25,
     "sourceUrl": "https://open-meteo.com/"
-  }
+  },
+  "beforeYouGo": {
+    "pack": [
+      {
+        "text": "Pack a power adapter suitable for IN and check charger voltage.",
+        "sourceUrl": "https://www.iatatravelcentre.com/",
+        "lastVerified": "2026-09-20"
+      },
+      {
+        "text": "Keep passport and visas in your cabin bag.",
+        "sourceUrl": "https://travel.state.gov/",
+        "lastVerified": "2026-09-20"
+      }
+    ],
+    "leaveOrDeclare": [
+      {
+        "text": "India restricts many animal-origin foods and some packaged foods. Declare food items and check the Indian Customs list before travel.",
+        "sourceUrl": "https://www.cbic.gov.in/resources//htdocs-cbec/customs/cs-act/formatted-htmls/cs-rules-idx.html",
+        "lastVerified": "2026-09-10"
+      }
+    ],
+    "medicationFood": [
+      {
+        "text": "Keep prescription medication in original packaging with a copy of the prescription.",
+        "sourceUrl": "https://www.tsa.gov/travel/security-screening/whatcanibring/items/medications",
+        "lastVerified": "2026-09-18"
+      }
+    ]
+  },
+  "destinationCountry": "IN"
 }
