@@ -245,4 +245,49 @@ Run:
 - Unit tests unchanged (synthetic depth math)
 Measured: not yet on device (Windows host)
 Blocked on: Pro device for MAE; hold still while measuring (no translation tracking)
+
+## 2026-10-24 section-3 backend API + Apify scaffold
+Built:
+- `services/api` Hono app on port 8787: `GET /health`, `POST /scan/item`, `POST /rules/check`,
+  `POST /rules/ask`, `POST /trip/suggest`; voice routes stubbed 501 for Section 4
+- `src/schemas.ts` zod mirror of `schemas/*.schema.json`; `test/schemas.test.ts` is the TS half of
+  `pnpm schemas:check`
+- Claude wrapper `src/claude/client.ts` (20s timeout, one repair retry, token/latency logs, no
+  prompt/image logging). `MOCK_CLAUDE=1` (default when no `ANTHROPIC_API_KEY`) uses deterministic stubs
+- Hand-written demo rules in `data/rules/{tsa,airline,country}.json` (18 records) with real sourceUrls
+- Catalog + airports (`data/catalog.json`, `data/airports.json`); Open-Meteo weather for suggestions
+- Apify actors under `services/apify/`: `tsa-what-can-i-bring` (publishable README + INPUT_SCHEMA),
+  `airline-baggage`, `country-customs`, plus `shared/normalize.ts` / api `sync:rules`
+Cut:
+- Live 25-photo scan accuracy run (no fixture photos in repo yet)
+- Public Apify publish URL (actor code ready; needs `apify push` with token)
+- Full 300-airport list (≈80 major + demo destinations)
+Run:
+- `pnpm install`
+- Copy `services/api/.env.example` → `services/api/.env` (set `APP_TOKEN`, optional keys)
+- `pnpm --filter api dev` → http://localhost:8787
+- `pnpm --filter api test` (12 passing with mock Claude)
+- Header on every non-health route: `x-packfit-token: <APP_TOKEN>`
+Measured:
+- Mock-mode route tests green; trip/suggest ~0.6s/trip including Open-Meteo when reachable
+- Scan identification hit rate / dim MAE: not measured (needs photos + live key)
+Where Claude can be wrong:
+- Scan: mis-IDs similar gadgets, may mark measured dims implausible incorrectly, weight estimates drift;
+  catalog fallbacks hide bad kg/dims but can disagree with the photo.
+- Rules: may drop a real candidate or over-flag when keywords are broad; server always overwrites
+  sourceUrl/lastVerified from records so invented URLs cannot ship.
+Blocked on: fixture photos for scan eval; Apify tokens to publish/schedule actors\nSchema changes: none
+
+## 2026-10-24 section-3 objectdetection (vision ID, dims for packing)
+Built:
+- Merged `origin/backend` onto `objectdetection` (from lidarpure)
+- `/scan/item` measured path is object-detection prompting: Claude identifies name/category
+  from the image only; measured `w/h/d` are withheld from the prompt and copied onto the
+  Item server-side for the packer (`scanItem.ts`, `services/scan.ts`)
+- Dropped `dimsPlausible` / `dims_implausible_for_item` (dims no longer shown to the model)
+- Docs: `docs/api.md`, `services/api/CLAUDE.md`; unit test asserts no numeric dims in prompt
+Cut: using measured size as an identification cue
+Run: `pnpm --filter api test`
+Measured: mock prompt test only (Windows host)
+Blocked on: live photo eval with `ANTHROPIC_API_KEY`
 Schema changes: none

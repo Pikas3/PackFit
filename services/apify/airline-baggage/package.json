@@ -1,0 +1,10 @@
+{
+  "name": "airline-baggage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "apify": "^3.4.0",
+    "crawlee": "^3.13.0"
+  }
+}

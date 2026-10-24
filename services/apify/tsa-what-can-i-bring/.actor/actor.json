@@ -1,0 +1,32 @@
+{
+  "actorSpecification": 1,
+  "name": "tsa-what-can-i-bring",
+  "title": "TSA What Can I Bring scraper",
+  "description": "Crawls TSA What Can I Bring item pages into a structured dataset of carry-on and checked baggage verdicts with source URLs.",
+  "version": "0.1",
+  "meta": {
+    "templateId": "cheerio-ts"
+  },
+  "input": "./INPUT_SCHEMA.json",
+  "storages": {
+    "dataset": {
+      "actorSpecification": 1,
+      "title": "TSA items",
+      "views": {
+        "overview": {
+          "title": "Overview",
+          "transformation": { "fields": ["name", "carryOn", "checked", "url"] },
+          "display": {
+            "component": "table",
+            "properties": {
+              "name": { "label": "Item" },
+              "carryOn": { "label": "Carry-on" },
+              "checked": { "label": "Checked" },
+              "url": { "label": "Source", "format": "link" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
