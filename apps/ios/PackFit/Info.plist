@@ -28,6 +28,13 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>PackFit talks to the PackFit server on your local network during development.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>PackFit uses the camera and LiDAR to measure items and bags so packing dimensions stay accurate.</string>
 	<key>UIApplicationSceneManifest</key>

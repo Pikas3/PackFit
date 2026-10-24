@@ -10,4 +10,6 @@ enum Route: Hashable {
     case arOverlay
     /// LiDAR flow: scan the open bag, sweep the items, plan inside the real bag.
     case guidedScan
+    /// One photo of the pile; Claude names every object in it.
+    case inventoryScan
 }

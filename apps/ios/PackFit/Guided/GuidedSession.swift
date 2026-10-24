@@ -83,7 +83,7 @@ final class GuidedSession {
     private var removedIDs: Set<Int> = []
     private var labeledIDs: Set<Int> = []
     private var numbers: [Int: Int] = [:]
-    private var crops: [Int: (area: CGFloat, image: CGImage)] = []
+    private var crops: [Int: (area: CGFloat, image: CGImage)] = [:]
     private let ciContext = CIContext(options: [.useSoftwareRenderer: false])
     private var tapTracked: [TrackedItem] = []
     private var lastItemStates: [ScanWorker.ItemState] = []

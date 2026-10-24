@@ -73,6 +73,45 @@ Behaviour:
 - Model output is parsed with the zod schema. One repair retry on failure; then
   `422 model_output_invalid`.
 
+## POST /scan/inventory  (WS3 server, Section 3)
+
+One photo of everything the user has laid out. Claude vision lists every distinct packable
+object in frame, one entry per instance, and the app shows them as an inventory to tick.
+Works on any iPhone; nothing is measured, so every dimension is an estimate.
+
+Request:
+```json
+{ "imageBase64": "<jpeg, max 3 MB, long edge 1024 px>", "hint": "optional user text" }
+```
+
+Response:
+```json
+{
+  "detections": [
+    {
+      "item": Item,
+      "box": { "x": 0.1, "y": 0.2, "w": 0.3, "h": 0.25 } | null,
+      "alternatives": [{ "name": string, "category": Category }]
+    }
+  ],
+  "warnings": string[],
+  "meta": { ... }
+}
+```
+
+Behaviour:
+- At most 25 detections. The suitcase, furniture, floor, hands and people are ignored.
+- `box` is normalized to the upright photo, origin top-left. It is approximate and only
+  used to highlight and crop thumbnails on the phone, never for measuring. Out-of-range
+  boxes are clamped; degenerate ones become `null`.
+- Each `item` gets a fresh uuid, `source = 'scan'`, `measurement.method = 'estimate'`,
+  `measurement.confidence` capped at 0.5 (no scale reference). `item.confidence` is the
+  identification confidence.
+- kg and dims are clamped and replaced from the catalog exactly as in `/scan/item`.
+- Warnings: always `"no_scale_reference"`; `"nothing_detected"` for an empty list;
+  `"dims_from_catalog"` / `"kg_from_catalog"` when any item needed a fallback;
+  `"sample_data"` when the server answered with stub items (no API key or `MOCK_CLAUDE=1`).
+
 ## POST /rules/check  (WS5, Section 3)
 
 Map items to rule flags for a trip.

@@ -6,6 +6,7 @@ import {
   measuredPromptUserText,
   scanToolHasSchema,
 } from "../src/claude/prompts/scanItem.js";
+import { buildScanInventoryPrompt } from "../src/claude/prompts/scanInventory.js";
 import { buildSuggestItemsPrompt } from "../src/claude/prompts/suggestItems.js";
 import type { Item, Trip } from "../src/schemas.js";
 
@@ -71,6 +72,15 @@ describe("prompts include tool schemas", () => {
     expect(schema.properties?.h).toBeUndefined();
     expect(schema.properties?.d).toBeUndefined();
     expect(schema.properties?.dimsPlausible).toBeUndefined();
+  });
+
+  it("scan inventory asks for a list of objects with boxes", () => {
+    const p = buildScanInventoryPrompt({ hint: "weekend trip" });
+    expect(scanToolHasSchema(p)).toBe(true);
+    const schema = JSON.stringify(p.tools[0].input_schema);
+    expect(schema).toContain("objects");
+    expect(schema).toContain("box");
+    expect(p.toolName).toBe("report_inventory");
   });
 
   it("map / ask / suggest", () => {

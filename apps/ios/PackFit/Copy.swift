@@ -49,6 +49,29 @@ enum Copy {
         static let delete = "Delete"
     }
 
+    enum Inventory {
+        static let title = "Photo inventory"
+        static let entry = "Snap the pile"
+        static let hint = "Spread your things out and fit them all in the frame."
+        static let capture = "Take photo"
+        static let identifying = "Finding everything in the photo… usually 5–15 seconds."
+        static let privacy = "The photo goes to our server and Claude, and is not stored."
+        static let simulator = "No camera in the simulator. Tap Take photo to use sample items."
+        static let cameraUnavailable = "Camera unavailable. Check camera access in Settings."
+        static let failed = "We couldn't identify anything just now. Try again, or add items by hand."
+        static let nothingFound = "Nothing to pack found in that photo. Move closer and try again."
+        static let sampleData = "Sample data: these items are not from your photo. Claude is not connected (mock mode or no API key on the server)."
+        static let tryAgain = "Try again"
+        static let scanMore = "Scan more"
+        static let estimateNote = "Sizes are guesses from the photo. Tap an item to fix it."
+        static let duplicate = "Seen in an earlier photo"
+        static let included = "Will be added"
+        static let excluded = "Won't be added"
+        static func found(_ n: Int) -> String { n == 1 ? "1 thing found" : "\(n) things found" }
+        static func review(_ n: Int) -> String { "Review \(n) found" }
+        static func add(_ n: Int) -> String { n == 1 ? "Add 1 item" : "Add \(n) items" }
+    }
+
     enum Scan {
         static let title = "Scan"
         static let lidarMeasuring = "LiDAR measuring"
@@ -70,6 +93,7 @@ enum Copy {
         static let measuredManual = "Entered manually"
         static let measuredReference = "Scaled from credit card"
         static let measuredARTaps = "Measured with AR taps"
+        static let estimatedFromPhoto = "Estimated from photo"
     }
 
     enum Guided {

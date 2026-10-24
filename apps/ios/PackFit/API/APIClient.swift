@@ -8,6 +8,9 @@ protocol APIClient: Sendable {
         hint: String?
     ) async throws -> ScanItemResponse
 
+    /// Every packable object in one photo. Dims are model estimates.
+    func scanInventory(imageBase64: String, hint: String?) async throws -> ScanInventoryResponse
+
     func checkRules(items: [Item], trip: Trip, bag: String) async throws -> RulesCheckResponse
 }
 

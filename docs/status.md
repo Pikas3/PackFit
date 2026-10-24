@@ -145,3 +145,29 @@ Where Claude can be wrong:
   sourceUrl/lastVerified from records so invented URLs cannot ship.
 Blocked on: fixture photos for scan eval; Apify tokens to publish/schedule actors
 Schema changes: none
+
+## 2026-10-24 — Section 2 + 3: photo inventory (Claude object detection)
+Built:
+- `POST /scan/inventory` (services/api): one photo in, every distinct packable object out, each as an
+  `Item` (`source: scan`, `measurement.method: estimate`, confidence capped 0.5) plus a rough
+  normalized box. Prompt `src/claude/prompts/scanInventory.ts`, forced tool `report_inventory`,
+  max 25 objects, 8192 max tokens. Catalog fallbacks for kg/dims as in `/scan/item`. Mock returns 4 items.
+- iOS "Photo inventory" screen (`PackFit/Scan/Inventory/`): plain back camera (any iPhone, no LiDAR),
+  take photo → frozen photo with numbered boxes → list with thumbnails cropped from the boxes,
+  confidence badges, tick/untick, tap to edit (ItemDetailView), delete. "Scan more" takes another
+  photo; names already seen in an earlier photo start unticked ("Seen in an earlier photo").
+  "Add N items" appends to `ItemsStore` and returns to the item list.
+- Entry: Items toolbar "Scan item" is now a menu (single-item scan / "Snap the pile"), plus a
+  "Snap the pile" button on the empty item list. `Route.inventoryScan`.
+- Badge for `estimate` now reads "Estimated from photo" (was "Scaled from credit card").
+Cut:
+- LiDAR refinement of inventory items (dims stay estimates; re-measure with the single-item scan).
+- Live-key accuracy run: not measured. Claude's boxes are approximate; they are only used for UI.
+Run:
+- Backend: `pnpm --filter api test` (15 passing, mock Claude). iOS: `PackFitTests` 45 passing incl.
+  `InventoryMergeTests`; device build clean. Simulator smoke test with MockAPIClient: trip → bag →
+  Snap the pile → Take photo → 4 items → Add → item list.
+Where Claude can be wrong: misses small or overlapping objects, counts a folded stack as one item,
+names one object twice across photos (dedupe is by name only), and estimated sizes have no scale
+reference, so packing from them is rough until the user edits or re-measures.
+Blocked on: on-device test with a live key.

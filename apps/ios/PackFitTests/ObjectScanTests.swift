@@ -100,7 +100,8 @@ struct SnapshotGeometryTests {
         pose.columns.3 = [0.3, 1.2, -0.5, 1]
         return DepthSnapshot(
             width: width, height: height, depth: depth, confidence: Array(repeating: 2, count: width * height),
-            fx: 200, fy: 200, cx: Float(width) / 2, cy: Float(height) / 2, cameraToWorld: pose, timestamp: 0
+            fx: 200, fy: 200, cx: Float(width) / 2, cy: Float(height) / 2, cameraToWorld: pose, timestamp: 0,
+            videoWidth: width, videoHeight: height
         )
     }
 

@@ -70,6 +70,10 @@
 		F755594F4E512B33FF66F3FF /* App/RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C14EB720F640176AE2C558 /* App/RootView.swift */; };
 		F7A65844B020944520D0A897 /* App/DeviceCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF695D66250FBEAA42EFE360 /* App/DeviceCapabilities.swift */; };
 		FA1B9A13D587789F07FD1529 /* App/SchemaExports.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F89F00E16174E2212EBC12 /* App/SchemaExports.swift */; };
+	1EC31477D0E6CD4C525DD45A /* InventoryCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D007669112ED24127A28E0 /* InventoryCamera.swift */; };
+	EDA8FF2A60C863ABCA0B1D33 /* InventoryScanModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C45C4FD955E92A3D92D042 /* InventoryScanModel.swift */; };
+	A0CB6FDCE60CC2A112FB25B7 /* InventoryScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F31E776A0A393EA1F4A14B /* InventoryScanView.swift */; };
+	2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0813ABE8B81360786939232A /* InventoryMergeTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -148,6 +152,10 @@
 		F66C29C9109E89FCD4392361 /* Guided/GuidedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guided/GuidedSession.swift; sourceTree = "<group>"; };
 		F71B9DAE26775B429CF08342 /* PackFitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PackFitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC42A8E2E5AB9B31725AD363 /* API/LiveAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API/LiveAPIClient.swift; sourceTree = "<group>"; };
+	C8D007669112ED24127A28E0 /* InventoryCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryCamera.swift"; sourceTree = "<group>"; };
+	58C45C4FD955E92A3D92D042 /* InventoryScanModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryScanModel.swift"; sourceTree = "<group>"; };
+	B8F31E776A0A393EA1F4A14B /* InventoryScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryScanView.swift"; sourceTree = "<group>"; };
+	0813ABE8B81360786939232A /* InventoryMergeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InventoryMergeTests.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +174,9 @@
 		1098403B55AF3C1CDA92BD33 /* PackFit */ = {
 			isa = PBXGroup;
 			children = (
+			B8F31E776A0A393EA1F4A14B /* InventoryScanView.swift */,
+			58C45C4FD955E92A3D92D042 /* InventoryScanModel.swift */,
+			C8D007669112ED24127A28E0 /* InventoryCamera.swift */,
 				0913B27655C80F6857600E1C /* Scan/Measurement/TapMeasure.swift */,
 				4A1F4ADDD97AABA1893CE03F /* Guided/GuidedScanView.swift */,
 				672E033FC3C0BB05772F27AA /* Guided/GuidedCameraView.swift */,
@@ -249,6 +260,7 @@
 		A155AA44B1D1618D2F5AF75E /* PackFitTests */ = {
 			isa = PBXGroup;
 			children = (
+			0813ABE8B81360786939232A /* InventoryMergeTests.swift */,
 				21859376838BF23B0332273D /* TapMeasureTests.swift */,
 				B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
 				C0FFEE0000000000000A0003 /* ObjectScanTests.swift */,
@@ -364,6 +376,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */,
 				61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */,
 				23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
 				C0FFEE0000000000000B0003 /* ObjectScanTests.swift in Sources */,
@@ -375,6 +388,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			A0CB6FDCE60CC2A112FB25B7 /* InventoryScanView.swift in Sources */,
+			EDA8FF2A60C863ABCA0B1D33 /* InventoryScanModel.swift in Sources */,
+			1EC31477D0E6CD4C525DD45A /* InventoryCamera.swift in Sources */,
 				1A2506A12F72FC9F102B8860 /* Scan/Measurement/TapMeasure.swift in Sources */,
 				6DE82B905DC99550B43DA85E /* Guided/GuidedScanView.swift in Sources */,
 				0C970C06CB51ED08C26AED24 /* Guided/GuidedCameraView.swift in Sources */,

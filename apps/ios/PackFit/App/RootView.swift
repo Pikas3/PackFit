@@ -27,6 +27,8 @@ struct RootView: View {
                                 PlanViewerView()
                             case .rules:
                                 RulesView()
+                            case .inventoryScan:
+                                InventoryScanView(path: $path, client: client)
                             case .arOverlay, .guidedScan:
                                 GuidedScanView(path: $path, client: client)
                             }
