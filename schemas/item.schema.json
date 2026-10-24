@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://packfit.local/schemas/item.schema.json",
+  "title": "Item",
+  "description": "A thing to pack. Units: cm and kg. w/h/d are as scanned, before orientation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "w", "h", "d", "kg", "fragile", "hardness", "soft", "upright", "category", "confidence"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "w": { "type": "number", "exclusiveMinimum": 0 },
+    "h": { "type": "number", "exclusiveMinimum": 0 },
+    "d": { "type": "number", "exclusiveMinimum": 0 },
+    "kg": { "type": "number", "minimum": 0 },
+    "fragile": { "type": "boolean" },
+    "hardness": { "type": "number", "minimum": 0, "maximum": 1 },
+    "soft": { "type": "boolean" },
+    "upright": { "type": "boolean" },
+    "category": { "$ref": "#/$defs/category" },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "neededAtSecurity": { "type": "boolean" },
+    "source": { "enum": ["scan", "manual", "suggested", "fixture"] },
+    "measurement": { "$ref": "#/$defs/measurement" }
+  },
+  "$defs": {
+    "category": {
+      "enum": ["clothing", "shoes", "toiletries", "liquids", "electronics", "documents", "medical", "food", "sharp", "other"]
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "confidence", "deviceHasLidar"],
+      "properties": {
+        "method": { "enum": ["lidar", "reference", "manual", "catalog", "estimate"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "deviceHasLidar": { "type": "boolean" }
+      }
+    }
+  }
+}

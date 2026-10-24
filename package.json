@@ -1,0 +1,12 @@
+{
+  "name": "packfit",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "schemas:check": "node schemas/scripts/check.mjs && swift test --package-path Packages/PackFitSchemas && pnpm --filter api --if-present run schemas:check"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1"
+  }
+}

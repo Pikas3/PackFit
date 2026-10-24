@@ -1,0 +1,106 @@
+[
+  {
+    "id": "carryon-55",
+    "name": "Carry-on suitcase 55x40x23",
+    "type": "suitcase",
+    "outer": [
+      55,
+      23,
+      40
+    ],
+    "compartments": [
+      {
+        "name": "main",
+        "dims": [
+          52,
+          20,
+          37
+        ],
+        "compressibility": 0.05
+      }
+    ],
+    "weightLimitKg": 7,
+    "wheelsSide": "back",
+    "measurement": {
+      "method": "manual",
+      "confidence": 0.9,
+      "deviceHasLidar": false
+    },
+    "_source": "manual: nominal size from the contract (docs/contracts.md); inner dims assume ~1.5 cm shell. REPLACE with tape measure of the demo bag"
+  },
+  {
+    "id": "checked-75",
+    "name": "Checked suitcase 75x50x30",
+    "type": "suitcase",
+    "outer": [
+      75,
+      30,
+      50
+    ],
+    "compartments": [
+      {
+        "name": "main",
+        "dims": [
+          72,
+          27,
+          47
+        ],
+        "compressibility": 0.05
+      }
+    ],
+    "weightLimitKg": 23,
+    "wheelsSide": "back",
+    "measurement": {
+      "method": "manual",
+      "confidence": 0.9,
+      "deviceHasLidar": false
+    },
+    "_source": "manual: nominal size from the contract (docs/contracts.md); inner dims assume ~1.5 cm shell. REPLACE with tape measure of the demo bag"
+  },
+  {
+    "id": "backpack-30",
+    "name": "Backpack 30x48x20",
+    "type": "backpack",
+    "outer": [
+      30,
+      48,
+      20
+    ],
+    "compartments": [
+      {
+        "name": "main",
+        "dims": [
+          28,
+          44,
+          12
+        ],
+        "compressibility": 0.15
+      },
+      {
+        "name": "front",
+        "dims": [
+          26,
+          28,
+          5
+        ],
+        "compressibility": 0.1
+      },
+      {
+        "name": "laptop",
+        "dims": [
+          29,
+          40,
+          3
+        ],
+        "compressibility": 0
+      }
+    ],
+    "weightLimitKg": 7,
+    "measurement": {
+      "method": "manual",
+      "confidence": 0.9,
+      "deviceHasLidar": false
+    },
+    "_source": "manual: nominal size from the contract (docs/contracts.md); inner dims assume ~1.5 cm shell. REPLACE with tape measure of the demo bag"
+  }
+]
