@@ -5,7 +5,8 @@ import Testing
 
 @Suite struct BenchTests {
     /// 30 items in the checked suitcase: under 1,000 ms in debug, 300 ms in release.
-    /// Judged on the best of 5 runs, because Swift Testing runs other suites in parallel.
+    /// Judged on the best of 5 runs of this thread's CPU time: Swift Testing runs the other
+    /// suites in parallel, and wall-clock time would count their load against the packer.
     @Test func thirtyItemsInCheckedSuitcase() throws {
         let checked = try #require(try Fixtures.containers().first { $0.id == "checked-75" })
         // The 25 fixture items plus 5 seeded random ones keeps sizes realistic.
@@ -22,10 +23,9 @@ import Testing
         var times: [Double] = []
         var plan: Plan?
         for _ in 0..<runs {
-            let start = ContinuousClock.now
+            let start = threadCPUMilliseconds()
             plan = pack(items, into: checked)
-            let t = ContinuousClock.now - start
-            times.append(Double(t.components.attoseconds) / 1e15 + Double(t.components.seconds) * 1000)
+            times.append(threadCPUMilliseconds() - start)
         }
         let ms = times.min()!
         #if DEBUG
@@ -37,4 +37,11 @@ import Testing
         #expect(ms < budget, "pack took \(ms) ms, budget \(budget) ms (\(config))")
         #expect(validatePlan(plan!, items: items, container: checked) == [])
     }
+}
+
+/// CPU time used by the calling thread, ms.
+private func threadCPUMilliseconds() -> Double {
+    var ts = timespec()
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts)
+    return Double(ts.tv_sec) * 1000 + Double(ts.tv_nsec) / 1e6
 }

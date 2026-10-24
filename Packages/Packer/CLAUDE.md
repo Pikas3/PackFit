@@ -94,19 +94,29 @@ Rules the solver must enforce (the existing prototype covers the first five):
 2. Support: at least `supportPct` of the footprint rests on the floor or other items.
 3. Fragile never under: nothing placed with any overlap above a fragile item.
 4. No heavy on light: an item may not rest on an item with lower `hardness` if the upper
-   item is heavier.
+   item is heavier. Only crushable lower items count: not `soft` (clothes cushion) and
+   `hardness < 0.5` (a folder or a book bears a laptop).
 5. Flat-first orientation; soft items shrink `h` by `compressSoftPct`.
 6. **New:** 6-orientation toggle. `upright == true` items only try orientations that keep
    their original `h` vertical.
 7. **New:** heavy near wheels. For `.suitcase`, bias items with `kg` in the top quartile
    toward low `y` and, when `wheelsSide == .back`, low `z`.
 8. **New:** `neededAtSecurity == true` items are placed last and must be on the top layer or
-   touching the opening (max `z` for a clamshell suitcase; max `y` for a backpack).
+   touching the opening (max `y`; see rule 12).
 9. **New:** compartments. For backpacks, `laptop` accepts only `category == .electronics`
    with `hardness >= 0.7`; `front` accepts items whose smallest dimension is under 8 cm;
    everything else goes in `main`. Each compartment is packed independently. Set
    `placement.compartment`.
 10. `unplaced` contains anything that could not be placed; never silently drop an item.
+11. **Uncertainty gap.** `PackOptions.uncertaintyGapCm` (default 1.5) pads the width and
+    depth of rigid items measured by `lidar`, `ar`, `reference` or `estimate`, scaled by
+    `(1 - confidence) / 0.5` and clamped to 0–1. Height is never padded. Placements carry the
+    padded slot. An item that fits nowhere padded is placed unpadded.
+12. Suitcases and duffels are packed lying open on their back, so the opening for rule 8 is
+    max y, as for backpacks.
+
+`planWarnings(_:container:bagKg:)` reports `overWeight`, `nearWeightLimit` (≥ 90%) and
+`unplaced`. The packer never refuses a plan over weight.
 
 `stats`: `fillPct` over the compartments used, `kg` summed over placed items,
 `comHeightPct` weighted by kg.

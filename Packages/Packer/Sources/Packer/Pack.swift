@@ -14,6 +14,11 @@ public struct PackOptions: Sendable, Equatable {
     public var supportPct: Double = 60
     public var heavyBias: HeavyBias = .wheels  // .wheels | .none
     public var securityOnTop: Bool = true
+    /// Extra room in width and depth, cm in total per axis, for a rigid item whose size
+    /// came from a measurement at confidence 0.5 or lower; scaled down linearly to 0 at
+    /// confidence 1. Manual, catalog and unmeasured sizes get none, and soft items
+    /// squash to fit. Placements carry the padded slot.
+    public var uncertaintyGapCm: Double = 1.5
     public init() {}
 }
 
@@ -190,21 +195,38 @@ func placeOne(
     _ item: Item, placed: [Placement], compartment: Compartment, container: Container,
     items: [String: Item], options: PackOptions, flatFirst: Bool
 ) -> Placement? {
+    // The uncertainty gap is a preference: an item that fits nowhere with it tries without.
+    var tight = options
+    tight.uncertaintyGapCm = 0
+    let sets = footprintPad(item, options: options) > eps
+        ? [orientations(for: item, options: options), orientations(for: item, options: tight)]
+        : [orientations(for: item, options: options)]
+    for set in sets {
+        if let p = placeOne(item, orientations: set, placed: placed, compartment: compartment, container: container,
+                            items: items, options: options, flatFirst: flatFirst) {
+            return p
+        }
+    }
+    return nil
+}
+
+private func placeOne(
+    _ item: Item, orientations: [Orientation], placed: [Placement], compartment: Compartment, container: Container,
+    items: [String: Item], options: PackOptions, flatFirst: Bool
+) -> Placement? {
     let size = compartment.size
     let name = compartment.name == mainCompartment ? nil : compartment.name
-    // Security items in a clamshell go toward the lid, where they stay reachable and may
-    // have things on top (rule 8).
-    let frontFirst = options.securityOnTop && item.neededAtSecurity == true && container.type != .backpack
     var best: Placement?
-    for o in orientations(for: item, options: options) {
+    for o in orientations {
         guard o.w <= size.w + eps, o.h <= size.h + eps, o.d <= size.d + eps else { continue }
-        for point in candidatePoints(w: o.w, h: o.h, d: o.d, placed: placed, size: size,
-                                     frontFirst: frontFirst) {
+        for point in candidatePoints(w: o.w, h: o.h, d: o.d, placed: placed, size: size) {
             if !flatFirst, let b = best, point.y + o.h >= b.y + b.h - eps { break }
             let candidate = Placement(itemId: item.id, x: point.x, y: point.y, z: point.z,
                                       w: o.w, h: o.h, d: o.d, order: placed.count, compartment: name)
+            // candidatePoints keeps the box inside the compartment, and only items it
+            // accepts reach it.
             if firstViolation(candidate, placed: placed, items: items, container: container,
-                              options: options) == nil {
+                              options: options, geometryKnown: true) == nil {
                 if flatFirst { return candidate }
                 best = candidate
                 break

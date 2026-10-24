@@ -18,6 +18,7 @@ export type Category = z.infer<typeof CategorySchema>;
 
 export const MeasureMethodSchema = z.enum([
   "lidar",
+  "ar",
   "reference",
   "manual",
   "catalog",
@@ -136,7 +137,7 @@ export const ScanItemRequestSchema = z.object({
       w: z.number().positive(),
       h: z.number().positive(),
       d: z.number().positive(),
-      method: z.enum(["lidar", "reference", "manual"]),
+      method: z.enum(["lidar", "ar", "reference", "manual"]),
       confidence: z.number().min(0).max(1),
     })
     .nullable(),

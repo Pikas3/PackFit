@@ -36,7 +36,7 @@ Request:
   "imageBase64": "<jpeg, max 3 MB, long edge resized to 1024 px by the client>",
   "measured": {
     "w": 30.2, "h": 1.8, "d": 21.4,
-    "method": "lidar" | "reference" | "manual",
+    "method": "lidar" | "ar" | "reference" | "manual",
     "confidence": 0.93
   } | null,
   "reference": "credit_card" | "a4_paper" | "letter_paper" | null,

@@ -42,6 +42,7 @@ struct MeasurementMethodBadge: View {
         if tapMeasured { return Copy.Scan.measuredARTaps }
         switch method {
         case .lidar: return Copy.Scan.measuredLidar
+        case .ar: return Copy.Scan.measuredCamera
         case .manual: return Copy.Scan.measuredManual
         case .reference, .estimate: return Copy.Scan.measuredReference
         case .catalog: return "From catalog"

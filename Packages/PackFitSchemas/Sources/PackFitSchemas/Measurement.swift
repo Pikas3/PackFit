@@ -1,5 +1,5 @@
 public enum MeasureMethod: String, Codable, Sendable {
-    case lidar, reference, manual, catalog, estimate
+    case lidar, ar, reference, manual, catalog, estimate
 }
 
 /// How the dims were obtained; shown in the UI and sent to the scan endpoint.

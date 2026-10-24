@@ -32,7 +32,7 @@
       "additionalProperties": false,
       "required": ["method", "confidence", "deviceHasLidar"],
       "properties": {
-        "method": { "enum": ["lidar", "reference", "manual", "catalog", "estimate"] },
+        "method": { "enum": ["lidar", "ar", "reference", "manual", "catalog", "estimate"] },
         "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
         "deviceHasLidar": { "type": "boolean" }
       }

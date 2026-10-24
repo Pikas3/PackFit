@@ -29,7 +29,7 @@ public func validatePlan(
         others.remove(at: i)
         add(compartmentViolation(c, placed: others, items: byId, container: container))
         add(boundsViolation(c, placed: others, items: byId, container: container))
-        add(uprightViolation(c, placed: others, items: byId, container: container))
+        add(uprightViolation(c, placed: others, items: byId, container: container, options: options))
         add(overlapViolation(c, placed: others, items: byId, container: container))
         add(supportViolation(c, placed: others, items: byId, container: container, minPct: options.supportPct))
         add(fragileViolation(c, placed: others, items: byId, container: container))

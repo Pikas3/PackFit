@@ -6,13 +6,15 @@ import PackFitSchemas
 // else) share them.
 
 /// Every rule, cheapest first. The solver accepts a candidate only when this is nil.
+/// `geometryKnown`: the caller built the candidate inside the bounds of a compartment that
+/// accepts the item (the solver does), so those two checks are skipped.
 func firstViolation(
     _ c: Placement, placed: [Placement], items: [String: Item], container: Container,
-    options: PackOptions
+    options: PackOptions, geometryKnown: Bool = false
 ) -> PlanViolation? {
-    compartmentViolation(c, placed: placed, items: items, container: container)
-        ?? boundsViolation(c, placed: placed, items: items, container: container)
-        ?? uprightViolation(c, placed: placed, items: items, container: container)
+    (geometryKnown ? nil : compartmentViolation(c, placed: placed, items: items, container: container))
+        ?? (geometryKnown ? nil : boundsViolation(c, placed: placed, items: items, container: container))
+        ?? uprightViolation(c, placed: placed, items: items, container: container, options: options)
         ?? overlapViolation(c, placed: placed, items: items, container: container)
         ?? supportViolation(c, placed: placed, items: items, container: container, minPct: options.supportPct)
         ?? fragileViolation(c, placed: placed, items: items, container: container)
@@ -64,7 +66,9 @@ func fragileViolation(_ c: Placement, placed: [Placement], items: [String: Item]
     return nil
 }
 
-/// Rule 4: an item may not rest on a softer item that is lighter than it.
+/// Rule 4: an item may not rest on a softer item that is lighter than it, when that item
+/// can be crushed: not soft (clothes cushion) and under `crushableHardness` (a folder or a
+/// book bears a laptop fine).
 func heavyOnLightViolation(_ c: Placement, placed: [Placement], items: [String: Item], container: Container) -> PlanViolation? {
     for p in placed where sameCompartment(c, p) {
         if restsOn(c, p), crushes(items[c.itemId], items[p.itemId]) {
@@ -78,14 +82,21 @@ func heavyOnLightViolation(_ c: Placement, placed: [Placement], items: [String: 
 }
 
 private func crushes(_ upper: Item?, _ lower: Item?) -> Bool {
-    guard let upper, let lower else { return false }
+    guard let upper, let lower, !lower.soft, lower.hardness < crushableHardness - eps else { return false }
     return lower.hardness < upper.hardness - eps && upper.kg > lower.kg + eps
 }
 
-/// Rule 6: an upright item's horizontal footprint is its scanned w x d (so h is vertical).
-func uprightViolation(_ c: Placement, placed: [Placement], items: [String: Item], container: Container) -> PlanViolation? {
+/// Items at or above this hardness bear the weight of anything packed on them.
+let crushableHardness = 0.5
+
+/// Rule 6: an upright item's horizontal footprint is its scanned w x d (so h is vertical),
+/// with or without the uncertainty pad (the solver drops it when it would cost an item).
+func uprightViolation(
+    _ c: Placement, placed: [Placement], items: [String: Item], container: Container, options: PackOptions = .init()
+) -> PlanViolation? {
     guard let item = items[c.itemId], item.upright else { return nil }
-    let same = { (a: Double, b: Double) in abs(a - b) <= eps }
+    let pad = footprintPad(item, options: options)
+    let same = { (a: Double, b: Double) in abs(a - (b + pad)) <= eps || abs(a - b) <= eps }
     let ok = (same(c.w, item.w) && same(c.d, item.d)) || (same(c.w, item.d) && same(c.d, item.w))
     return ok ? nil : .uprightBroken(itemId: c.itemId)
 }

@@ -13,22 +13,21 @@ struct Point: Equatable {
 /// Extreme points in the floor plane: x from the left wall, the right wall, and both sides of
 /// every placed item (snug against its right edge or its left edge); z likewise. Each (x, z) is dropped under gravity onto the highest
 /// surface its footprint overlaps, so candidates never intersect anything below and are
-/// never under anything. Sorted by (y, z, x): lowest, then back-most, then left-most; with
-/// `frontFirst`, front-most instead of back-most (toward a clamshell's lid).
+/// never under anything. Sorted by (y, z, x): lowest, then back-most, then left-most.
 func candidatePoints(
-    w: Double, h: Double, d: Double, placed: [Placement], size: Size, frontFirst: Bool = false
+    w: Double, h: Double, d: Double, placed: [Placement], size: Size
 ) -> [Point] {
-    let xs = edges(placed.flatMap { [$0.x + $0.w, $0.x - w] } + [size.w - w], limit: size.w - w)
-    let zs = edges(placed.flatMap { [$0.z + $0.d, $0.z - d] } + [size.d - d], limit: size.d - d)
+    let xs = edges(placed, alongX: true, size: w, limit: size.w - w)
+    let zs = edges(placed, alongX: false, size: d, limit: size.d - d)
     var points: [Point] = []
     points.reserveCapacity(xs.count * zs.count)
-    var column: [(z0: Double, z1: Double, top: Double)] = []
+    var column: [ColumnItem] = []
     column.reserveCapacity(placed.count)
     for x in xs {
         // Items overlapping this x band; only they can be under the candidate.
         column.removeAll(keepingCapacity: true)
         for p in placed where overlap(x, x + w, p.x, p.x + p.w) > eps {
-            column.append((p.z, p.z + p.d, p.y + p.h))
+            column.append(ColumnItem(z0: p.z, z1: p.z + p.d, top: p.y + p.h))
         }
         for z in zs {
             var y = 0.0
@@ -40,18 +39,38 @@ func candidatePoints(
             }
         }
     }
-    if frontFirst {
-        points.sort { ($0.y, -$0.z, $0.x) < ($1.y, -$1.z, $1.x) }
-    } else {
-        points.sort { ($0.y, $0.z, $0.x) < ($1.y, $1.z, $1.x) }
+    // Plain comparisons rather than tuple keys: this sort runs for every item and
+    // orientation, and tuple comparison is slow outside optimised builds.
+    points.sort { a, b in
+        if a.y != b.y { return a.y < b.y }
+        if a.z != b.z { return a.z < b.z }
+        return a.x < b.x
     }
     return points
 }
 
-/// 0 plus the given edges inside [0, limit], sorted, near-duplicates merged.
-private func edges(_ values: [Double], limit: Double) -> [Double] {
+/// A placed item under an x band: its z extent and top.
+private struct ColumnItem {
+    var z0: Double, z1: Double, top: Double
+}
+
+/// Positions along one axis for a box of `size`: 0, the far wall (`limit`), and snug
+/// against either side of every placed item, kept inside [0, limit], sorted, with
+/// near-duplicates merged. One buffer, no per-item arrays: this runs for every candidate set.
+private func edges(_ placed: [Placement], alongX: Bool, size: Double, limit: Double) -> [Double] {
+    var values: [Double] = []
+    values.reserveCapacity(placed.count * 2 + 2)
+    values.append(0)
+    values.append(limit)
+    for p in placed {
+        let start = alongX ? p.x : p.z
+        values.append(start + (alongX ? p.w : p.d))
+        values.append(start - size)
+    }
+    values.sort()
     var out: [Double] = []
-    for v in ([0] + values).sorted() where v >= 0 && v <= limit + eps {
+    out.reserveCapacity(values.count)
+    for v in values where v >= 0 && v <= limit + eps {
         if let last = out.last, v - last <= eps { continue }
         out.append(v)
     }

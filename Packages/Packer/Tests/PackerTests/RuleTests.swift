@@ -128,9 +128,13 @@ import Testing
         let items = [item("laptop", 30, 2, 20, kg: 1.2, hardness: 0.9, security: true), item("jumper", 30, 5, 20, kg: 0.4)]
         let buried = plan([place("laptop", 0, 0, 0, 30, 2, 20), place("jumper", 0, 2, 0, 30, 5, 20, order: 1)])
         #expect(validatePlan(buried, items: items, container: suitcase) == [.securityNotOnTop(itemId: "laptop")])
-        // Touching the lid (max z) is reachable even with something on top.
-        let atLid = plan([place("laptop", 0, 0, 20, 30, 2, 20), place("jumper", 0, 2, 20, 30, 5, 20, order: 1)])
-        #expect(validatePlan(atLid, items: items, container: suitcase) == [])
+        // The suitcase lies open on its back, so the lid closes over max y: the far wall
+        // (max z) is not an opening, and the top layer is reachable.
+        let atFarWall = plan([place("laptop", 0, 0, 20, 30, 2, 20), place("jumper", 0, 2, 20, 30, 5, 20, order: 1)])
+        #expect(validatePlan(atFarWall, items: items, container: suitcase) == [.securityNotOnTop(itemId: "laptop")])
+        let shoes = item("shoes", 30, 5, 20, kg: 2, hardness: 1)
+        let onTop = plan([place("shoes", 0, 0, 0, 30, 5, 20), place("laptop", 0, 5, 0, 30, 2, 20, order: 1)])
+        #expect(validatePlan(onTop, items: items + [shoes], container: suitcase) == [])
         var off = PackOptions()
         off.securityOnTop = false
         #expect(validatePlan(buried, items: items, container: suitcase, options: off) == [])

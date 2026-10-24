@@ -362,7 +362,7 @@ struct GuidedScanView: View {
                                 .font(Tokens.TypeScale.caption)
                                 .foregroundStyle(.secondary)
                             HStack {
-                                MeasurementMethodBadge(method: item.measurement?.method, tapMeasured: item.measurement?.method == .manual)
+                                MeasurementMethodBadge(method: item.measurement?.method, tapMeasured: itemsStore.tapMeasuredIDs.contains(item.id) || session.isTapMeasured(item.id))
                                 ConfidenceBadge(confidence: item.measurement?.confidence ?? item.confidence)
                             }
                         }

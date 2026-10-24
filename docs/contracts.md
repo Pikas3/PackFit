@@ -22,7 +22,7 @@ public enum Category: String, Codable, CaseIterable, Sendable {
 }
 
 public enum MeasureMethod: String, Codable, Sendable {
-    case lidar, reference, manual, catalog, estimate
+    case lidar, ar, reference, manual, catalog, estimate   // ar: camera + ARKit pose, no depth (added)
 }
 
 /// added: how the dims were obtained; shown in the UI and sent to the scan endpoint

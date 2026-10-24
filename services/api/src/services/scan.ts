@@ -16,7 +16,7 @@ export type ScanInput = {
     w: number;
     h: number;
     d: number;
-    method: "lidar" | "reference" | "manual";
+    method: "lidar" | "ar" | "reference" | "manual";
     confidence: number;
   } | null;
   reference?: "credit_card" | "a4_paper" | "letter_paper" | null;

@@ -1,4 +1,5 @@
 import SwiftUI
+import Packer
 import RealityKit
 
 struct PlanViewerView: View {
@@ -80,14 +81,32 @@ struct PlanViewerView: View {
                 in: 0...80
             )
 
-            if let unplaced = planStore.plan?.unplaced, !unplaced.isEmpty {
-                Text("\(Copy.Viewer.unplaced): \(unplaced.count)")
-                    .font(Tokens.TypeScale.caption)
-                    .foregroundStyle(Tokens.Color.restricted)
+            ForEach(Array(planStore.warnings.enumerated()), id: \.offset) { _, warning in
+                warningRow(warning)
             }
         }
         .packFitScreenPadding()
         .background(.ultraThinMaterial)
+    }
+
+    @ViewBuilder
+    private func warningRow(_ warning: PlanWarning) -> some View {
+        switch warning {
+        case .overWeight(let kg, let limit):
+            Label(Copy.Viewer.overWeight(kg: kg, limit: limit), systemImage: "exclamationmark.triangle.fill")
+                .font(Tokens.TypeScale.caption)
+                .foregroundStyle(Tokens.Color.banned)
+        case .nearWeightLimit(let kg, let limit):
+            Label(Copy.Viewer.nearWeight(kg: kg, limit: limit), systemImage: "scalemass")
+                .font(Tokens.TypeScale.caption)
+                .foregroundStyle(Tokens.Color.restricted)
+        case .unplaced:
+            let names = (planStore.plan?.unplaced ?? []).compactMap { id in itemsStore.items.first { $0.id == id }?.name }
+            Label("\(Copy.Viewer.unplaced): \(names.isEmpty ? "\(planStore.plan?.unplaced.count ?? 0)" : names.joined(separator: ", "))",
+                  systemImage: "shippingbox")
+                .font(Tokens.TypeScale.caption)
+                .foregroundStyle(Tokens.Color.restricted)
+        }
     }
 
     private var orbitGesture: some Gesture {

@@ -409,7 +409,7 @@ final class GuidedSession {
             innerShortCm: Double(rect.short * 100),
             shellDepthCm: inner[1] / 2,
             confidence: 0.7,
-            method: .manual,
+            method: .ar,
             lidFraction: bagKind.lidFraction
         )
         isCornerMode = false
@@ -758,14 +758,16 @@ final class GuidedSession {
             var index: Int
             var image: String
             var dims: MeasuredDims
+            var tapped: Bool
         }
         let tapIDs = Set(tapTracked.map(\.id))
         let jobs: [Job] = found.enumerated().map { index, t in
             let cm = t.fit.dimsCm
             let image = crops[t.id].flatMap { ImageCapture.jpegBase64(from: $0.image) } ?? ImageCapture.placeholderBase64()
-            // Tapped sizes are user-measured; the schema has no separate AR-tap method.
-            let method: MeasureMethod = tapIDs.contains(t.id) ? .manual : .lidar
-            return Job(index: index, image: image, dims: MeasuredDims(w: cm.w, h: cm.h, d: cm.d, method: method, confidence: t.confidence))
+            // Without depth, sizes come from the camera's pose and the item's outline or taps.
+            let method: MeasureMethod = hasDepth && !tapIDs.contains(t.id) ? .lidar : .ar
+            return Job(index: index, image: image, dims: MeasuredDims(w: cm.w, h: cm.h, d: cm.d, method: method, confidence: t.confidence),
+                       tapped: tapIDs.contains(t.id))
         }
 
         let client = self.client
@@ -806,7 +808,7 @@ final class GuidedSession {
             item.d = job.dims.d
             item.source = .scan
             item.measurement = Measurement(method: job.dims.method, confidence: job.dims.confidence, deviceHasLidar: hasDepth)
-            if job.dims.method != .lidar { tapMeasuredItemIDs.insert(item.id) }
+            if job.tapped { tapMeasuredItemIDs.insert(item.id) }
             return item
         }
         phase = .review
@@ -816,6 +818,8 @@ final class GuidedSession {
     func returnedFromViewer() {
         if phase == .packed { phase = .review }
     }
+
+    func isTapMeasured(_ itemID: String) -> Bool { tapMeasuredItemIDs.contains(itemID) }
 
     func backToItems() {
         itemBoxes.values.forEach { $0.entity.isEnabled = true }

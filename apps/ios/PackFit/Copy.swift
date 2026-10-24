@@ -70,6 +70,7 @@ enum Copy {
         static let measuredManual = "Entered manually"
         static let measuredReference = "Scaled from credit card"
         static let measuredARTaps = "Measured with AR taps"
+        static let measuredCamera = "Measured with the camera"
     }
 
     enum Guided {
@@ -152,6 +153,12 @@ enum Copy {
         static let fill = "Fill"
         static let weight = "Weight"
         static let unplaced = "Didn’t fit"
+        static func overWeight(kg: Double, limit: Double) -> String {
+            String(format: "%.1f kg is over the %.0f kg limit. Weigh the bag before you fly.", kg, limit)
+        }
+        static func nearWeight(kg: Double, limit: Double) -> String {
+            String(format: "%.1f kg, close to the %.0f kg limit (the bag itself weighs too).", kg, limit)
+        }
         static let openRules = "Rules"
     }
 

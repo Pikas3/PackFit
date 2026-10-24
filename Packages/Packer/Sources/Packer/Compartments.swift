@@ -17,8 +17,10 @@ func compartment(named name: String?, in container: Container) -> Compartment? {
 
 func compartmentName(_ p: Placement) -> String { p.compartment ?? mainCompartment }
 
-func sameCompartment(_ a: Placement, _ b: Placement) -> Bool {
-    compartmentName(a) == compartmentName(b)
+/// Hot in the solver's inner loop: the common case (both nil, a suitcase's main) skips
+/// building names.
+@inline(__always) func sameCompartment(_ a: Placement, _ b: Placement) -> Bool {
+    a.compartment == b.compartment || compartmentName(a) == compartmentName(b)
 }
 
 /// Rule 9. Backpack `laptop` takes rigid electronics only; `front` takes items whose
@@ -43,12 +45,10 @@ func packingSequence(_ container: Container) -> [Compartment] {
         .map(\.element)
 }
 
-/// Where a `neededAtSecurity` item can be reached without unpacking: max y for a
-/// top-loading backpack, max z (the lid side) for a clamshell suitcase or duffel.
+/// Where a `neededAtSecurity` item can be reached without unpacking: the top, max y.
+/// A backpack stands up and opens at the top; a suitcase or duffel is packed lying open on
+/// its back, so the lid closes over max y too.
 func touchesOpening(_ p: Placement, container: Container) -> Bool {
     guard let size = compartment(named: p.compartment, in: container)?.size else { return false }
-    switch container.type {
-    case .backpack: return p.y + p.h >= size.h - eps
-    case .suitcase, .duffel: return p.z + p.d >= size.d - eps
-    }
+    return p.y + p.h >= size.h - eps
 }

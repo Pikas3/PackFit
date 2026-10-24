@@ -86,7 +86,7 @@ enum ContainerFactory {
         let inner = [outerLongCm - a.long, depth, outerShortCm - a.short]
             .map { (max(1, $0 - cameraMarginCm) * 10).rounded() / 10 }
         let outer = [outerLongCm, baseDepthCm + lid, outerShortCm].map { ($0 * 10).rounded() / 10 }
-        var container = make(outer: outer, inner: inner, method: .manual, confidence: confidence, weightLimit: weightLimit, wheelsSide: .back)
+        var container = make(outer: outer, inner: inner, method: .ar, confidence: confidence, weightLimit: weightLimit, wheelsSide: .back)
         container.name = "Scanned bag"
         container.compartments[0].compressibility = kind.compressibility
         return container
