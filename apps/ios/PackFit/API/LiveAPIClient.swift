@@ -41,12 +41,13 @@ struct LiveAPIClient: APIClient, Sendable {
         )
     }
 
-    func scanInventory(imageBase64: String, hint: String?) async throws -> ScanInventoryResponse {
+    func scanInventory(imageBase64: String, hint: String?, reference: String?) async throws -> ScanInventoryResponse {
         struct Body: Encodable {
             var imageBase64: String
             var hint: String?
+            var reference: String?
         }
-        return try await post(path: "/scan/inventory", body: Body(imageBase64: imageBase64, hint: hint))
+        return try await post(path: "/scan/inventory", body: Body(imageBase64: imageBase64, hint: hint, reference: reference))
     }
 
     func checkRules(items: [Item], trip: Trip, bag: String) async throws -> RulesCheckResponse {

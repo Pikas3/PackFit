@@ -36,4 +36,27 @@ struct InventoryMergeTests {
         #expect(rect.minX < 900)
         #expect(InventoryMerge.pixelRect(InventoryBox(x: 1, y: 1, w: 0, h: 0), width: 1000, height: 800) == nil)
     }
+
+    @Test func cardSizesReplaceGuessesAndCardIsDropped() {
+        let detections = [detection("Water bottle"), detection("Credit card"), detection("Hoodie")]
+        let result = CardMeasurer.Result(
+            card: ImageQuad(corners: [[0, 0], [1, 0], [1, 1], [0, 1]]),
+            measured: [
+                .init(w: 7.2, h: 24.5, d: 7.0, confidence: 0.8, heightReliable: true),
+                nil,
+                .init(w: 30, h: 3, d: 25, confidence: 0.6, heightReliable: false),
+            ],
+            isCard: [false, true, false],
+            viewElevation: 45,
+            located: [InventoryBox(x: 0.5, y: 0.5, w: 0.1, h: 0.3), nil, nil]
+        )
+        let out = InventoryMerge.applyCard(result, to: detections)
+        // The box moves to where segmentation found the object.
+        #expect(out[0].box == InventoryBox(x: 0.5, y: 0.5, w: 0.1, h: 0.3))
+        #expect(out[1].box == detections[2].box)
+        #expect(out.map(\.item.name) == ["Water bottle", "Hoodie"])
+        #expect(out[0].item.h == 24.5 && out[0].item.measurement?.method == .reference)
+        // Height not visible from straight above: keep Claude's guess.
+        #expect(out[1].item.h == detections[2].item.h && out[1].item.w == 30)
+    }
 }

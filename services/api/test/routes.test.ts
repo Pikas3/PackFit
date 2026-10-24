@@ -67,10 +67,24 @@ describe("api routes (mock Claude)", () => {
       expect(d.item.measurement.method).toBe("estimate");
       expect(d.item.measurement.confidence).toBeLessThanOrEqual(0.5);
       expect(d.box.x + d.box.w).toBeLessThanOrEqual(1);
+      expect(["box", "cylinder_upright", "cylinder_lying", null]).toContain(d.shape);
     }
+    expect(body.detections.some((d: { shape: string | null }) => d.shape === "cylinder_upright")).toBe(true);
     expect(new Set(body.detections.map((d: { item: { id: string } }) => d.item.id)).size).toBe(
       body.detections.length,
     );
+    expect(body.reference).toBeNull();
+  });
+
+  it("POST /scan/inventory with a credit card returns the card box", async () => {
+    const res = await app.request("/scan/inventory", {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ imageBase64: "/9j/4AAQ", reference: "credit_card" }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.reference.box.w).toBeGreaterThan(0);
   });
 
   it("POST /rules/check flags shampoo / knife fixtures", async () => {

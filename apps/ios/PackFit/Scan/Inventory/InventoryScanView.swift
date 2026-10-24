@@ -52,6 +52,8 @@ struct InventoryScanView: View {
             ZStack {
                 if model.cameraAvailable {
                     CameraPreview(session: model.camera.session)
+                    // Preview and video frames are both 3:4 portrait, aspect-fit.
+                    QuadOverlay(quad: model.camera.liveCard, aspect: 3.0 / 4.0, color: .green)
                 } else {
                     Color.black
                     Text(Copy.Inventory.simulator)
@@ -68,7 +70,7 @@ struct InventoryScanView: View {
                 }
             }
         } else {
-            PhotoWithBoxes(photo: model.photo, entries: model.latestEntries)
+            PhotoWithBoxes(photo: model.photo, entries: model.phase == .noCard ? [] : model.latestEntries, card: model.card)
                 .overlay {
                     if model.phase == .identifying {
                         VStack(spacing: Tokens.Spacing.sm) {
@@ -90,9 +92,15 @@ struct InventoryScanView: View {
         switch model.phase {
         case .camera:
             VStack(spacing: Tokens.Spacing.sm) {
-                Text(Copy.Inventory.hint)
-                    .font(Tokens.TypeScale.callout)
-                    .multilineTextAlignment(.center)
+                if model.cameraAvailable, model.camera.liveCard != nil {
+                    Label(Copy.Inventory.cardSeen, systemImage: "checkmark.circle.fill")
+                        .font(Tokens.TypeScale.callout)
+                        .foregroundStyle(.green)
+                } else {
+                    Text(Copy.Inventory.hint)
+                        .font(Tokens.TypeScale.callout)
+                        .multilineTextAlignment(.center)
+                }
                 Button {
                     Task { await model.captureAndIdentify() }
                 } label: {
@@ -113,6 +121,15 @@ struct InventoryScanView: View {
                 .font(Tokens.TypeScale.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity)
+        case .noCard:
+            VStack(spacing: Tokens.Spacing.sm) {
+                Label(Copy.Inventory.noCard, systemImage: "creditcard")
+                    .font(Tokens.TypeScale.callout)
+                Button(Copy.Inventory.tryAgain) { model.scanAgain() }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Tokens.Color.brand)
+                Button(Copy.Inventory.useEstimates) { model.useEstimates() }
+            }
         case .failed(let message):
             VStack(spacing: Tokens.Spacing.sm) {
                 Text(message)
@@ -150,10 +167,16 @@ struct InventoryScanView: View {
                 }
             }
             .frame(maxHeight: 300)
-            Text(Copy.Inventory.estimateNote)
+            Text(model.entries.contains(where: \.measuredWithCard) ? Copy.Inventory.measuredNote : Copy.Inventory.estimateNote)
                 .font(Tokens.TypeScale.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+            if model.heightsGuessed {
+                Text(Copy.Inventory.steepNote)
+                    .font(Tokens.TypeScale.caption)
+                    .foregroundStyle(.orange)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
             HStack {
                 Button(Copy.Inventory.scanMore) { model.scanAgain() }
                     .buttonStyle(.bordered)
@@ -195,12 +218,14 @@ private struct InventoryRow: View {
                     Text(entry.item.name)
                         .font(Tokens.TypeScale.body)
                         .foregroundStyle(.primary)
-                    Text(String(format: "%@ · ~%.0f×%.0f×%.0f cm · %.2f kg",
-                                entry.item.category.rawValue, entry.item.w, entry.item.h, entry.item.d, entry.item.kg))
+                    Text(String(format: "%@ · %@%.1f×%.1f×%.1f cm · %.2f kg",
+                                entry.item.category.rawValue, entry.measuredWithCard ? "" : "~",
+                                entry.item.w, entry.item.h, entry.item.d, entry.item.kg))
                         .font(Tokens.TypeScale.caption)
                         .foregroundStyle(.secondary)
                     HStack {
-                        ConfidenceBadge(confidence: entry.item.confidence)
+                        MeasurementMethodBadge(method: entry.item.measurement?.method)
+                        ConfidenceBadge(confidence: entry.item.measurement?.confidence ?? entry.item.confidence)
                         if entry.likelyDuplicate {
                             Text(Copy.Inventory.duplicate)
                                 .font(Tokens.TypeScale.caption)
@@ -241,6 +266,7 @@ private struct InventoryRow: View {
 private struct PhotoWithBoxes: View {
     let photo: CGImage?
     let entries: [InventoryEntry]
+    var card: ImageQuad?
 
     var body: some View {
         GeometryReader { geo in
@@ -254,7 +280,31 @@ private struct PhotoWithBoxes: View {
                         .frame(width: fitted.width, height: fitted.height)
                         .offset(x: fitted.minX, y: fitted.minY)
                 }
+                if let card {
+                    QuadOverlay(quad: card, aspect: aspect, color: .yellow)
+                }
                 ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                    let color = entry.included ? Tokens.Color.brand : Color.gray
+                    // What was measured: the fitted box or cylinder, traced over the object.
+                    if let outline = entry.outline, outline.count >= 3 {
+                        Path { path in
+                            path.addLines(outline.map {
+                                CGPoint(x: fitted.minX + $0.x * fitted.width, y: fitted.minY + $0.y * fitted.height)
+                            })
+                            path.closeSubpath()
+                        }
+                        .fill(color.opacity(0.18))
+                        .overlay {
+                            Path { path in
+                                path.addLines(outline.map {
+                                    CGPoint(x: fitted.minX + $0.x * fitted.width, y: fitted.minY + $0.y * fitted.height)
+                                })
+                                path.closeSubpath()
+                            }
+                            .stroke(color, lineWidth: 2)
+                        }
+                        .allowsHitTesting(false)
+                    }
                     if let box = entry.box {
                         let rect = CGRect(
                             x: fitted.minX + box.x * fitted.width,
@@ -262,15 +312,16 @@ private struct PhotoWithBoxes: View {
                             width: box.w * fitted.width,
                             height: box.h * fitted.height
                         )
+                        // Measured objects show their outline; the box only anchors the label.
                         RoundedRectangle(cornerRadius: 6)
-                            .stroke(entry.included ? Tokens.Color.brand : .gray, lineWidth: 2)
+                            .stroke(color, style: StrokeStyle(lineWidth: entry.outline == nil ? 2 : 1, dash: entry.outline == nil ? [] : [4, 4]))
                             .frame(width: rect.width, height: rect.height)
                             .overlay(alignment: .topLeading) {
                                 Text("\(index + 1) \(entry.item.name)")
                                     .font(Tokens.TypeScale.caption)
                                     .lineLimit(1)
                                     .padding(.horizontal, 4)
-                                    .background(entry.included ? Tokens.Color.brand : .gray)
+                                    .background(color)
                                     .foregroundStyle(.white)
                             }
                             .offset(x: rect.minX, y: rect.minY)
@@ -306,5 +357,29 @@ private struct CameraPreview: UIViewRepresentable {
     final class PreviewView: UIView {
         override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
         var previewLayer: AVCaptureVideoPreviewLayer { layer as! AVCaptureVideoPreviewLayer }
+    }
+}
+
+/// Outline of a quad given in normalized image coordinates, over an aspect-fit image.
+private struct QuadOverlay: View {
+    let quad: ImageQuad?
+    let aspect: CGFloat
+    let color: Color
+
+    var body: some View {
+        GeometryReader { geo in
+            if let quad, quad.corners.count == 4 {
+                let fitted = PhotoWithBoxes.fit(aspect: aspect, in: geo.size)
+                Path { path in
+                    let points = quad.corners.map {
+                        CGPoint(x: fitted.minX + $0.x * fitted.width, y: fitted.minY + $0.y * fitted.height)
+                    }
+                    path.addLines(points)
+                    path.closeSubpath()
+                }
+                .stroke(color, lineWidth: 3)
+            }
+        }
+        .allowsHitTesting(false)
     }
 }

@@ -81,7 +81,11 @@ Works on any iPhone; nothing is measured, so every dimension is an estimate.
 
 Request:
 ```json
-{ "imageBase64": "<jpeg, max 3 MB, long edge 1024 px>", "hint": "optional user text" }
+{
+  "imageBase64": "<jpeg, max 3 MB, long edge 1024 px>",
+  "hint": "optional user text",
+  "reference": "credit_card" | null
+}
 ```
 
 Response:
@@ -91,19 +95,28 @@ Response:
     {
       "item": Item,
       "box": { "x": 0.1, "y": 0.2, "w": 0.3, "h": 0.25 } | null,
-      "alternatives": [{ "name": string, "category": Category }]
+      "alternatives": [{ "name": string, "category": Category }],
+      "shape": "box" | "cylinder_upright" | "cylinder_lying" | null
     }
   ],
+  "reference": { "box": { "x": 0.4, "y": 0.4, "w": 0.16, "h": 0.08 } } | null,
   "warnings": string[],
   "meta": { ... }
 }
 ```
 
 Behaviour:
+- With `reference: "credit_card"`, Claude leaves the card out of `detections` and returns its
+  rough box in `reference` (warning `"reference_not_seen"` if it did not see one). The app
+  then measures every object on-device against the card (see `docs/status.md`) and
+  overwrites `w/h/d` with `measurement.method = 'reference'`.
 - At most 25 detections. The suitcase, furniture, floor, hands and people are ignored.
-- `box` is normalized to the upright photo, origin top-left. It is approximate and only
-  used to highlight and crop thumbnails on the phone, never for measuring. Out-of-range
-  boxes are clamped; degenerate ones become `null`.
+- `box` is normalized to the upright photo, origin top-left. It is approximate: the app only
+  uses it to pick which segmented outline in the photo is this object (and, when two objects
+  touch, to split their shared outline). Measurements, highlights and thumbnails come from
+  the outline. Out-of-range boxes are clamped; degenerate ones become `null`.
+- `shape` picks the solid the app fits to the outline: cans and bottles are cylinders.
+  `null` when Claude did not say; the app then fits a box.
 - Each `item` gets a fresh uuid, `source = 'scan'`, `measurement.method = 'estimate'`,
   `measurement.confidence` capped at 0.5 (no scale reference). `item.confidence` is the
   identification confidence.

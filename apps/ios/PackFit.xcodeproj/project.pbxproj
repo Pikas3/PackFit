@@ -74,6 +74,12 @@
 	EDA8FF2A60C863ABCA0B1D33 /* InventoryScanModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C45C4FD955E92A3D92D042 /* InventoryScanModel.swift */; };
 	A0CB6FDCE60CC2A112FB25B7 /* InventoryScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F31E776A0A393EA1F4A14B /* InventoryScanView.swift */; };
 	2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0813ABE8B81360786939232A /* InventoryMergeTests.swift */; };
+	A7A6636B7F03A01FEEE33FBC /* CardScale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA50B639EE1DBC63ABF1EAE /* CardScale.swift */; };
+	2767A531570093F927E2E96C /* SilhouetteFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BF69994A14EF7C6F4700048 /* SilhouetteFit.swift */; };
+	4B4B29A7829A65A28AADD4A1 /* CardScaleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2230361D1F773C6955285FB6 /* CardScaleTests.swift */; };
+	E5866875A05DB4641A965992 /* CardMeasurer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC11E4EFA42A8FEBCA7F6B16 /* CardMeasurer.swift */; };
+	C3A8B2500A8D53C5935193DA /* ScanArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2848FA679AB7FD8A63DF946D /* ScanArchive.swift */; };
+	19FCC87DB07317046FAF4769 /* CardEdges.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2E951B12BC23CE82715BB6 /* CardEdges.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -156,6 +162,12 @@
 	58C45C4FD955E92A3D92D042 /* InventoryScanModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryScanModel.swift"; sourceTree = "<group>"; };
 	B8F31E776A0A393EA1F4A14B /* InventoryScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryScanView.swift"; sourceTree = "<group>"; };
 	0813ABE8B81360786939232A /* InventoryMergeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InventoryMergeTests.swift"; sourceTree = "<group>"; };
+	5CA50B639EE1DBC63ABF1EAE /* CardScale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/CardScale.swift"; sourceTree = "<group>"; };
+	8BF69994A14EF7C6F4700048 /* SilhouetteFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/SilhouetteFit.swift"; sourceTree = "<group>"; };
+	2230361D1F773C6955285FB6 /* CardScaleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CardScaleTests.swift"; sourceTree = "<group>"; };
+	BC11E4EFA42A8FEBCA7F6B16 /* CardMeasurer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/CardMeasurer.swift"; sourceTree = "<group>"; };
+	2848FA679AB7FD8A63DF946D /* ScanArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/ScanArchive.swift"; sourceTree = "<group>"; };
+	DD2E951B12BC23CE82715BB6 /* CardEdges.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/CardEdges.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +186,11 @@
 		1098403B55AF3C1CDA92BD33 /* PackFit */ = {
 			isa = PBXGroup;
 			children = (
+			DD2E951B12BC23CE82715BB6 /* CardEdges.swift */,
+			2848FA679AB7FD8A63DF946D /* ScanArchive.swift */,
+			BC11E4EFA42A8FEBCA7F6B16 /* CardMeasurer.swift */,
+			8BF69994A14EF7C6F4700048 /* SilhouetteFit.swift */,
+			5CA50B639EE1DBC63ABF1EAE /* CardScale.swift */,
 			B8F31E776A0A393EA1F4A14B /* InventoryScanView.swift */,
 			58C45C4FD955E92A3D92D042 /* InventoryScanModel.swift */,
 			C8D007669112ED24127A28E0 /* InventoryCamera.swift */,
@@ -260,6 +277,7 @@
 		A155AA44B1D1618D2F5AF75E /* PackFitTests */ = {
 			isa = PBXGroup;
 			children = (
+			2230361D1F773C6955285FB6 /* CardScaleTests.swift */,
 			0813ABE8B81360786939232A /* InventoryMergeTests.swift */,
 				21859376838BF23B0332273D /* TapMeasureTests.swift */,
 				B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
@@ -376,6 +394,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			4B4B29A7829A65A28AADD4A1 /* CardScaleTests.swift in Sources */,
 			2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */,
 				61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */,
 				23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
@@ -388,6 +407,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			19FCC87DB07317046FAF4769 /* CardEdges.swift in Sources */,
+			C3A8B2500A8D53C5935193DA /* ScanArchive.swift in Sources */,
+			E5866875A05DB4641A965992 /* CardMeasurer.swift in Sources */,
+			2767A531570093F927E2E96C /* SilhouetteFit.swift in Sources */,
+			A7A6636B7F03A01FEEE33FBC /* CardScale.swift in Sources */,
 			A0CB6FDCE60CC2A112FB25B7 /* InventoryScanView.swift in Sources */,
 			EDA8FF2A60C863ABCA0B1D33 /* InventoryScanModel.swift in Sources */,
 			1EC31477D0E6CD4C525DD45A /* InventoryCamera.swift in Sources */,

@@ -55,7 +55,7 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
         return ScanItemResponse(item: item, alternatives: alternatives, warnings: [])
     }
 
-    func scanInventory(imageBase64: String, hint: String?) async throws -> ScanInventoryResponse {
+    func scanInventory(imageBase64: String, hint: String?, reference: String?) async throws -> ScanInventoryResponse {
         _ = imageBase64
         _ = hint
         try await Task.sleep(for: .milliseconds(1200))
@@ -80,7 +80,11 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
                 alternatives: [ItemAlternative(name: "Similar \(item.category.rawValue)", category: item.category)]
             )
         }
-        return ScanInventoryResponse(detections: detections, warnings: ["no_scale_reference", "sample_data"])
+        return ScanInventoryResponse(
+            detections: detections,
+            reference: reference == nil ? nil : InventoryReference(box: InventoryBox(x: 0.42, y: 0.44, w: 0.16, h: 0.08)),
+            warnings: ["no_scale_reference", "sample_data"]
+        )
     }
 
     func checkRules(items: [Item], trip: Trip, bag: String) async throws -> RulesCheckResponse {

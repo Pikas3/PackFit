@@ -81,6 +81,13 @@ describe("prompts include tool schemas", () => {
     expect(schema).toContain("objects");
     expect(schema).toContain("box");
     expect(p.toolName).toBe("report_inventory");
+    expect(schema).toContain("referenceBox");
+    expect(schema).toContain("cylinder_upright");
+    expect(schema).toContain("x1");
+    const sized = buildScanInventoryPrompt({ imageSize: { width: 768, height: 1024 } });
+    expect(sized.system).toContain("768 × 1024 pixels");
+    const withCard = buildScanInventoryPrompt({ reference: "credit_card" });
+    expect(JSON.stringify(withCard.messages)).toContain("credit card");
   });
 
   it("map / ask / suggest", () => {
@@ -103,5 +110,18 @@ describe("prompts include tool schemas", () => {
       weatherSummary: "mild",
     });
     expect(suggest.tools[0]?.input_schema).toBeTruthy();
+  });
+});
+
+describe("jpegSize", () => {
+  it("reads the frame header, skipping earlier segments", async () => {
+    const { jpegSize } = await import("../src/services/scan.js");
+    // SOI, an APP0 segment of 4 bytes, then SOF0 with height 1024 and width 768.
+    const bytes = Buffer.from([
+      0xff, 0xd8, 0xff, 0xe0, 0x00, 0x04, 0x00, 0x00, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x04, 0x00, 0x03, 0x00, 0x03,
+      0x01, 0x22, 0x00,
+    ]);
+    expect(jpegSize(bytes)).toEqual({ width: 768, height: 1024 });
+    expect(jpegSize(Buffer.from("not a jpeg"))).toBeNull();
   });
 });

@@ -6,8 +6,6 @@
 	<string>$(API_BASE_URL)</string>
 	<key>APP_TOKEN</key>
 	<string>$(APP_TOKEN)</string>
-	<key>MOCK_API</key>
-	<string>$(MOCK_API)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -28,29 +26,35 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>MOCK_API</key>
+	<string>$(MOCK_API)</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>PackFit talks to the PackFit server on your local network during development.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>PackFit uses the camera and LiDAR to measure items and bags so packing dimensions stay accurate.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>PackFit talks to the PackFit server on your local network during development.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>UILaunchScreen</key>
 	<dict/>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 </dict>
 </plist>

@@ -171,3 +171,71 @@ Where Claude can be wrong: misses small or overlapping objects, counts a folded 
 names one object twice across photos (dedupe is by name only), and estimated sizes have no scale
 reference, so packing from them is rough until the user edits or re-measures.
 Blocked on: on-device test with a live key.
+
+## 2026-10-24 — Section 2: photo inventory measured against a credit card
+Built:
+- The inventory photo must include a credit card (ISO/IEC 7810 ID-1, 85.60 × 53.98 mm). On device:
+  1. `VNDetectRectanglesRequest` finds rectangle candidates. `PlanePose.fromCard`
+     (`Scan/Measurement/CardScale.swift`) fits each one to an ID-1 card through the camera
+     (homography + intrinsics from the lens field of view), recovering the floor's pose. Quads
+     that do not fit a real card (error > 0.2) are rejected; Claude's card box breaks ties.
+  2. `VNGenerateForegroundInstanceMaskRequest` outlines objects; each Claude box picks the
+     instance under it, cut to the box so touching objects split, card pixels removed.
+  3. `SilhouetteFit` finds the floor-standing box (centre, yaw, w, d, h) whose projection best
+     overlaps the outline (Nelder-Mead on soft IoU, smallest box among equal fits).
+- Items get `measurement.method = reference` and confidence 0.35-0.85 (lower for poor overlap,
+  small card, straight-down or near-level views, cut-off objects, no segmentation outline).
+  Straight-down photos keep Claude's heights and say so.
+- Camera: live card outline (green) and "Card found" before the shot; the card is drawn on the
+  frozen photo. No card → "No credit card found" with Try again or Use rough estimates.
+- Server: `/scan/inventory` takes `reference: "credit_card"`, keeps the card out of the list and
+  returns its box.
+Measured: synthetic tests only (`CardScaleTests`): floor distances exact; 30×20×12 box within
+10%; 7×7×24 bottle → 8.6×7.9×23.4. Not yet measured on real photos.
+Limits: objects must rest on the same flat surface as the card; one view cannot see the back of
+an object (smallest consistent box is used); soft or irregular things are boxed.
+Run: iOS `PackFitTests` 53 passing; backend 16 passing; device build clean.
+
+## 2026-10-24 — Section 2 + 3: card measurement follows Vision's outlines, cylinders for cans and bottles
+Why: on a real photo, Claude's boxes were offset or clipped (can box beside the can, bottle box
+over half the bottle). Masks were cut to those boxes, so the can measured 40.6×103.5×6.9 cm and
+the bottle was not measured at all.
+Built:
+- Vision's segmented outlines are now the objects; Claude only names them. Each detection takes
+  the outline its box overlaps best (or a nearby one if it misses), greedy and deterministic
+  (`CardMeasurer.match`). Outlines are cut by Claude's boxes only when two detections share one
+  (touching objects), and that lowers confidence. No outline means no measurement: the item
+  keeps Claude's estimate rather than fitting a rectangle.
+- `SilhouetteFit` fits a box, a standing cylinder or a lying cylinder. `/scan/inventory`
+  detections carry `shape` (Claude picks: cans, bottles, jars are cylinders); null fits a box.
+- The photo shows each measured solid's outline, traced over the object; boxes and thumbnails
+  use the segmented outline's bounds, not Claude's box.
+Measured (synthetic, `CardScaleTests`): can 6.6×12.2 → 6.6×6.6×12.2; bottle 7×24 → 7.0×7.0×23.9;
+lying bottle 24×7 → 23.9×7.0×7.0. The same outlines fitted as boxes were off by up to 70%
+(can 11.2 cm wide).
+Limits: if Vision's foreground segmentation misses an object (e.g. low contrast against the
+floor) it is not measured; touching objects that segment as one still depend on Claude's boxes.
+Run: iOS `PackFitTests` all passing; backend 16 passing; device build clean.
+
+## 2026-10-24 — Section 2 + 3: sharper card corners, re-segmenting missed objects, scan replay
+Why: on device (13:25 and 13:28 photos) the fitted cylinders sat beside the objects and came out
+too big (sparkling-water can 8.2 × 11.8 cm), Claude's boxes were consistently left of the
+objects, and the sunglasses were found alone but not alongside the bottle and can.
+Built:
+- `CardEdges` (`Scan/Measurement/CardEdges.swift`): refines the card's corners from its four
+  straight edges on the full-resolution photo (wide search, then a tight one; steps against the
+  edge's brightness direction are dropped). Synthetic: Vision's corners were 10-15 px off; 3 px
+  of corner error tilts the floor about 13 degrees; refined corners are within 0.3 px, tilt
+  about 1 degree. A badly placed card used to give wrong shapes and sizes everywhere.
+- Objects the whole-photo segmentation leaves out are re-segmented in a crop around Claude's
+  box, skipping outlines already taken.
+- `/scan/inventory` tells Claude the photo's pixel size and asks for pixel corners
+  (x0, y0, x1, y1); the server normalizes. The response shape is unchanged.
+- Debug builds save every inventory photo (original JPEG with EXIF) plus `scan.json` (Claude's
+  answer, intrinsics, EXIF 35 mm focal length, card corners, measurements) to Documents/Scans,
+  visible in Files › On My iPhone › PackFit. A Mac replay tool reruns `CardMeasurer` on a saved
+  scan and draws the result.
+Measured: synthetic end-to-end scene (Vision on the Mac, Claude boxes shifted 6% left and
+clipped): can 5.8 × 15.7 → 5.8 × 15.7, bottle 7.5 × 25 → 7.6 × 25.0, sunglasses 14 × 5 × 4 →
+14.1 × 5.1 × 3.9. Real photos not yet re-measured.
+Run: iOS `PackFitTests`; backend 17 passing; device build clean.

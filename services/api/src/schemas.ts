@@ -162,6 +162,8 @@ export const BoxSchema = z.object({
 export const ScanInventoryRequestSchema = z.object({
   imageBase64: z.string().min(1),
   hint: z.string().optional(),
+  /** A scale reference the user placed in the photo; the app measures against it. */
+  reference: z.enum(["credit_card"]).nullable().optional(),
 });
 
 export const ScanInventoryResponseSchema = z.object({
@@ -170,8 +172,12 @@ export const ScanInventoryResponseSchema = z.object({
       item: ItemSchema,
       box: BoxSchema.nullable(),
       alternatives: z.array(z.object({ name: z.string(), category: CategorySchema })),
+      /** Solid the phone fits when measuring: box, cylinder_upright or cylinder_lying. */
+      shape: z.enum(["box", "cylinder_upright", "cylinder_lying"]).nullable(),
     }),
   ),
+  /** Where the scale reference is in the photo, when one was asked for and seen. */
+  reference: z.object({ box: BoxSchema }).nullable(),
   warnings: z.array(z.string()),
   meta: MetaSchema,
 });
