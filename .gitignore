@@ -1,0 +1,28 @@
+# Secrets: never commit keys
+.env
+.env.*
+!.env.example
+apps/ios/Config/Debug.xcconfig
+apps/ios/Config/Release.xcconfig
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Swift / Xcode
+.build/
+.swiftpm/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Apify local storage
+storage/
+apify_storage/
+
+# OS / editor
+.DS_Store
+*.swp
