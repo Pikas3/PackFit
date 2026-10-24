@@ -1,0 +1,67 @@
+[
+  {
+    "ruleId": "country:in-food-dairy",
+    "scope": "country",
+    "subject": "IN",
+    "keywords": ["dairy", "meat", "food", "peanut butter", "noodles"],
+    "categories": ["food"],
+    "severity": "check",
+    "carryOn": "restricted",
+    "checked": "restricted",
+    "text": "India restricts many animal-origin foods and some packaged foods. Declare food items and check the Indian Customs list before travel.",
+    "sourceUrl": "https://www.cbic.gov.in/resources//htdocs-cbec/customs/cs-act/formatted-htmls/cs-rules-idx.html",
+    "lastVerified": "2026-09-10"
+  },
+  {
+    "ruleId": "country:cn-powerbank",
+    "scope": "country",
+    "subject": "CN",
+    "keywords": ["power bank", "battery"],
+    "categories": ["electronics"],
+    "severity": "restricted",
+    "carryOn": "restricted",
+    "checked": "banned",
+    "text": "China requires power banks to have clear capacity markings and generally keeps them in carry-on only. Unmarked banks may be refused.",
+    "sourceUrl": "http://english.customs.gov.cn/",
+    "lastVerified": "2026-09-12"
+  },
+  {
+    "ruleId": "country:kr-food",
+    "scope": "country",
+    "subject": "KR",
+    "keywords": ["meat", "fruit", "food", "agricultural"],
+    "categories": ["food"],
+    "severity": "restricted",
+    "carryOn": "restricted",
+    "checked": "restricted",
+    "text": "South Korea strictly controls meat, fruit, and many agricultural products. Declare food at arrival or leave it out of the bag.",
+    "sourceUrl": "https://www.customs.go.kr/english/cm/cntnts/cntntsView.do?mi=8028&cntntsId=2724",
+    "lastVerified": "2026-09-14"
+  },
+  {
+    "ruleId": "country:gb-liquids",
+    "scope": "country",
+    "subject": "GB",
+    "keywords": ["liquid", "shampoo", "aerosol"],
+    "categories": ["liquids", "toiletries"],
+    "severity": "check",
+    "carryOn": "restricted",
+    "checked": "ok",
+    "text": "UK airport security still applies a liquids rule for cabin bags at many airports. Pack larger toiletries in checked baggage.",
+    "sourceUrl": "https://www.gov.uk/hand-luggage-restrictions/liquids",
+    "lastVerified": "2026-09-16"
+  },
+  {
+    "ruleId": "country:is-food",
+    "scope": "country",
+    "subject": "IS",
+    "keywords": ["meat", "dairy", "food"],
+    "categories": ["food"],
+    "severity": "restricted",
+    "carryOn": "restricted",
+    "checked": "restricted",
+    "text": "Iceland restricts imports of meat and many dairy products for travelers. Check the Icelandic Food and Veterinary Authority guidance.",
+    "sourceUrl": "https://www.mast.is/en/import-export",
+    "lastVerified": "2026-09-11"
+  }
+]

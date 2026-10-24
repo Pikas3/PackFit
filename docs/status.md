@@ -95,3 +95,53 @@ Blocked on:
   `items.json` (set `measurement.method` to `manual`), then run GenPlans and `pnpm schemas:check`. The same applies to the bag dims in `containers.json`.
 - The JS `pack()` prototype from the outline is not in the repo. The solver was written from the rules in `Packages/Packer/CLAUDE.md`.
 Schema changes: `Trip.id` (optional) added; see `docs/requests.md`.
+
+## 2026-10-24 section-2 integrate PackFitSchemas + Packer
+Built:
+- Linked local SPM packages in `apps/ios/PackFit.xcodeproj` and `project.yml`:
+  `../../Packages/PackFitSchemas`, `../../Packages/Packer`
+- Deleted `PackFit/Temp/` (Types + Fixtures). App uses `@_exported import PackFitSchemas`
+  via `App/SchemaExports.swift`
+- `Fixtures/AppFixtures.swift` wraps throwing `PackFitSchemas.Fixtures` for UI + mock rule flags
+- `PlanStore.computePlan` runs `Packer.pack` on a background task
+- API DTOs (`ScanItemResponse`, etc.) stay in `API/APIModels.swift`
+Cut: none for this integration
+Run:
+- Open `apps/ios/PackFit.xcodeproj` (or `xcodegen generate` from `apps/ios`)
+- Scheme PackFit; mock API still default via `Config/Example.xcconfig`
+Measured: not re-run on device in this change (Windows host)
+Blocked on: Section 3 live API; device fps / LiDAR MAE as before
+Schema changes: none
+
+## 2026-10-24 section-3 backend API + Apify scaffold
+Built:
+- `services/api` Hono app on port 8787: `GET /health`, `POST /scan/item`, `POST /rules/check`,
+  `POST /rules/ask`, `POST /trip/suggest`; voice routes stubbed 501 for Section 4
+- `src/schemas.ts` zod mirror of `schemas/*.schema.json`; `test/schemas.test.ts` is the TS half of
+  `pnpm schemas:check`
+- Claude wrapper `src/claude/client.ts` (20s timeout, one repair retry, token/latency logs, no
+  prompt/image logging). `MOCK_CLAUDE=1` (default when no `ANTHROPIC_API_KEY`) uses deterministic stubs
+- Hand-written demo rules in `data/rules/{tsa,airline,country}.json` (18 records) with real sourceUrls
+- Catalog + airports (`data/catalog.json`, `data/airports.json`); Open-Meteo weather for suggestions
+- Apify actors under `services/apify/`: `tsa-what-can-i-bring` (publishable README + INPUT_SCHEMA),
+  `airline-baggage`, `country-customs`, plus `shared/normalize.ts` / api `sync:rules`
+Cut:
+- Live 25-photo scan accuracy run (no fixture photos in repo yet)
+- Public Apify publish URL (actor code ready; needs `apify push` with token)
+- Full 300-airport list (≈80 major + demo destinations)
+Run:
+- `pnpm install`
+- Copy `services/api/.env.example` → `services/api/.env` (set `APP_TOKEN`, optional keys)
+- `pnpm --filter api dev` → http://localhost:8787
+- `pnpm --filter api test` (12 passing with mock Claude)
+- Header on every non-health route: `x-packfit-token: <APP_TOKEN>`
+Measured:
+- Mock-mode route tests green; trip/suggest ~0.6s/trip including Open-Meteo when reachable
+- Scan identification hit rate / dim MAE: not measured (needs photos + live key)
+Where Claude can be wrong:
+- Scan: mis-IDs similar gadgets, may mark measured dims implausible incorrectly, weight estimates drift;
+  catalog fallbacks hide bad kg/dims but can disagree with the photo.
+- Rules: may drop a real candidate or over-flag when keywords are broad; server always overwrites
+  sourceUrl/lastVerified from records so invented URLs cannot ship.
+Blocked on: fixture photos for scan eval; Apify tokens to publish/schedule actors
+Schema changes: none

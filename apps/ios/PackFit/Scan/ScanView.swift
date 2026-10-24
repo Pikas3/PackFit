@@ -172,6 +172,7 @@ struct ScanView: View {
         } catch {
             // Keep measured dims; drop to editable manual card.
             draft = Item(
+                id: UUID().uuidString,
                 name: hint.isEmpty ? "Item" : hint,
                 w: measured.w,
                 h: measured.h,

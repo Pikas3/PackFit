@@ -19,7 +19,7 @@ final class RulesStore {
             summary = response.summary
             stale = response.stale || flags.contains { RuleFreshness.isStale($0.lastVerified) }
         } catch {
-            flags = Fixtures.sampleFlags(for: items)
+            flags = AppFixtures.sampleFlags(for: items)
             summary = Copy.Errors.network
             stale = flags.contains { RuleFreshness.isStale($0.lastVerified) }
             errorMessage = Copy.Errors.network

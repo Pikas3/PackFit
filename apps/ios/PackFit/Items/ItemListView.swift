@@ -74,7 +74,7 @@ struct ItemListView: View {
 
     private func packAndContinue() async {
         guard let bag = tripStore.bag, let trip = tripStore.trip else { return }
-        await planStore.pack(items: itemsStore.items, into: bag)
+        await planStore.computePlan(items: itemsStore.items, into: bag)
         await rulesStore.check(
             items: itemsStore.items,
             trip: trip,

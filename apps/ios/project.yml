@@ -19,6 +19,11 @@ configs:
 configFiles:
   Debug: Config/Example.xcconfig
   Release: Config/Example.xcconfig
+packages:
+  PackFitSchemas:
+    path: ../../Packages/PackFitSchemas
+  Packer:
+    path: ../../Packages/Packer
 targets:
   PackFit:
     type: application
@@ -27,6 +32,10 @@ targets:
       - path: PackFit
         excludes:
           - Voice/**
+          - Temp/**
+    dependencies:
+      - package: PackFitSchemas
+      - package: Packer
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.packfit.app
