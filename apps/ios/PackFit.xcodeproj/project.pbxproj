@@ -72,6 +72,7 @@
 
 
 		EBF10FA8A7805DD06308DF1D /* Scan/ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC741861ECD4DFC4978C2FA /* Scan/ScanView.swift */; };
+		B1ITEMCAMERA00000000001 /* Scan/ItemCameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1ITEMCAMERA00000000002 /* Scan/ItemCameraPreview.swift */; };
 		F1868E5F66FD26B84771A1C2 /* Scan/Measurement/ScanWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AD58CDFC5D218BF5B46C926 /* Scan/Measurement/ScanWorker.swift */; };
 		F436272D604EB0735B2B7BCD /* Store/TripStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28C2B5C5FE88F267FC7FEA5 /* Store/TripStore.swift */; };
 		F4BA7A26C39806719BC98BA7 /* MeasurementMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */; };
@@ -160,6 +161,7 @@
 		E18DE82273B61AAF3BE3F467 /* Viewer/PlanViewerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/PlanViewerController.swift; sourceTree = "<group>"; };
 		E5E75621B8FBCFDC67E72FEE /* Onboarding/OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding/OnboardingView.swift; sourceTree = "<group>"; };
 		EAC741861ECD4DFC4978C2FA /* Scan/ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/ScanView.swift; sourceTree = "<group>"; };
+		B1ITEMCAMERA00000000002 /* Scan/ItemCameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/ItemCameraPreview.swift; sourceTree = "<group>"; };
 		EF695D66250FBEAA42EFE360 /* App/DeviceCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/DeviceCapabilities.swift; sourceTree = "<group>"; };
 		F66C29C9109E89FCD4392361 /* Guided/GuidedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guided/GuidedSession.swift; sourceTree = "<group>"; };
 		F71B9DAE26775B429CF08342 /* PackFitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PackFitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -227,6 +229,7 @@
 				D039890D9726C4C97A6C288F /* Scan/Measurement/MeasurementMath.swift */,
 				86D8A43DD535E7BF1BBEF46E /* Scan/ReviewCardView.swift */,
 				EAC741861ECD4DFC4978C2FA /* Scan/ScanView.swift */,
+				B1ITEMCAMERA00000000002 /* Scan/ItemCameraPreview.swift */,
 				572CFF43E4103C56C45E4B8B /* Store/ItemsStore.swift */,
 				BD5D149DD8E2B472C0A9DC01 /* Store/PlanStore.swift */,
 				1E444B89265FD7480F247EE0 /* Store/RulesStore.swift */,
@@ -440,6 +443,7 @@
 				B5853417EA8FD10643516233 /* Scan/Measurement/MeasurementMath.swift in Sources */,
 				2F765AB914536D55CB4CA660 /* Scan/ReviewCardView.swift in Sources */,
 				EBF10FA8A7805DD06308DF1D /* Scan/ScanView.swift in Sources */,
+				B1ITEMCAMERA00000000001 /* Scan/ItemCameraPreview.swift in Sources */,
 				6FC7176E9A0FC11D0205E479 /* Store/ItemsStore.swift in Sources */,
 				9537A78B97C8C0F0F8236F85 /* Store/PlanStore.swift in Sources */,
 				5AACCE3E4C8999C4CE38CD63 /* Store/RulesStore.swift in Sources */,

@@ -111,6 +111,11 @@ enum Copy {
         static let measuredManual = "Entered manually"
         static let measuredReference = "Scaled from credit card"
         static let measuredARTaps = "Measured with AR taps"
+        static let hintPlaceholder = "Hint (optional), e.g. laptop charger"
+        static let useCamera = "Use camera"
+        static let manualFallbackShort = "Enter dims only"
+        static let cameraDenied = "Camera access is off. Enable it in Settings, or enter dimensions manually."
+        static let cameraStartFailed = "Couldn’t start the camera. Enter dimensions manually instead."
     }
 
     enum Guided {

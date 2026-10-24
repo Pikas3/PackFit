@@ -33,8 +33,10 @@ final class LidarCaptureSession: NSObject {
         #endif
     }
 
-    func start() throws {
+    func start() async throws {
         guard !isRunning else { return }
+        let granted = await Self.requestCameraAccess()
+        guard granted else { throw CaptureError.cameraDenied }
         guard let device = AVCaptureDevice.default(.builtInLiDARDepthCamera, for: .video, position: .back) else {
             throw CaptureError.lidarUnavailable
         }
@@ -112,9 +114,21 @@ final class LidarCaptureSession: NSObject {
 
     enum CaptureError: Error {
         case lidarUnavailable
+        case cameraDenied
         case cannotAddInput
         case cannotAddOutput
         case noDepthFormat
+    }
+
+    private static func requestCameraAccess() async -> Bool {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            return true
+        case .notDetermined:
+            return await AVCaptureDevice.requestAccess(for: .video)
+        default:
+            return false
+        }
     }
 }
 

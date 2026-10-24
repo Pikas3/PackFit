@@ -17,7 +17,7 @@ struct ItemListView: View {
         Group {
             if itemsStore.items.isEmpty {
                 EmptyStateView(Copy.Items.empty, actionTitle: Copy.Items.emptyAction) {
-                    path.append(caps.supportsGuidedScan ? .guidedScan : .scan)
+                    path.append(.scan)
                 }
             } else {
                 List {
@@ -86,7 +86,7 @@ struct ItemListView: View {
                 Button(Copy.Trip.suggestionsTitle) { path.append(.suggestions) }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button(Copy.Items.scan) { path.append(caps.supportsGuidedScan ? .guidedScan : .scan) }
+                Button(Copy.Items.scan) { path.append(.scan) }
             }
             ToolbarItem(placement: .bottomBar) {
                 Button(Copy.Items.pack) {
