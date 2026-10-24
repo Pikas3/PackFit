@@ -26,9 +26,11 @@ mirror `schemas/*.schema.json`.
 
 ## POST /scan/item  (WS3 server, Section 3)
 
-Claude vision turns a photo plus the device's measurement into an `Item`. On LiDAR
-devices the app measures `w/h/d` itself and the model only identifies the item and
-estimates what cannot be measured (name, category, kg, fragile, soft, hardness, upright).
+Claude vision acts as an object-detection model on the photo and returns an `Item`.
+On LiDAR devices the app measures `w/h/d` itself for packing; those dims are attached
+server-side and are not sent into the identification prompt. The model names the item
+from the image alone and estimates what cannot be measured (category, kg, fragile, soft,
+hardness, upright).
 
 Request:
 ```json
@@ -58,8 +60,8 @@ Behaviour:
 - `item.id` is a fresh uuid, `item.source = 'scan'`, `item.confidence` in 0-1.
 - With `measured` present, copy `w/h/d` verbatim into the item and set
   `item.measurement = { method, confidence, deviceHasLidar: method == 'lidar' }`. The model
-  is told the dims and asked not to re-estimate them. It may add a warning
-  `"dims_implausible_for_item"` if, say, a 2 cm tall object is identified as a shoe.
+  does not see those dimensions — identification is image-only object detection; dims are
+  for the packer only.
 - With no `measured` and a `reference`, the model estimates dims from the reference object;
   `measurement.method = 'estimate'`, confidence capped at 0.7.
 - With neither, add a warning `"no_scale_reference"`, `measurement.method = 'estimate'`,
@@ -70,6 +72,58 @@ Behaviour:
   with warning `"dims_from_catalog"`. Measured dims are never replaced.
 - Model output is parsed with the zod schema. One repair retry on failure; then
   `422 model_output_invalid`.
+
+## POST /scan/inventory  (WS3 server, Section 3)
+
+One photo of everything the user has laid out. Claude vision lists every distinct packable
+object in frame, one entry per instance, and the app shows them as an inventory to tick.
+Works on any iPhone; nothing is measured, so every dimension is an estimate.
+
+Request:
+```json
+{
+  "imageBase64": "<jpeg, max 3 MB, long edge 1024 px>",
+  "hint": "optional user text",
+  "reference": "credit_card" | null
+}
+```
+
+Response:
+```json
+{
+  "detections": [
+    {
+      "item": Item,
+      "box": { "x": 0.1, "y": 0.2, "w": 0.3, "h": 0.25 } | null,
+      "alternatives": [{ "name": string, "category": Category }],
+      "shape": "box" | "cylinder_upright" | "cylinder_lying" | null
+    }
+  ],
+  "reference": { "box": { "x": 0.4, "y": 0.4, "w": 0.16, "h": 0.08 } } | null,
+  "warnings": string[],
+  "meta": { ... }
+}
+```
+
+Behaviour:
+- With `reference: "credit_card"`, Claude leaves the card out of `detections` and returns its
+  rough box in `reference` (warning `"reference_not_seen"` if it did not see one). The app
+  then measures every object on-device against the card (see `docs/status.md`) and
+  overwrites `w/h/d` with `measurement.method = 'reference'`.
+- At most 25 detections. The suitcase, furniture, floor, hands and people are ignored.
+- `box` is normalized to the upright photo, origin top-left. It is approximate: the app only
+  uses it to pick which segmented outline in the photo is this object (and, when two objects
+  touch, to split their shared outline). Measurements, highlights and thumbnails come from
+  the outline. Out-of-range boxes are clamped; degenerate ones become `null`.
+- `shape` picks the solid the app fits to the outline: cans and bottles are cylinders.
+  `null` when Claude did not say; the app then fits a box.
+- Each `item` gets a fresh uuid, `source = 'scan'`, `measurement.method = 'estimate'`,
+  `measurement.confidence` capped at 0.5 (no scale reference). `item.confidence` is the
+  identification confidence.
+- kg and dims are clamped and replaced from the catalog exactly as in `/scan/item`.
+- Warnings: always `"no_scale_reference"`; `"nothing_detected"` for an empty list;
+  `"dims_from_catalog"` / `"kg_from_catalog"` when any item needed a fallback;
+  `"sample_data"` when the server answered with stub items (no API key or `MOCK_CLAUDE=1`).
 
 ## POST /rules/check  (WS5, Section 3)
 

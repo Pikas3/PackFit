@@ -1,0 +1,8 @@
+{
+  "actorSpecification": 1,
+  "name": "country-customs",
+  "title": "Country customs restricted items scraper",
+  "description": "Scrapes official customs prohibited/restricted pages for a fixed country list.",
+  "version": "0.1",
+  "input": "./INPUT_SCHEMA.json"
+}

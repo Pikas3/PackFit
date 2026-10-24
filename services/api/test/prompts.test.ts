@@ -1,0 +1,127 @@
+import { describe, expect, it } from "vitest";
+import { buildAskRulePrompt } from "../src/claude/prompts/askRule.js";
+import { buildMapRulesPrompt } from "../src/claude/prompts/mapRules.js";
+import {
+  buildScanItemPrompt,
+  measuredPromptUserText,
+  scanToolHasSchema,
+} from "../src/claude/prompts/scanItem.js";
+import { buildScanInventoryPrompt } from "../src/claude/prompts/scanInventory.js";
+import { buildSuggestItemsPrompt } from "../src/claude/prompts/suggestItems.js";
+import type { Item, Trip } from "../src/schemas.js";
+
+const sampleItem: Item = {
+  id: "i1",
+  name: "Shampoo 400 ml",
+  w: 6,
+  h: 18,
+  d: 6,
+  kg: 0.4,
+  fragile: false,
+  hardness: 0.5,
+  soft: false,
+  upright: true,
+  category: "liquids",
+  confidence: 1,
+};
+
+const sampleTrip = {
+  from: "SFO",
+  to: "DEL",
+  airline: "UA",
+  nights: 14,
+  activities: ["home"],
+  carryOn: {
+    id: "c",
+    name: "carry",
+    type: "suitcase" as const,
+    outer: [55, 23, 40] as [number, number, number],
+    compartments: [{ name: "main", dims: [52, 20, 37] as [number, number, number], compressibility: 0.1 }],
+    weightLimitKg: 7,
+  },
+  checked: {
+    id: "k",
+    name: "checked",
+    type: "suitcase" as const,
+    outer: [75, 30, 50] as [number, number, number],
+    compartments: [{ name: "main", dims: [72, 27, 47] as [number, number, number], compressibility: 0.1 }],
+    weightLimitKg: 23,
+  },
+} satisfies Trip;
+
+describe("prompts include tool schemas", () => {
+  it("scan measured + estimate", () => {
+    const measured = buildScanItemPrompt({
+      measured: { w: 10, h: 2, d: 8, method: "lidar", confidence: 0.9 },
+    });
+    expect(scanToolHasSchema(measured)).toBe(true);
+    const estimate = buildScanItemPrompt({ measured: null, reference: "credit_card" });
+    expect(scanToolHasSchema(estimate)).toBe(true);
+  });
+
+  it("measured path is object detection: no numeric dims in the prompt", () => {
+    const measured = buildScanItemPrompt({
+      measured: { w: 30.2, h: 1.8, d: 21.4, method: "lidar", confidence: 0.93 },
+    });
+    const text = `${measured.system}\n${measuredPromptUserText(measured)}`;
+    expect(text.toLowerCase()).toMatch(/object-detection/);
+    expect(text).not.toMatch(/30\.2|1\.8|21\.4/);
+    expect(text).not.toMatch(/w=\d|h=\d|d=\d/);
+    const schema = measured.tools[0]?.input_schema as { properties?: Record<string, unknown> };
+    expect(schema.properties?.w).toBeUndefined();
+    expect(schema.properties?.h).toBeUndefined();
+    expect(schema.properties?.d).toBeUndefined();
+    expect(schema.properties?.dimsPlausible).toBeUndefined();
+  });
+
+  it("scan inventory asks for a list of objects with boxes", () => {
+    const p = buildScanInventoryPrompt({ hint: "weekend trip" });
+    expect(scanToolHasSchema(p)).toBe(true);
+    const schema = JSON.stringify(p.tools[0].input_schema);
+    expect(schema).toContain("objects");
+    expect(schema).toContain("box");
+    expect(p.toolName).toBe("report_inventory");
+    expect(schema).toContain("referenceBox");
+    expect(schema).toContain("cylinder_upright");
+    expect(schema).toContain("x1");
+    const sized = buildScanInventoryPrompt({ imageSize: { width: 768, height: 1024 } });
+    expect(sized.system).toContain("768 × 1024 pixels");
+    const withCard = buildScanInventoryPrompt({ reference: "credit_card" });
+    expect(JSON.stringify(withCard.messages)).toContain("credit card");
+  });
+
+  it("map / ask / suggest", () => {
+    const map = buildMapRulesPrompt({
+      items: [sampleItem],
+      bag: "carryOn",
+      candidatesByItem: { i1: [] },
+    });
+    expect(map.tools[0]?.input_schema).toBeTruthy();
+
+    const ask = buildAskRulePrompt({
+      question: "can I bring a power bank",
+      bag: "carryOn",
+      candidates: [],
+    });
+    expect(ask.tools[0]?.input_schema).toBeTruthy();
+
+    const suggest = buildSuggestItemsPrompt({
+      trip: sampleTrip,
+      weatherSummary: "mild",
+    });
+    expect(suggest.tools[0]?.input_schema).toBeTruthy();
+  });
+});
+
+describe("jpegSize", () => {
+  it("reads the frame header, skipping earlier segments", async () => {
+    const { jpegSize } = await import("../src/services/scan.js");
+    // SOI, an APP0 segment of 4 bytes, then SOF0 with height 1024 and width 768.
+    const bytes = Buffer.from([
+      0xff, 0xd8, 0xff, 0xe0, 0x00, 0x04, 0x00, 0x00, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x04, 0x00, 0x03, 0x00, 0x03,
+      0x01, 0x22, 0x00,
+    ]);
+    expect(jpegSize(bytes)).toEqual({ width: 768, height: 1024 });
+    expect(jpegSize(Buffer.from("not a jpeg"))).toBeNull();
+  });
+});

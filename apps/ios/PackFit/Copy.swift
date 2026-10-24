@@ -31,6 +31,7 @@ enum Copy {
         static let presets = "Presets"
         static let custom = "Custom"
         static let measureLidar = "Measure with LiDAR"
+        static let measureCamera = "Measure with the camera"
         static let measureManual = "Enter dimensions"
         static let wheelsPrompt = "Where are the wheels?"
         static let wheelsBack = "Back"
@@ -46,6 +47,34 @@ enum Copy {
         static let empty = "No items yet. Scan three things from the pile."
         static let emptyAction = "Scan an item"
         static let delete = "Delete"
+    }
+
+    enum Inventory {
+        static let title = "Photo inventory"
+        static let entry = "Snap the pile"
+        static let hint = "Put a credit card flat on the floor next to your things. Hold the phone at about 45°, with everything in the frame."
+        static let cardSeen = "Card found. Take the photo."
+        static let capture = "Take photo"
+        static let identifying = "Finding everything in the photo… usually 5–15 seconds."
+        static let privacy = "The photo goes to our server and Claude, and is not stored."
+        static let simulator = "No camera in the simulator. Tap Take photo to use sample items."
+        static let cameraUnavailable = "Camera unavailable. Check camera access in Settings."
+        static let failed = "We couldn't identify anything just now. Try again, or add items by hand."
+        static let nothingFound = "Nothing to pack found in that photo. Move closer and try again."
+        static let sampleData = "Sample data: these items are not from your photo. Claude is not connected (mock mode or no API key on the server)."
+        static let noCard = "No credit card found in the photo. Lay a card flat next to your things, fully in view, and try again."
+        static let useEstimates = "Use rough estimates"
+        static let measuredNote = "Sizes measured against your card. Tap an item to fix it."
+        static let steepNote = "Heights are guesses: the photo looks straight down. Tilt the phone to about 45° for heights."
+        static let tryAgain = "Try again"
+        static let scanMore = "Scan more"
+        static let estimateNote = "Sizes are guesses from the photo. Tap an item to fix it."
+        static let duplicate = "Seen in an earlier photo"
+        static let included = "Will be added"
+        static let excluded = "Won't be added"
+        static func found(_ n: Int) -> String { n == 1 ? "1 thing found" : "\(n) things found" }
+        static func review(_ n: Int) -> String { "Review \(n) found" }
+        static func add(_ n: Int) -> String { n == 1 ? "Add 1 item" : "Add \(n) items" }
     }
 
     enum Scan {
@@ -68,6 +97,69 @@ enum Copy {
         static let measuredLidar = "Measured with LiDAR"
         static let measuredManual = "Entered manually"
         static let measuredReference = "Scaled from credit card"
+        static let measuredARTaps = "Measured with AR taps"
+        static let estimatedFromPhoto = "Estimated from photo"
+    }
+
+    enum Guided {
+        static let title = "Scan & pack"
+        static let findFloor = "Point at the floor and move the phone slowly."
+        static let bag = "Open your suitcase on the floor, then tap the bottom of the empty shell."
+        static let bagMeasuring = "Measuring the bag… hold the phone above it."
+        static let bagStable = "Got it. Tap “Use this bag”."
+        static let tapNoDepth = "Couldn’t see that spot. Move a little closer and tap again."
+        static let itemNotFound = "Couldn’t find an item there. Tap the middle of it from a little closer."
+
+        static func bagFailure(_ failure: CavityFitter.Failure) -> String {
+            switch failure {
+            case .seedUnseen: return "Hold the phone above the bag so it can see inside."
+            case .leaked: return "That spot isn’t inside the bag. Tap the bottom of the open shell."
+            case .tooSmall: return "That space is too small for a suitcase. Tap the bottom of the main shell."
+            case .noWalls: return "Couldn’t find the bag’s walls. Move the phone slowly around the bag."
+            }
+        }
+        static let useBag = "Use this bag"
+        static let tapCorners = "Measure by tapping corners"
+        static let tapCornerLeft = "Open the bag on the floor. Tap the inside back-left corner."
+        static let tapCornerRight = "Now tap the inside back-right corner."
+        static let tapCornerFront = "Now tap an inside front corner."
+        static let cornersTooClose = "Those corners are too close. Try again."
+        static let tapMissed = "Couldn’t find the floor there. Move the phone a little and tap again."
+        static let heightMissed = "Couldn’t read the height. Tap the top edge of the side facing you."
+        static let measureByTapping = "Measure by corners instead"
+        static let backToSweep = "Back to one-tap"
+        static let tapItemCorner1 = "Tap a bottom corner of an item."
+        static let tapItemCorner2 = "Tap the next bottom corner along one side."
+        static let tapItemCorner3 = "Tap a bottom corner on the opposite side."
+        static let tapItemTop = "Tap the top edge of the side facing you."
+        static let tapItemAdjust = "Check the size, then add the item."
+        static let addItem = "Add item"
+        static let redo = "Redo"
+        static let lengthCm = "Length"
+        static let widthCm = "Width"
+        static let heightCm = "Height"
+        static let items = "Tap an item to measure it. Keep it in view until its box turns green."
+        static let itemsMeasuring = "Measuring… keep the item in view."
+        static let itemsHint = "Tap an item again to re-measure it."
+        static let removeItem = "Remove item"
+        static let itemsFound = "items found"
+        static let done = "Done"
+        static let identifying = "Identifying your items…"
+        static let review = "Check your items"
+        static let packIt = "Pack it"
+        static let rescan = "Scan again"
+        static let packing = "Working out the plan…"
+        static let overlay = "Follow the steps. Each box shows where an item goes."
+        static let underLid = "Above the rim: this goes under the lid."
+        static let unknownItem = "Item"
+        static let usePresets = "Use bag presets instead"
+        static let addManually = "Add one manually"
+        static let view3D = "3D view"
+        static let itemsLink = "Items"
+        static let restart = "Start over"
+        static let noAR = "This device can’t run AR. Choose a bag preset instead."
+        static let noLidar = "This flow needs the built-in LiDAR camera. Choose a bag preset instead."
+        static let lidarStartFailed = "Couldn’t start the LiDAR camera. Check camera permission and try again."
     }
 
     enum Viewer {

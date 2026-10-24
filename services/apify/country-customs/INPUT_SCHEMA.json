@@ -1,0 +1,13 @@
+{
+  "title": "Country customs",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "countries": {
+      "title": "ISO country codes",
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["IN", "CN", "KR", "GB", "IS"]
+    }
+  }
+}

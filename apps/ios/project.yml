@@ -9,6 +9,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
     TARGETED_DEVICE_FAMILY: "1"
     GENERATE_INFOPLIST_FILE: NO
     CURRENT_PROJECT_VERSION: 1
@@ -38,10 +39,9 @@ targets:
       - package: Packer
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.packfit.app
+        PRODUCT_BUNDLE_IDENTIFIER: $(PACKFIT_BUNDLE_ID)
         INFOPLIST_FILE: PackFit/Info.plist
         CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: ""
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     info:
       path: PackFit/Info.plist
@@ -56,7 +56,9 @@ targets:
       - target: PackFit
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.packfit.app.tests
+        PRODUCT_BUNDLE_IDENTIFIER: $(PACKFIT_BUNDLE_ID).tests
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/PackFit.app/PackFit
+        BUNDLE_LOADER: $(TEST_HOST)
         GENERATE_INFOPLIST_FILE: YES
 schemes:
   PackFit:

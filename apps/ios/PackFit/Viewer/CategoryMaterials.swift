@@ -3,16 +3,22 @@ import UIKit
 
 @MainActor
 enum CategoryMaterials {
-    private static var cache: [Category: SimpleMaterial] = [:]
+    private struct Key: Hashable {
+        var category: Category
+        var opacityPercent: Int
+    }
+
+    private static var cache: [Key: SimpleMaterial] = [:]
     private static let sharedBox: MeshResource = .generateBox(size: 1)
 
     static func boxMesh() -> MeshResource { sharedBox }
 
     static func material(for category: Category, opacity: CGFloat = 1) -> SimpleMaterial {
-        let base = uiColor(for: category).withAlphaComponent(opacity)
-        if opacity >= 0.999, let cached = cache[category] { return cached }
+        let key = Key(category: category, opacityPercent: Int((opacity * 100).rounded()))
+        if let cached = cache[key] { return cached }
+        let base = uiColor(for: category).withAlphaComponent(CGFloat(key.opacityPercent) / 100)
         let material = SimpleMaterial(color: base, roughness: 0.55, isMetallic: false)
-        if opacity >= 0.999 { cache[category] = material }
+        cache[key] = material
         return material
     }
 

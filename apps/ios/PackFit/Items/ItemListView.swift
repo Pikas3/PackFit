@@ -14,8 +14,12 @@ struct ItemListView: View {
     var body: some View {
         Group {
             if itemsStore.items.isEmpty {
-                EmptyStateView(Copy.Items.empty, actionTitle: Copy.Items.emptyAction) {
-                    path.append(.scan)
+                VStack(spacing: Tokens.Spacing.md) {
+                    EmptyStateView(Copy.Items.empty, actionTitle: Copy.Items.emptyAction) {
+                        path.append(.scan)
+                    }
+                    Button(Copy.Inventory.entry) { path.append(.inventoryScan) }
+                        .buttonStyle(.bordered)
                 }
             } else {
                 List {
@@ -39,7 +43,7 @@ struct ItemListView: View {
                                         .font(Tokens.TypeScale.caption)
                                         .foregroundStyle(.secondary)
                                     HStack {
-                                        MeasurementMethodBadge(method: item.measurement?.method)
+                                        MeasurementMethodBadge(method: item.measurement?.method, tapMeasured: itemsStore.tapMeasuredIDs.contains(item.id))
                                         ConfidenceBadge(confidence: item.measurement?.confidence ?? item.confidence)
                                     }
                                 }
@@ -53,7 +57,10 @@ struct ItemListView: View {
         .navigationTitle(Copy.Items.title)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(Copy.Items.scan) { path.append(.scan) }
+                Menu(Copy.Items.scan) {
+                    Button(Copy.Items.scan) { path.append(caps.supportsGuidedScan ? .guidedScan : .scan) }
+                    Button(Copy.Inventory.entry) { path.append(.inventoryScan) }
+                }
             }
             ToolbarItem(placement: .bottomBar) {
                 Button(Copy.Items.pack) {

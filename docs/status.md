@@ -112,3 +112,130 @@ Run:
 Measured: not re-run on device in this change (Windows host)
 Blocked on: Section 3 live API; device fps / LiDAR MAE as before
 Schema changes: none
+
+## 2026-10-24 section-3 backend API + Apify scaffold
+Built:
+- `services/api` Hono app on port 8787: `GET /health`, `POST /scan/item`, `POST /rules/check`,
+  `POST /rules/ask`, `POST /trip/suggest`; voice routes stubbed 501 for Section 4
+- `src/schemas.ts` zod mirror of `schemas/*.schema.json`; `test/schemas.test.ts` is the TS half of
+  `pnpm schemas:check`
+- Claude wrapper `src/claude/client.ts` (20s timeout, one repair retry, token/latency logs, no
+  prompt/image logging). `MOCK_CLAUDE=1` (default when no `ANTHROPIC_API_KEY`) uses deterministic stubs
+- Hand-written demo rules in `data/rules/{tsa,airline,country}.json` (18 records) with real sourceUrls
+- Catalog + airports (`data/catalog.json`, `data/airports.json`); Open-Meteo weather for suggestions
+- Apify actors under `services/apify/`: `tsa-what-can-i-bring` (publishable README + INPUT_SCHEMA),
+  `airline-baggage`, `country-customs`, plus `shared/normalize.ts` / api `sync:rules`
+Cut:
+- Live 25-photo scan accuracy run (no fixture photos in repo yet)
+- Public Apify publish URL (actor code ready; needs `apify push` with token)
+- Full 300-airport list (≈80 major + demo destinations)
+Run:
+- `pnpm install`
+- Copy `services/api/.env.example` → `services/api/.env` (set `APP_TOKEN`, optional keys)
+- `pnpm --filter api dev` → http://localhost:8787
+- `pnpm --filter api test` (12 passing with mock Claude)
+- Header on every non-health route: `x-packfit-token: <APP_TOKEN>`
+Measured:
+- Mock-mode route tests green; trip/suggest ~0.6s/trip including Open-Meteo when reachable
+- Scan identification hit rate / dim MAE: not measured (needs photos + live key)
+Where Claude can be wrong:
+- Scan: mis-IDs similar gadgets, may mark measured dims implausible incorrectly, weight estimates drift;
+  catalog fallbacks hide bad kg/dims but can disagree with the photo.
+- Rules: may drop a real candidate or over-flag when keywords are broad; server always overwrites
+  sourceUrl/lastVerified from records so invented URLs cannot ship.
+Blocked on: fixture photos for scan eval; Apify tokens to publish/schedule actors
+Schema changes: none
+
+## 2026-10-24 — Section 2 + 3: photo inventory (Claude object detection)
+Built:
+- `POST /scan/inventory` (services/api): one photo in, every distinct packable object out, each as an
+  `Item` (`source: scan`, `measurement.method: estimate`, confidence capped 0.5) plus a rough
+  normalized box. Prompt `src/claude/prompts/scanInventory.ts`, forced tool `report_inventory`,
+  max 25 objects, 8192 max tokens. Catalog fallbacks for kg/dims as in `/scan/item`. Mock returns 4 items.
+- iOS "Photo inventory" screen (`PackFit/Scan/Inventory/`): plain back camera (any iPhone, no LiDAR),
+  take photo → frozen photo with numbered boxes → list with thumbnails cropped from the boxes,
+  confidence badges, tick/untick, tap to edit (ItemDetailView), delete. "Scan more" takes another
+  photo; names already seen in an earlier photo start unticked ("Seen in an earlier photo").
+  "Add N items" appends to `ItemsStore` and returns to the item list.
+- Entry: Items toolbar "Scan item" is now a menu (single-item scan / "Snap the pile"), plus a
+  "Snap the pile" button on the empty item list. `Route.inventoryScan`.
+- Badge for `estimate` now reads "Estimated from photo" (was "Scaled from credit card").
+Cut:
+- LiDAR refinement of inventory items (dims stay estimates; re-measure with the single-item scan).
+- Live-key accuracy run: not measured. Claude's boxes are approximate; they are only used for UI.
+Run:
+- Backend: `pnpm --filter api test` (15 passing, mock Claude). iOS: `PackFitTests` 45 passing incl.
+  `InventoryMergeTests`; device build clean. Simulator smoke test with MockAPIClient: trip → bag →
+  Snap the pile → Take photo → 4 items → Add → item list.
+Where Claude can be wrong: misses small or overlapping objects, counts a folded stack as one item,
+names one object twice across photos (dedupe is by name only), and estimated sizes have no scale
+reference, so packing from them is rough until the user edits or re-measures.
+Blocked on: on-device test with a live key.
+
+## 2026-10-24 — Section 2: photo inventory measured against a credit card
+Built:
+- The inventory photo must include a credit card (ISO/IEC 7810 ID-1, 85.60 × 53.98 mm). On device:
+  1. `VNDetectRectanglesRequest` finds rectangle candidates. `PlanePose.fromCard`
+     (`Scan/Measurement/CardScale.swift`) fits each one to an ID-1 card through the camera
+     (homography + intrinsics from the lens field of view), recovering the floor's pose. Quads
+     that do not fit a real card (error > 0.2) are rejected; Claude's card box breaks ties.
+  2. `VNGenerateForegroundInstanceMaskRequest` outlines objects; each Claude box picks the
+     instance under it, cut to the box so touching objects split, card pixels removed.
+  3. `SilhouetteFit` finds the floor-standing box (centre, yaw, w, d, h) whose projection best
+     overlaps the outline (Nelder-Mead on soft IoU, smallest box among equal fits).
+- Items get `measurement.method = reference` and confidence 0.35-0.85 (lower for poor overlap,
+  small card, straight-down or near-level views, cut-off objects, no segmentation outline).
+  Straight-down photos keep Claude's heights and say so.
+- Camera: live card outline (green) and "Card found" before the shot; the card is drawn on the
+  frozen photo. No card → "No credit card found" with Try again or Use rough estimates.
+- Server: `/scan/inventory` takes `reference: "credit_card"`, keeps the card out of the list and
+  returns its box.
+Measured: synthetic tests only (`CardScaleTests`): floor distances exact; 30×20×12 box within
+10%; 7×7×24 bottle → 8.6×7.9×23.4. Not yet measured on real photos.
+Limits: objects must rest on the same flat surface as the card; one view cannot see the back of
+an object (smallest consistent box is used); soft or irregular things are boxed.
+Run: iOS `PackFitTests` 53 passing; backend 16 passing; device build clean.
+
+## 2026-10-24 — Section 2 + 3: card measurement follows Vision's outlines, cylinders for cans and bottles
+Why: on a real photo, Claude's boxes were offset or clipped (can box beside the can, bottle box
+over half the bottle). Masks were cut to those boxes, so the can measured 40.6×103.5×6.9 cm and
+the bottle was not measured at all.
+Built:
+- Vision's segmented outlines are now the objects; Claude only names them. Each detection takes
+  the outline its box overlaps best (or a nearby one if it misses), greedy and deterministic
+  (`CardMeasurer.match`). Outlines are cut by Claude's boxes only when two detections share one
+  (touching objects), and that lowers confidence. No outline means no measurement: the item
+  keeps Claude's estimate rather than fitting a rectangle.
+- `SilhouetteFit` fits a box, a standing cylinder or a lying cylinder. `/scan/inventory`
+  detections carry `shape` (Claude picks: cans, bottles, jars are cylinders); null fits a box.
+- The photo shows each measured solid's outline, traced over the object; boxes and thumbnails
+  use the segmented outline's bounds, not Claude's box.
+Measured (synthetic, `CardScaleTests`): can 6.6×12.2 → 6.6×6.6×12.2; bottle 7×24 → 7.0×7.0×23.9;
+lying bottle 24×7 → 23.9×7.0×7.0. The same outlines fitted as boxes were off by up to 70%
+(can 11.2 cm wide).
+Limits: if Vision's foreground segmentation misses an object (e.g. low contrast against the
+floor) it is not measured; touching objects that segment as one still depend on Claude's boxes.
+Run: iOS `PackFitTests` all passing; backend 16 passing; device build clean.
+
+## 2026-10-24 — Section 2 + 3: sharper card corners, re-segmenting missed objects, scan replay
+Why: on device (13:25 and 13:28 photos) the fitted cylinders sat beside the objects and came out
+too big (sparkling-water can 8.2 × 11.8 cm), Claude's boxes were consistently left of the
+objects, and the sunglasses were found alone but not alongside the bottle and can.
+Built:
+- `CardEdges` (`Scan/Measurement/CardEdges.swift`): refines the card's corners from its four
+  straight edges on the full-resolution photo (wide search, then a tight one; steps against the
+  edge's brightness direction are dropped). Synthetic: Vision's corners were 10-15 px off; 3 px
+  of corner error tilts the floor about 13 degrees; refined corners are within 0.3 px, tilt
+  about 1 degree. A badly placed card used to give wrong shapes and sizes everywhere.
+- Objects the whole-photo segmentation leaves out are re-segmented in a crop around Claude's
+  box, skipping outlines already taken.
+- `/scan/inventory` tells Claude the photo's pixel size and asks for pixel corners
+  (x0, y0, x1, y1); the server normalizes. The response shape is unchanged.
+- Debug builds save every inventory photo (original JPEG with EXIF) plus `scan.json` (Claude's
+  answer, intrinsics, EXIF 35 mm focal length, card corners, measurements) to Documents/Scans,
+  visible in Files › On My iPhone › PackFit. A Mac replay tool reruns `CardMeasurer` on a saved
+  scan and draws the result.
+Measured: synthetic end-to-end scene (Vision on the Mac, Claude boxes shifted 6% left and
+clipped): can 5.8 × 15.7 → 5.8 × 15.7, bottle 7.5 × 25 → 7.6 × 25.0, sunglasses 14 × 5 × 4 →
+14.1 × 5.1 × 3.9. Real photos not yet re-measured.
+Run: iOS `PackFitTests`; backend 17 passing; device build clean.

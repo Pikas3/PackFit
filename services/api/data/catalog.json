@@ -1,0 +1,12 @@
+{
+  "clothing": { "w": 28, "h": 6, "d": 22, "kg": 0.4, "hardness": 0.2, "soft": true, "fragile": false, "upright": false },
+  "shoes": { "w": 32, "h": 12, "d": 22, "kg": 0.8, "hardness": 0.5, "soft": false, "fragile": false, "upright": false },
+  "toiletries": { "w": 18, "h": 8, "d": 12, "kg": 0.3, "hardness": 0.4, "soft": true, "fragile": false, "upright": false },
+  "liquids": { "w": 6, "h": 16, "d": 6, "kg": 0.25, "hardness": 0.6, "soft": false, "fragile": false, "upright": true },
+  "electronics": { "w": 25, "h": 3, "d": 18, "kg": 0.6, "hardness": 0.85, "soft": false, "fragile": true, "upright": false },
+  "documents": { "w": 22, "h": 2, "d": 15, "kg": 0.2, "hardness": 0.5, "soft": false, "fragile": false, "upright": false },
+  "medical": { "w": 8, "h": 10, "d": 5, "kg": 0.15, "hardness": 0.5, "soft": false, "fragile": false, "upright": true },
+  "food": { "w": 15, "h": 8, "d": 12, "kg": 0.3, "hardness": 0.4, "soft": true, "fragile": false, "upright": false },
+  "sharp": { "w": 12, "h": 3, "d": 4, "kg": 0.15, "hardness": 0.95, "soft": false, "fragile": false, "upright": false },
+  "other": { "w": 15, "h": 10, "d": 10, "kg": 0.3, "hardness": 0.5, "soft": false, "fragile": false, "upright": false }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Airline baggage",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "airlines": {
+      "title": "Airline IATA codes",
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["UA", "AA", "AI", "EK", "QR"]
+    }
+  }
+}

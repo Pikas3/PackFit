@@ -22,14 +22,15 @@ struct RootView: View {
                             case .itemList:
                                 ItemListView(path: $path)
                             case .scan:
-                                ScanView(client: client, hasLidar: caps.hasLidar)
+                                ScanView(client: client)
                             case .planViewer:
                                 PlanViewerView()
                             case .rules:
                                 RulesView()
-                            case .arOverlay:
-                                Text("AR overlay is a stretch goal — not enabled yet.")
-                                    .packFitScreenPadding()
+                            case .inventoryScan:
+                                InventoryScanView(path: $path, client: client)
+                            case .arOverlay, .guidedScan:
+                                GuidedScanView(path: $path, client: client)
                             }
                         }
                 }
