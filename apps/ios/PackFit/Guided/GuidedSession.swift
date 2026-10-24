@@ -1,12 +1,11 @@
-import ARKit
+import AVFoundation
 import CoreImage
 import Foundation
 import RealityKit
 import SwiftUI
 import simd
 
-/// The guided LiDAR flow: scan the open bag, sweep the items, identify them, pack, and show
-/// the plan inside the real bag. Owns the one `ARSession` for the whole flow.
+/// Guided LiDAR flow using AVFoundation `builtInLiDARDepthCamera` (no ARKit).
 @MainActor
 @Observable
 final class GuidedSession {
@@ -45,10 +44,8 @@ final class GuidedSession {
     private(set) var cornerTaps: [SIMD3<Float>] = []
     private(set) var isCornerMode = false
     private(set) var errorText: String?
-    /// The trip's bag; tap-measured bags take their depth from it.
     var presetBag: Container?
 
-    /// Item being measured by taps: three base corners, then the top edge.
     struct TapDraft: Equatable {
         var rect: OrientedRect
         var floorY: Float
@@ -65,58 +62,56 @@ final class GuidedSession {
         case adjust
     }
 
-    /// LiDAR depth is available. Without it the flow runs on ARKit tracking and taps.
     let hasDepth: Bool
     private(set) var isTapMeasuring = false
     private(set) var itemTaps: [SIMD3<Float>] = []
     var draft: TapDraft?
     private(set) var floorY: Float?
+    private(set) var liveWires: [LiveWire] = []
+    private(set) var latestSnapshot: DepthSnapshot?
 
-    let session = ARSession()
+    let capture = LidarCaptureSession()
+    let pose = GravityPose()
     let stepper = PlanStepper(pastOpacity: 0.6)
-    /// Live wireframes, in world coordinates.
-    let worldRoot = AnchorEntity(world: matrix_identity_float4x4)
 
     private let worker = ScanWorker()
     private let client: any APIClient
     private var loop: Task<Void, Never>?
-    /// Floor (x, z) the user tapped inside the open bag.
     private var bagSeed: SIMD2<Float>?
     private var bagTapTime: Date?
-    /// Tapped items the worker is still refining.
     private(set) var measuring: Set<Int> = []
     private var removedIDs: Set<Int> = []
     private var labeledIDs: Set<Int> = []
-    private var cavityBox: WireBox?
-    private var itemBoxes: [Int: WireBox] = [:]
     private var numbers: [Int: Int] = [:]
-    private var crops: [Int: (area: CGFloat, image: CGImage)] = [:]
-    private var overlayAnchor: AnchorEntity?
+    private var crops: [Int: (area: CGFloat, image: CGImage)] = []
     private let ciContext = CIContext(options: [.useSoftwareRenderer: false])
     private var tapTracked: [TrackedItem] = []
     private var lastItemStates: [ScanWorker.ItemState] = []
-    private var draftBox: WireBox?
     private var nextTapID = 100_000
     private var tapMeasuredItemIDs: Set<String> = []
+    private var cavityWireID = "cavity"
+    private var draftWireID = "draft"
+    private var itemWireLabels: [Int: String] = [:]
 
     init(client: any APIClient) {
         self.client = client
-        hasDepth = ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth)
+        hasDepth = LidarCaptureSession.isLiDARAvailable
     }
 
     // MARK: Lifecycle
 
     func start() {
-        guard ARWorldTrackingConfiguration.isSupported else { return }
-        let config = ARWorldTrackingConfiguration()
-        config.planeDetection = [.horizontal]
-        if hasDepth {
-            config.frameSemantics = [.sceneDepth, .smoothedSceneDepth]
-            if ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) {
-                config.sceneReconstruction = .mesh
-            }
+        guard hasDepth else {
+            errorText = Copy.Guided.noLidar
+            return
         }
-        session.run(config)
+        pose.start()
+        do {
+            try capture.start()
+        } catch {
+            errorText = Copy.Guided.lidarStartFailed
+            return
+        }
         loop?.cancel()
         loop = Task { [weak self] in
             while !Task.isCancelled {
@@ -130,40 +125,42 @@ final class GuidedSession {
         loop?.cancel()
         loop = nil
         stepper.stopPlay()
-        session.pause()
+        capture.stop()
+        pose.stop()
     }
 
     // MARK: Tick (5 Hz)
 
     private func tick() async {
         guard phase == .findFloor || phase == .bag || phase == .items,
-              let frame = session.currentFrame else { return }
-        let planeFloorY = Self.floorY(frame)
-        if let planeFloorY { floorY = planeFloorY }
+              let frame = capture.latest else { return }
 
-        // Without LiDAR: wait for ARKit's floor plane, then measure by tapping.
-        guard hasDepth else {
-            if phase == .findFloor, planeFloorY != nil {
-                phase = .bag
-                beginCornerTaps()
-            }
-            return
-        }
+        guard !isCornerMode, !isTapMeasuring else { return }
+        let cameraToWorld = pose.cameraToWorld()
+        guard let snapshot = DepthSnapshot(
+            depthData: frame.depthData,
+            videoBuffer: frame.videoBuffer,
+            cameraToWorld: cameraToWorld,
+            timestamp: frame.timestamp
+        ) else { return }
+        latestSnapshot = snapshot
 
-        guard !isCornerMode, !isTapMeasuring, let snapshot = DepthSnapshot(frame: frame) else { return }
         let mode: ScanWorker.Mode = phase == .items ? .items : .bag(seed: bagSeed)
-        // Segmenting costs ~50 ms, so only while a tapped item is still being measured.
-        let image = phase == .items && !measuring.isEmpty ? uprightImage(frame) : nil
-        let result = await worker.process(snapshot, image: image, mode: mode, planeFloorY: planeFloorY)
+        let image = phase == .items && !measuring.isEmpty ? uprightImage(frame.videoBuffer) : nil
+        // Floor from the height map (no ARKit planes).
+        let result = await worker.process(snapshot, image: image, mode: mode, planeFloorY: floorY)
         if floorY == nil { floorY = result.floorY }
 
         switch phase {
         case .findFloor:
-            if result.floorY != nil { phase = .bag }
+            if result.floorY != nil {
+                floorY = result.floorY
+                phase = .bag
+            }
         case .bag:
             guard let tapped = bagTapTime else { break }
             liveCavity = result.cavity
-            updateCavityWire()
+            refreshWires()
             let elapsed = Date().timeIntervalSince(tapped)
             if result.cavity != nil {
                 errorText = nil
@@ -182,51 +179,20 @@ final class GuidedSession {
                 errorText = Copy.Guided.itemNotFound
             }
             updateTracked(states)
-            updateCrops(frame)
+            updateCrops(snapshot: snapshot, video: frame.videoBuffer)
         default:
             break
         }
     }
 
-    /// The lowest horizontal plane ARKit has found, preferring planes classified as floor.
-    private static func floorY(_ frame: ARFrame) -> Float? {
-        let planes = frame.anchors.compactMap { $0 as? ARPlaneAnchor }.filter { $0.alignment == .horizontal }
-        let floors = planes.filter { $0.classification == .floor }
-        let pool = floors.isEmpty ? planes : floors
-        return pool.map { $0.transform.columns.3.y }.min()
-    }
-
     // MARK: Bag
-
-    private func updateCavityWire() {
-        guard let state = liveCavity else {
-            cavityBox?.entity.isEnabled = false
-            return
-        }
-        let box = cavityBox ?? {
-            let b = WireBox(name: "cavity")
-            worldRoot.addChild(b.entity)
-            cavityBox = b
-            return b
-        }()
-        box.entity.isEnabled = true
-        let fit = state.fit.box
-        var t = WireBox.transform(for: fit, floorY: state.fit.floorY)
-        t.columns.3.y = state.fit.floorY + fit.height / 2
-        box.update(
-            size: [fit.rect.long, fit.height, fit.rect.short],
-            transform: t,
-            color: state.stable ? .systemGreen : .systemYellow
-        )
-    }
 
     var canLockBag: Bool { liveCavity?.stable ?? false }
     var hasBagSeed: Bool { bagSeed != nil }
 
-    /// Locks the scanned cavity as the bag and moves on to the items.
     func lockBag() {
-        guard let state = liveCavity, let frame = session.currentFrame else { return }
-        let camera = frame.camera.transform.columns.3
+        guard let state = liveCavity, let snapshot = latestSnapshot else { return }
+        let camera = snapshot.cameraPosition
         let fit = state.fit
         lockedCavity = fit
         bagTransform = fit.transform(cameraXZ: [camera.x, camera.z])
@@ -236,29 +202,15 @@ final class GuidedSession {
             shellDepthCm: Double(fit.shellDepth * 100),
             confidence: state.confidence
         )
-        showLockedCavity(fit)
         enterItems()
+        refreshWires()
     }
 
-    private func showLockedCavity(_ fit: CavityFit) {
-        let box = cavityBox ?? {
-            let b = WireBox(name: "cavity")
-            worldRoot.addChild(b.entity)
-            cavityBox = b
-            return b
-        }()
-        box.entity.isEnabled = true
-        var t = WireBox.transform(for: fit.box, floorY: fit.floorY)
-        t.columns.3.y = fit.floorY + fit.shellDepth / 2
-        box.update(size: [fit.box.rect.long, fit.shellDepth, fit.box.rect.short], transform: t, color: UIColor.white.withAlphaComponent(0.6))
-    }
-
-    /// Fallback when the cavity won't settle: tap the two inside back corners.
     func beginCornerTaps() {
         isCornerMode = true
         cornerTaps = []
         errorText = nil
-        cavityBox?.entity.isEnabled = false
+        refreshWires()
     }
 
     func cancelCornerTaps() {
@@ -271,8 +223,6 @@ final class GuidedSession {
         bagTapTime = bagSeed == nil ? nil : Date()
     }
 
-    /// Three inside corners of the open shell: back-left, back-right, then a front corner.
-    /// The shell depth comes from the trip's bag.
     func handleCornerTap(_ point: SIMD3<Float>) {
         cornerTaps.append(point)
         errorText = nil
@@ -285,7 +235,7 @@ final class GuidedSession {
         let inner = presetBag?.compartments.first?.dims ?? [72, 26, 47]
         let floor = cornerTaps.map(\.y).min() ?? 0
         let fit = CavityFit(box: BoxFit(rect: rect, height: Float(inner[1]) / 200, cellCount: 0, fillRatio: 1), floorY: floor)
-        let camera = session.currentFrame?.camera.transform.columns.3 ?? SIMD4(rect.center.x, 0, rect.center.y + 1, 1)
+        let camera = latestSnapshot?.cameraPosition ?? SIMD3(rect.center.x, 0, rect.center.y + 1)
         lockedCavity = fit
         bagTransform = fit.transform(cameraXZ: [camera.x, camera.z])
         container = ContainerFactory.fromCavity(
@@ -297,35 +247,34 @@ final class GuidedSession {
         )
         isCornerMode = false
         cornerTaps = []
-        showLockedCavity(fit)
         enterItems()
+        refreshWires()
     }
 
     // MARK: Taps
 
-    /// Routes a tap on the AR view to whatever the current step needs.
-    func handleTap(at point: CGPoint, in view: ARView) {
+    func handleTap(at point: CGPoint, in size: CGSize) {
         if isCornerMode {
-            if let p = Self.hit(view, point, floorFirst: false) { handleCornerTap(p) }
+            if let p = worldPoint(at: point, in: size) { handleCornerTap(p) }
+            else { errorText = Copy.Guided.tapNoDepth }
             return
         }
         switch phase {
         case .bag where hasDepth:
-            seedBag(at: point, in: view)
+            seedBag(at: point, in: size)
         case .items:
             if isTapMeasuring {
-                handleItemTap(at: point, in: view)
+                handleItemTap(at: point, in: size)
             } else {
-                measureItem(at: point, in: view)
+                measureItem(at: point, in: size)
             }
         default:
             break
         }
     }
 
-    /// One tap inside the open shell: the cavity is grown from there.
-    private func seedBag(at point: CGPoint, in view: ARView) {
-        guard let p = worldPoint(at: point, in: view) else {
+    private func seedBag(at point: CGPoint, in size: CGSize) {
+        guard let p = worldPoint(at: point, in: size) else {
             errorText = Copy.Guided.tapNoDepth
             return
         }
@@ -334,14 +283,12 @@ final class GuidedSession {
         errorText = nil
         liveCavity = nil
         showCornerFallback = false
-        cavityBox?.entity.isEnabled = false
         Task { await worker.resetCavity() }
+        refreshWires()
     }
 
-    /// One tap on an item: the worker finds its outline and measures it over a few frames.
-    /// Tapping an item that already has a box measures it again.
-    private func measureItem(at point: CGPoint, in view: ARView) {
-        guard let p = worldPoint(at: point, in: view) else {
+    private func measureItem(at point: CGPoint, in size: CGSize) {
+        guard let p = worldPoint(at: point, in: size) else {
             errorText = Copy.Guided.tapNoDepth
             return
         }
@@ -354,42 +301,20 @@ final class GuidedSession {
         Task { await worker.addTarget(id: id, seed: p) }
     }
 
-    /// The world point under a screen tap, read straight from the depth map so a thin item's
-    /// top isn't mistaken for the floor. Falls back to ARKit's raycast.
-    private func worldPoint(at point: CGPoint, in view: ARView) -> SIMD3<Float>? {
-        if let frame = session.currentFrame, let snapshot = DepthSnapshot(frame: frame) {
-            let size = view.bounds.size
-            let toImage = frame.displayTransform(for: .portrait, viewportSize: size).inverted()
-            let n = CGPoint(x: point.x / size.width, y: point.y / size.height).applying(toImage)
-            if let p = snapshot.worldPoint(atNormalized: [Float(n.x), Float(n.y)]) { return p }
-        }
-        if let r = view.raycast(from: point, allowing: .estimatedPlane, alignment: .any).first {
-            let c = r.worldTransform.columns.3
-            return [c.x, c.y, c.z]
-        }
-        return nil
+    private func worldPoint(at point: CGPoint, in size: CGSize) -> SIMD3<Float>? {
+        guard let snapshot = latestSnapshot else { return nil }
+        let portrait = SIMD2(Float(point.x / size.width), Float(point.y / size.height))
+        let sensor = snapshot.sensorUV(fromPortraitNormalized: portrait)
+        return snapshot.worldPoint(atNormalized: sensor)
     }
 
-    /// The camera image turned upright and scaled to 720 px wide, for segmentation.
-    private func uprightImage(_ frame: ARFrame) -> UprightImage? {
-        let image = CIImage(cvPixelBuffer: frame.capturedImage).oriented(.right)
+    private func uprightImage(_ buffer: CVPixelBuffer) -> UprightImage? {
+        // Video connection is already portrait-oriented.
+        let image = CIImage(cvPixelBuffer: buffer)
         let scale = 720 / image.extent.width
         let scaled = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
         guard let cg = ciContext.createCGImage(scaled, from: scaled.extent) else { return nil }
         return UprightImage(cgImage: cg)
-    }
-
-    /// A horizontal hit. Item corners sit on the floor, so they prefer the floor plane;
-    /// the bag's inside corners prefer the surface ARKit estimates under the tap.
-    private static func hit(_ view: ARView, _ point: CGPoint, floorFirst: Bool) -> SIMD3<Float>? {
-        let order: [ARRaycastQuery.Target] = floorFirst ? [.existingPlaneInfinite, .estimatedPlane] : [.estimatedPlane, .existingPlaneInfinite]
-        for target in order {
-            if let r = view.raycast(from: point, allowing: target, alignment: .horizontal).first {
-                let c = r.worldTransform.columns.3
-                return [c.x, c.y, c.z]
-            }
-        }
-        return nil
     }
 
     var tapStep: TapStep {
@@ -402,7 +327,6 @@ final class GuidedSession {
         resetDraft()
     }
 
-    /// Back to the LiDAR sweep. Without LiDAR, tapping is the only way to measure.
     func stopTapMeasuring() {
         resetDraft()
         if hasDepth { isTapMeasuring = false }
@@ -412,19 +336,21 @@ final class GuidedSession {
         itemTaps = []
         draft = nil
         errorText = nil
-        draftBox?.entity.removeFromParent()
-        draftBox = nil
+        refreshWires()
     }
 
-    private func handleItemTap(at point: CGPoint, in view: ARView) {
+    private func handleItemTap(at point: CGPoint, in size: CGSize) {
         errorText = nil
         switch tapStep {
         case .corner:
-            guard let p = Self.hit(view, point, floorFirst: true) else {
+            guard let p = worldPoint(at: point, in: size) else {
                 errorText = Copy.Guided.tapMissed
                 return
             }
-            itemTaps.append(p)
+            // Snap to floor height for base corners.
+            var floorPoint = p
+            if let fy = floorY { floorPoint.y = fy }
+            itemTaps.append(floorPoint)
             guard itemTaps.count == 3 else { return }
             guard let rect = TapMeasure.footprint(itemTaps[0], itemTaps[1], itemTaps[2]) else {
                 itemTaps = []
@@ -433,19 +359,20 @@ final class GuidedSession {
             }
             let floor = floorY ?? (itemTaps.map(\.y).reduce(0, +) / 3)
             draft = TapDraft(rect: rect, floorY: floor, longCm: round1(rect.long * 100), shortCm: round1(rect.short * 100))
-            refreshDraftWire()
+            refreshWires()
 
         case .top:
-            guard var d = draft else { return }
-            var height: Float?
-            var fromSurface = false
-            if let r = view.raycast(from: point, allowing: .estimatedPlane, alignment: .any).first {
-                let c = r.worldTransform.columns.3
-                height = TapMeasure.heightFromSurfaceHit([c.x, c.y, c.z], footprint: d.rect, floorY: d.floorY)
-                fromSurface = height != nil
+            guard var d = draft, let p = worldPoint(at: point, in: size) else {
+                errorText = Copy.Guided.heightMissed
+                return
             }
-            if height == nil, let ray = view.ray(through: point) {
-                height = TapMeasure.heightFromEdgeRay(origin: ray.origin, direction: ray.direction, footprint: d.rect, floorY: d.floorY)
+            var height = TapMeasure.heightFromSurfaceHit(p, footprint: d.rect, floorY: d.floorY)
+            var fromSurface = height != nil
+            if height == nil, let snapshot = latestSnapshot {
+                let origin = snapshot.cameraPosition
+                let direction = simd_normalize(p - origin)
+                height = TapMeasure.heightFromEdgeRay(origin: origin, direction: direction, footprint: d.rect, floorY: d.floorY)
+                fromSurface = false
             }
             guard let height else {
                 errorText = Copy.Guided.heightMissed
@@ -455,31 +382,15 @@ final class GuidedSession {
             d.hasHeight = true
             d.heightFromSurface = fromSurface
             draft = d
-            refreshDraftWire()
+            refreshWires()
 
         case .adjust:
             break
         }
     }
 
-    /// Redraws the draft box after taps or size edits.
-    func refreshDraftWire() {
-        guard let d = draft else { return }
-        let box = draftBox ?? {
-            let b = WireBox(name: "draft")
-            worldRoot.addChild(b.entity)
-            draftBox = b
-            return b
-        }()
-        var rect = d.rect
-        rect.long = Float(d.longCm / 100)
-        rect.short = Float(d.shortCm / 100)
-        let h = d.hasHeight ? Float(d.heightCm / 100) : 0.005
-        let fit = BoxFit(rect: rect, height: h, cellCount: 0, fillRatio: 1)
-        box.update(size: [rect.long, h, rect.short], transform: WireBox.transform(for: fit, floorY: d.floorY), color: .systemYellow)
-    }
+    func refreshDraftWire() { refreshWires() }
 
-    /// Adds the measured draft as a found item.
     func addDraftItem() {
         guard let d = draft, d.hasHeight, d.longCm > 0, d.shortCm > 0, d.heightCm > 0 else { return }
         var rect = d.rect
@@ -498,7 +409,9 @@ final class GuidedSession {
         ))
         resetDraft()
         updateTracked(lastItemStates)
-        if let frame = session.currentFrame { updateCrops(frame) }
+        if let snapshot = latestSnapshot, let video = capture.latestVideoBuffer {
+            updateCrops(snapshot: snapshot, video: video)
+        }
     }
 
     private func round1(_ v: Float) -> Double { (Double(v) * 10).rounded() / 10 }
@@ -515,6 +428,7 @@ final class GuidedSession {
         crops = [:]
         measuring = []
         labeledIDs = []
+        itemWireLabels = [:]
         isTapMeasuring = !hasDepth
         resetDraft()
         Task { await worker.resetItems() }
@@ -524,72 +438,60 @@ final class GuidedSession {
         var next: [TrackedItem] = []
         for s in states {
             if s.stable, numbers[s.id] == nil { numbers[s.id] = numbers.count + 1 }
-            // Number 0 while still measuring; it gets a number once it settles.
             next.append(TrackedItem(id: s.id, number: numbers[s.id] ?? 0, fit: s.fit, floorY: s.floorY, stable: s.stable, confidence: s.confidence))
         }
         next.append(contentsOf: tapTracked)
         tracked = next.sorted { ($0.number == 0 ? Int.max : $0.number, $0.id) < ($1.number == 0 ? Int.max : $1.number, $1.id) }
-
-        let live = Set(tracked.map(\.id))
-        for (id, box) in itemBoxes where !live.contains(id) {
-            box.entity.removeFromParent()
-            itemBoxes[id] = nil
+        for t in tracked where t.stable {
+            if labeledIDs.insert(t.id).inserted {
+                itemWireLabels[t.id] = "\(t.number)"
+            }
         }
-        for t in tracked {
-            let box = itemBoxes[t.id] ?? {
-                let b = WireBox(name: "track-\(t.id)")
-                worldRoot.addChild(b.entity)
-                itemBoxes[t.id] = b
-                return b
-            }()
-            if t.stable, labeledIDs.insert(t.id).inserted { box.setLabel("\(t.number)") }
-            box.update(
-                size: [t.fit.rect.long, t.fit.height, t.fit.rect.short],
-                transform: WireBox.transform(for: t.fit, floorY: t.floorY),
-                color: t.stable ? .systemGreen : .systemYellow
-            )
-        }
+        refreshWires()
     }
 
-    /// Removes a measured item, or one still being measured.
     func removeItem(id: Int) {
-        itemBoxes[id]?.entity.removeFromParent()
-        itemBoxes[id] = nil
         tracked.removeAll { $0.id == id }
         tapTracked.removeAll { $0.id == id }
         lastItemStates.removeAll { $0.id == id }
         crops[id] = nil
         measuring.remove(id)
         labeledIDs.remove(id)
+        itemWireLabels[id] = nil
         removedIDs.insert(id)
         Task { await worker.removeTarget(id: id) }
+        refreshWires()
     }
 
-    /// Keeps the best photo of each item: fully in frame, largest on screen.
-    private func updateCrops(_ frame: ARFrame) {
-        let res = frame.camera.imageResolution
+    private func updateCrops(snapshot: DepthSnapshot, video: CVPixelBuffer) {
+        let res = CGSize(width: CVPixelBufferGetWidth(video), height: CVPixelBufferGetHeight(video))
         var image: CIImage?
         for t in tracked {
             let corners = Self.corners(t.fit, floorY: t.floorY)
-            let pts = corners.map { frame.camera.projectPoint($0, orientation: .landscapeRight, viewportSize: res) }
+            let pts = corners.compactMap { snapshot.project($0) }.map {
+                // Landscape UV → portrait video pixels (video is portrait-oriented).
+                CGPoint(x: CGFloat(1 - $0.y) * res.width, y: CGFloat($0.x) * res.height)
+            }
+            guard pts.count == corners.count else { continue }
             let minX = pts.map(\.x).min()!, maxX = pts.map(\.x).max()!
             let minY = pts.map(\.y).min()!, maxY = pts.map(\.y).max()!
             guard minX > 0, minY > 0, maxX < res.width, maxY < res.height else { continue }
-            // Behind the camera?
-            let camToWorld = frame.camera.transform
-            let viewDir = -SIMD3(camToWorld.columns.2.x, camToWorld.columns.2.y, camToWorld.columns.2.z)
-            let camPos = SIMD3(camToWorld.columns.3.x, camToWorld.columns.3.y, camToWorld.columns.3.z)
+            let camPos = snapshot.cameraPosition
+            let viewDir = -SIMD3(
+                snapshot.cameraToWorld.columns.2.x,
+                snapshot.cameraToWorld.columns.2.y,
+                snapshot.cameraToWorld.columns.2.z
+            )
             guard corners.allSatisfy({ dot($0 - camPos, viewDir) > 0.05 }) else { continue }
             let area = (maxX - minX) * (maxY - minY)
             if let best = crops[t.id], best.area * 1.1 >= area { continue }
 
-            let source = image ?? CIImage(cvPixelBuffer: frame.capturedImage)
+            let source = image ?? CIImage(cvPixelBuffer: video)
             image = source
             let mx = (maxX - minX) * 0.1, my = (maxY - minY) * 0.1
-            // CIImage's origin is bottom-left.
             let rect = CGRect(x: minX - mx, y: res.height - maxY - my, width: maxX - minX + 2 * mx, height: maxY - minY + 2 * my)
                 .intersection(CGRect(origin: .zero, size: res))
-            let cropped = source.cropped(to: rect).oriented(.right)
+            let cropped = source.cropped(to: rect)
             if let cg = ciContext.createCGImage(cropped, from: cropped.extent) {
                 crops[t.id] = (area, cg)
             }
@@ -604,6 +506,58 @@ final class GuidedSession {
 
     var canFinishItems: Bool { tracked.contains { $0.stable } }
 
+    // MARK: Wires
+
+    private func refreshWires() {
+        var wires: [LiveWire] = []
+        if let state = liveCavity, !isCornerMode, phase == .bag {
+            let fit = state.fit.box
+            var t = LiveWire.transform(for: fit, floorY: state.fit.floorY)
+            t.columns.3.y = state.fit.floorY + fit.height / 2
+            wires.append(LiveWire(
+                id: cavityWireID,
+                size: [fit.rect.long, fit.height, fit.rect.short],
+                transform: t,
+                color: state.stable ? WireColors.stable : WireColors.measuring,
+                label: nil
+            ))
+        } else if let fit = lockedCavity, phase == .items || phase == .identifying || phase == .review {
+            var t = LiveWire.transform(for: fit.box, floorY: fit.floorY)
+            t.columns.3.y = fit.floorY + fit.shellDepth / 2
+            wires.append(LiveWire(
+                id: cavityWireID,
+                size: [fit.box.rect.long, fit.shellDepth, fit.box.rect.short],
+                transform: t,
+                color: WireColors.locked,
+                label: nil
+            ))
+        }
+        for t in tracked {
+            wires.append(LiveWire(
+                id: "item-\(t.id)",
+                size: [t.fit.rect.long, t.fit.height, t.fit.rect.short],
+                transform: LiveWire.transform(for: t.fit, floorY: t.floorY),
+                color: t.stable ? WireColors.stable : WireColors.measuring,
+                label: itemWireLabels[t.id]
+            ))
+        }
+        if let d = draft {
+            var rect = d.rect
+            rect.long = Float(d.longCm / 100)
+            rect.short = Float(d.shortCm / 100)
+            let h = d.hasHeight ? Float(d.heightCm / 100) : 0.005
+            let fit = BoxFit(rect: rect, height: h, cellCount: 0, fillRatio: 1)
+            wires.append(LiveWire(
+                id: draftWireID,
+                size: [rect.long, h, rect.short],
+                transform: LiveWire.transform(for: fit, floorY: d.floorY),
+                color: WireColors.draft,
+                label: nil
+            ))
+        }
+        liveWires = wires
+    }
+
     // MARK: Identify
 
     func identifyItems() async {
@@ -611,7 +565,6 @@ final class GuidedSession {
         guard !found.isEmpty else { return }
         phase = .identifying
         identifyProgress = 0
-        itemBoxes.values.forEach { $0.entity.isEnabled = false }
 
         struct Job: Sendable {
             var index: Int
@@ -622,7 +575,6 @@ final class GuidedSession {
         let jobs: [Job] = found.enumerated().map { index, t in
             let cm = t.fit.dimsCm
             let image = crops[t.id].flatMap { ImageCapture.jpegBase64(from: $0.image) } ?? ImageCapture.placeholderBase64()
-            // Tapped sizes are user-measured; the schema has no separate AR-tap method.
             let method: MeasureMethod = tapIDs.contains(t.id) ? .manual : .lidar
             return Job(index: index, image: image, dims: MeasuredDims(w: cm.w, h: cm.h, d: cm.d, method: method, confidence: t.confidence))
         }
@@ -659,7 +611,6 @@ final class GuidedSession {
                 confidence: 0.5,
                 source: .scan
             )
-            // The device measurement is the authority on size (rule 6).
             item.w = job.dims.w
             item.h = job.dims.h
             item.d = job.dims.d
@@ -672,14 +623,14 @@ final class GuidedSession {
     }
 
     func backToItems() {
-        itemBoxes.values.forEach { $0.entity.isEnabled = true }
         phase = .items
+        refreshWires()
     }
 
     // MARK: Pack and overlay
 
     func pack(itemsStore: ItemsStore, tripStore: TripStore, planStore: PlanStore) async {
-        guard let container, let bagTransform else { return }
+        guard let container else { return }
         phase = .packing
         itemsStore.items = items
         itemsStore.tapMeasuredIDs = tapMeasuredItemIDs.intersection(items.map(\.id))
@@ -689,34 +640,20 @@ final class GuidedSession {
             phase = .review
             return
         }
-        worldRoot.isEnabled = false
-        stepper.load(plan: plan, items: items, container: container, style: .wireframe)
-        overlayAnchor?.removeFromParent()
-        let anchor = AnchorEntity(world: bagTransform)
-        anchor.addChild(stepper.root)
-        overlayAnchor = anchor
+        // No AR world anchor — show the plan in a non-AR RealityKit viewer.
+        stepper.load(plan: plan, items: items, container: container, style: .volume)
         phase = .overlay
     }
 
-    /// The overlay anchor, for the AR view to add once.
-    var overlayEntity: AnchorEntity? { overlayAnchor }
-
-    /// Shell depth in cm: items above it go under the lid.
     var shellDepthCm: Double? { lockedCavity.map { Double($0.shellDepth * 100) } }
 
     func restart() {
         stepper.stopPlay()
-        overlayAnchor?.removeFromParent()
-        overlayAnchor = nil
-        worldRoot.isEnabled = true
-        itemBoxes.values.forEach { $0.entity.removeFromParent() }
-        itemBoxes = [:]
-        cavityBox?.entity.removeFromParent()
-        cavityBox = nil
         bagSeed = nil
         bagTapTime = nil
         measuring = []
         labeledIDs = []
+        itemWireLabels = [:]
         liveCavity = nil
         lockedCavity = nil
         bagTransform = nil
@@ -725,10 +662,13 @@ final class GuidedSession {
         tapTracked = []
         lastItemStates = []
         items = []
+        liveWires = []
+        latestSnapshot = nil
         resetDraft()
         isTapMeasuring = false
         showCornerFallback = false
         isCornerMode = false
+        floorY = nil
         phase = .findFloor
         Task { await worker.reset() }
     }

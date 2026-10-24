@@ -1,31 +1,23 @@
 import Foundation
-#if canImport(ARKit)
-import ARKit
-#endif
 
 @Observable
 @MainActor
 final class DeviceCapabilities {
+    /// Absolute depth from `builtInLiDARDepthCamera` (AVFoundation).
     let hasLidar: Bool
     let isSimulator: Bool
-    /// ARKit world tracking: metric tap-measuring works on every such iPhone, LiDAR or not.
-    let supportsAR: Bool
+    /// Guided one-tap flow needs LiDAR depth (no ARKit on this branch).
+    let supportsGuidedScan: Bool
 
     init() {
         #if targetEnvironment(simulator)
         isSimulator = true
         hasLidar = false
-        supportsAR = false
+        supportsGuidedScan = false
         #else
         isSimulator = false
-        #if canImport(ARKit)
-        hasLidar = ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh)
-            && ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth)
-        supportsAR = ARWorldTrackingConfiguration.isSupported
-        #else
-        hasLidar = false
-        supportsAR = false
-        #endif
+        hasLidar = LidarCaptureSession.isLiDARAvailable
+        supportsGuidedScan = hasLidar
         #endif
     }
 

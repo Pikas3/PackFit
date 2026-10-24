@@ -82,8 +82,8 @@ actor ScanWorker {
         targets.removeAll { $0.id == id }
     }
 
-    /// Merges the snapshot, then fits for `mode`. `planeFloorY` is ARKit's floor plane when
-    /// it has one; otherwise the floor is estimated from the map. `image` is this frame's
+    /// Merges the snapshot, then fits for `mode`. `planeFloorY` is a locked floor height when
+    /// known; otherwise the floor is estimated from the map. `image` is this frame's
     /// camera image while items are being measured.
     func process(_ snapshot: DepthSnapshot, image: UprightImage?, mode: Mode, planeFloorY: Float?) -> Result {
         let points = snapshot.worldPoints()

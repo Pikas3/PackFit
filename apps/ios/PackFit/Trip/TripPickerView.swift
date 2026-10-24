@@ -41,7 +41,7 @@ struct TripPickerView: View {
 
     /// AR-capable phones go straight to the guided scan (LiDAR sweep or AR taps).
     private var nextRoute: Route {
-        caps.supportsAR ? .guidedScan : .bagSetup
+        caps.supportsGuidedScan ? .guidedScan : .bagSetup
     }
 
     private var newTripForm: some View {

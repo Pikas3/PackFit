@@ -1,3 +1,4 @@
+import RealityKit
 import SwiftUI
 
 /// Full-screen guided flow: bag, items, review, then the plan inside the real bag.
@@ -18,10 +19,17 @@ struct GuidedScanView: View {
 
     var body: some View {
         Group {
-            if caps.supportsAR {
+            if caps.supportsGuidedScan {
                 ZStack {
-                    GuidedARView(session: session)
+                    if session.phase == .overlay {
+                        RealityView { content in
+                            content.add(session.stepper.root)
+                        }
                         .ignoresSafeArea()
+                    } else {
+                        GuidedCameraView(session: session)
+                            .ignoresSafeArea()
+                    }
                     VStack(spacing: 0) {
                         banner
                         Spacer()
@@ -29,7 +37,7 @@ struct GuidedScanView: View {
                     }
                 }
             } else {
-                EmptyStateView(Copy.Guided.noAR, actionTitle: Copy.Guided.usePresets) {
+                EmptyStateView(Copy.Guided.noLidar, actionTitle: Copy.Guided.usePresets) {
                     path.append(.bagSetup)
                 }
             }
@@ -49,7 +57,7 @@ struct GuidedScanView: View {
         }
         .onAppear {
             session.presetBag = tripStore.bag
-            if caps.supportsAR { session.start() }
+            if caps.supportsGuidedScan { session.start() }
         }
         .onDisappear { session.stop() }
         .sheet(isPresented: reviewBinding) { reviewSheet }

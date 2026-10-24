@@ -1,22 +1,22 @@
+import AVFoundation
 import Foundation
 import simd
-#if canImport(ARKit)
-import ARKit
-#endif
 
-/// A Sendable copy of one ARFrame's LiDAR depth, so the frame can be released at once and
-/// the fitting can run off the main actor.
+/// A Sendable copy of one LiDAR depth frame so fitting can run off the main actor.
 struct DepthSnapshot: Sendable {
     let width: Int
     let height: Int
     /// Metres, row-major in the sensor's landscape orientation.
     let depth: [Float]
-    /// ARConfidenceLevel raw values: 0 low, 1 medium, 2 high.
+    /// Confidence: 0 low, 1 medium, 2 high (ARKit-compatible scale).
     let confidence: [UInt8]
     /// Intrinsics scaled to the depth resolution.
     let fx: Float, fy: Float, cx: Float, cy: Float
     let cameraToWorld: simd_float4x4
     let timestamp: TimeInterval
+    /// Video size used when mapping portrait view taps → sensor UV.
+    let videoWidth: Int
+    let videoHeight: Int
 
     var cameraPosition: SIMD3<Float> {
         SIMD3(cameraToWorld.columns.3.x, cameraToWorld.columns.3.y, cameraToWorld.columns.3.z)
@@ -28,8 +28,7 @@ struct DepthSnapshot: Sendable {
     }
 
     /// World points for pixels at or above `minConfidence` between `near` and `far` metres.
-    /// Pixels on a depth discontinuity are dropped: they interpolate between an object's edge
-    /// and whatever is behind it, and would smear the object away from the camera.
+    /// Pixels on a depth discontinuity are dropped.
     func worldPoints(minConfidence: UInt8 = 2, near: Float = 0.1, far: Float = 3) -> [SIMD3<Float>] {
         var out: [SIMD3<Float>] = []
         out.reserveCapacity(width * height)
@@ -41,7 +40,6 @@ struct DepthSnapshot: Sendable {
         return out
     }
 
-    /// World points for the pixels set in `mask` (depth resolution, sensor orientation).
     func worldPoints(in mask: [Bool], minConfidence: UInt8 = 1, near: Float = 0.1, far: Float = 3) -> [SIMD3<Float>] {
         var out: [SIMD3<Float>] = []
         for v in 0..<height {
@@ -60,8 +58,7 @@ struct DepthSnapshot: Sendable {
         return SIMD3(w.x, w.y, w.z)
     }
 
-    /// Normalized sensor coordinates (0...1, origin at the top-left of the landscape image)
-    /// of a world point. Nil when the point is behind the camera.
+    /// Normalized sensor coordinates (0...1, origin at the top-left of the landscape image).
     func project(_ world: SIMD3<Float>) -> SIMD2<Float>? {
         let c = cameraToWorld.inverse * SIMD4(world, 1)
         let d = -c.z
@@ -71,7 +68,7 @@ struct DepthSnapshot: Sendable {
         return [u / Float(width), v / Float(height)]
     }
 
-    /// World point under normalized sensor coordinates: the median depth of a 5×5 patch.
+    /// World point under normalized sensor coordinates: median depth of a 5×5 patch.
     func worldPoint(atNormalized n: SIMD2<Float>) -> SIMD3<Float>? {
         let cu = Int(n.x * Float(width)), cv = Int(n.y * Float(height))
         guard cu >= 0, cu < width, cv >= 0, cv < height else { return nil }
@@ -89,11 +86,17 @@ struct DepthSnapshot: Sendable {
         return SIMD3(w.x, w.y, w.z)
     }
 
+    /// Portrait view tap (0...1 in the preview) → landscape sensor UV for this depth map.
+    func sensorUV(fromPortraitNormalized p: SIMD2<Float>) -> SIMD2<Float> {
+        // Video connection is portrait; depth map is landscape (home-button right / sensor native).
+        // Portrait (u,v) → landscape sensor: u_s = v, v_s = 1 - u
+        return [p.y, 1 - p.x]
+    }
+
     private func usable(_ u: Int, _ v: Int, minConfidence: UInt8, near: Float, far: Float) -> Bool {
         let i = v * width + u
         let d = depth[i]
-        guard confidence[i] >= minConfidence, d >= near, d <= far else { return false }
-        // A floor seen at a grazing angle steps about 1% of depth per pixel; edges step more.
+        guard confidence[i] >= minConfidence, d >= near, d <= far, d.isFinite else { return false }
         let limit = 0.005 + 0.03 * d
         if u > 0, abs(depth[i - 1] - d) > limit { return false }
         if u < width - 1, abs(depth[i + 1] - d) > limit { return false }
@@ -103,52 +106,54 @@ struct DepthSnapshot: Sendable {
     }
 }
 
-#if canImport(ARKit)
 extension DepthSnapshot {
-    /// Copies the frame's raw depth (or smoothed depth). Raw depth keeps object edges sharp;
-    /// the height map does its own smoothing across frames. Nil when the frame has no depth.
-    init?(frame: ARFrame) {
-        guard let data = frame.sceneDepth ?? frame.smoothedSceneDepth,
-              let confMap = data.confidenceMap else { return nil }
-        let depthMap = data.depthMap
-        let w = CVPixelBufferGetWidth(depthMap), h = CVPixelBufferGetHeight(depthMap)
-        guard CVPixelBufferGetWidth(confMap) == w, CVPixelBufferGetHeight(confMap) == h else { return nil }
+    /// Builds a snapshot from AVFoundation LiDAR depth + gravity pose.
+    init?(depthData: AVDepthData, videoBuffer: CVPixelBuffer, cameraToWorld: simd_float4x4, timestamp: TimeInterval) {
+        var depth = depthData
+        if depth.depthDataType != kCVPixelFormatType_DepthFloat32 {
+            depth = depth.converting(toDepthDataType: kCVPixelFormatType_DepthFloat32)
+        }
+        let depthMap = depth.depthDataMap
+        let w = CVPixelBufferGetWidth(depthMap)
+        let h = CVPixelBufferGetHeight(depthMap)
 
         CVPixelBufferLockBaseAddress(depthMap, .readOnly)
-        CVPixelBufferLockBaseAddress(confMap, .readOnly)
-        defer {
-            CVPixelBufferUnlockBaseAddress(depthMap, .readOnly)
-            CVPixelBufferUnlockBaseAddress(confMap, .readOnly)
-        }
-        guard let dBase = CVPixelBufferGetBaseAddress(depthMap),
-              let cBase = CVPixelBufferGetBaseAddress(confMap) else { return nil }
-        let dRow = CVPixelBufferGetBytesPerRow(depthMap), cRow = CVPixelBufferGetBytesPerRow(confMap)
+        defer { CVPixelBufferUnlockBaseAddress(depthMap, .readOnly) }
+        guard let dBase = CVPixelBufferGetBaseAddress(depthMap) else { return nil }
+        let dRow = CVPixelBufferGetBytesPerRow(depthMap)
 
-        var depth = [Float](repeating: 0, count: w * h)
+        var depthValues = [Float](repeating: 0, count: w * h)
         var conf = [UInt8](repeating: 0, count: w * h)
+        // AVDepthData has no confidenceMap (that is ARKit-only). With filtering off,
+        // low-confidence samples are holes / non-finite; treat valid depths as high.
         for v in 0..<h {
             let dp = dBase.advanced(by: v * dRow).assumingMemoryBound(to: Float32.self)
-            let cp = cBase.advanced(by: v * cRow).assumingMemoryBound(to: UInt8.self)
             for u in 0..<w {
-                depth[v * w + u] = dp[u]
-                conf[v * w + u] = cp[u]
+                let d = dp[u]
+                depthValues[v * w + u] = d
+                conf[v * w + u] = (d.isFinite && d > 0.05 && d < 5) ? 2 : 0
             }
         }
 
-        let k = frame.camera.intrinsics
-        let scale = Float(w) / Float(frame.camera.imageResolution.width)
+        guard let calibration = depth.cameraCalibrationData else { return nil }
+        let k = calibration.intrinsicMatrix
+        let ref = calibration.intrinsicMatrixReferenceDimensions
+        let scaleX = Float(w) / Float(ref.width)
+        let scaleY = Float(h) / Float(ref.height)
+
         self.init(
             width: w,
             height: h,
-            depth: depth,
+            depth: depthValues,
             confidence: conf,
-            fx: k[0][0] * scale,
-            fy: k[1][1] * scale,
-            cx: k[2][0] * scale,
-            cy: k[2][1] * scale,
-            cameraToWorld: frame.camera.transform,
-            timestamp: frame.timestamp
+            fx: k[0][0] * scaleX,
+            fy: k[1][1] * scaleY,
+            cx: k[2][0] * scaleX,
+            cy: k[2][1] * scaleY,
+            cameraToWorld: cameraToWorld,
+            timestamp: timestamp,
+            videoWidth: CVPixelBufferGetWidth(videoBuffer),
+            videoHeight: CVPixelBufferGetHeight(videoBuffer)
         )
     }
 }
-#endif

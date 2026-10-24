@@ -226,3 +226,23 @@ Measured:
 Known limits:
 - Vision may group touching items into one instance. Leave a small gap between items.
 - Segmentation runs only while an item is measuring, at about 50 ms per frame.
+
+## 2026-10-24 section-2 lidarpure (AVFoundation LiDAR, from lidar-ar)
+Built:
+- Reset `lidarpure` onto `origin/arjun99ab/lidar-ar` guided one-tap flow
+- Replaced ARKit `ARSession` / `ARView` with AVFoundation `builtInLiDARDepthCamera`:
+  - `LidarCaptureSession` — synced RGB + absolute depth (filtering off)
+  - `GravityPose` — CoreMotion gravity frame for `cameraToWorld` (no VIO translation)
+  - `DepthSnapshot` from `AVDepthData` (no ARKit confidenceMap; valid depths = high)
+  - `GuidedCameraView` + projected `LiveWire` overlays (no RealityKit AR)
+- Capability gate: `DeviceCapabilities.supportsGuidedScan` = LiDAR device only
+- After pack: non-AR `RealityView` plan viewer (no world-anchored overlay)
+Cut:
+- ARKit world tracking, plane raycasts, coaching overlay, non-LiDAR AR tap path
+- AR plan-in-bag overlay (use in-app 3D viewer instead)
+Run:
+- Open `apps/ios/PackFit.xcodeproj`, scheme PackFit, iPhone Pro with LiDAR
+- Unit tests unchanged (synthetic depth math)
+Measured: not yet on device (Windows host)
+Blocked on: Pro device for MAE; hold still while measuring (no translation tracking)
+Schema changes: none

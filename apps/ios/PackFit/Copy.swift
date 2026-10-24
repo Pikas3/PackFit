@@ -129,6 +129,8 @@ enum Copy {
         static let itemsLink = "Items"
         static let restart = "Start over"
         static let noAR = "This device can’t run AR. Choose a bag preset instead."
+        static let noLidar = "This flow needs the built-in LiDAR camera. Choose a bag preset instead."
+        static let lidarStartFailed = "Couldn’t start the LiDAR camera. Check camera permission and try again."
     }
 
     enum Viewer {

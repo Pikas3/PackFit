@@ -53,7 +53,7 @@ struct ItemListView: View {
         .navigationTitle(Copy.Items.title)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(Copy.Items.scan) { path.append(caps.supportsAR ? .guidedScan : .scan) }
+                Button(Copy.Items.scan) { path.append(caps.supportsGuidedScan ? .guidedScan : .scan) }
             }
             ToolbarItem(placement: .bottomBar) {
                 Button(Copy.Items.pack) {

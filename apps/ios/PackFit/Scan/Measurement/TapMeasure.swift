@@ -1,8 +1,8 @@
 import Foundation
 import simd
 
-/// Geometry for measuring by tapping in AR, for phones without LiDAR. ARKit's world tracking
-/// is metric on every supported iPhone, so taps on the floor plane give real distances.
+/// Geometry for measuring by tapping corners when the one-tap LiDAR fit needs a fallback.
+/// Points are metric world coordinates from depth unprojection (or a prior AR tap path).
 enum TapMeasure {
     /// A rectangle from three corner taps: `a` and `b` along one side, `c` anywhere on the
     /// opposite side. World points; only x and z are used.
