@@ -39,7 +39,7 @@ struct ItemListView: View {
                                         .font(Tokens.TypeScale.caption)
                                         .foregroundStyle(.secondary)
                                     HStack {
-                                        MeasurementMethodBadge(method: item.measurement?.method)
+                                        MeasurementMethodBadge(method: item.measurement?.method, tapMeasured: itemsStore.tapMeasuredIDs.contains(item.id))
                                         ConfidenceBadge(confidence: item.measurement?.confidence ?? item.confidence)
                                     }
                                 }
@@ -53,7 +53,7 @@ struct ItemListView: View {
         .navigationTitle(Copy.Items.title)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(Copy.Items.scan) { path.append(caps.hasLidar && !caps.isSimulator ? .guidedScan : .scan) }
+                Button(Copy.Items.scan) { path.append(caps.supportsAR ? .guidedScan : .scan) }
             }
             ToolbarItem(placement: .bottomBar) {
                 Button(Copy.Items.pack) {

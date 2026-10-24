@@ -45,6 +45,32 @@ final class GuidedSession {
     private(set) var cornerTaps: [SIMD3<Float>] = []
     private(set) var isCornerMode = false
     private(set) var errorText: String?
+    /// The trip's bag; tap-measured bags take their depth from it.
+    var presetBag: Container?
+
+    /// Item being measured by taps: three base corners, then the top edge.
+    struct TapDraft: Equatable {
+        var rect: OrientedRect
+        var floorY: Float
+        var longCm: Double
+        var shortCm: Double
+        var heightCm: Double = 0
+        var hasHeight = false
+        var heightFromSurface = false
+    }
+
+    enum TapStep: Equatable {
+        case corner(Int)
+        case top
+        case adjust
+    }
+
+    /// LiDAR depth is available. Without it the flow runs on ARKit tracking and taps.
+    let hasDepth: Bool
+    private(set) var isTapMeasuring = false
+    private(set) var itemTaps: [SIMD3<Float>] = []
+    var draft: TapDraft?
+    private(set) var floorY: Float?
 
     let session = ARSession()
     let stepper = PlanStepper(pastOpacity: 0.6)
@@ -61,20 +87,28 @@ final class GuidedSession {
     private var crops: [Int: (area: CGFloat, image: CGImage)] = [:]
     private var overlayAnchor: AnchorEntity?
     private let ciContext = CIContext(options: [.useSoftwareRenderer: false])
+    private var tapTracked: [TrackedItem] = []
+    private var lastItemStates: [ScanWorker.ItemState] = []
+    private var draftBox: WireBox?
+    private var nextTapID = 100_000
+    private var tapMeasuredItemIDs: Set<String> = []
 
     init(client: any APIClient) {
         self.client = client
+        hasDepth = ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth)
     }
 
     // MARK: Lifecycle
 
     func start() {
-        guard ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) else { return }
+        guard ARWorldTrackingConfiguration.isSupported else { return }
         let config = ARWorldTrackingConfiguration()
         config.planeDetection = [.horizontal]
-        config.frameSemantics = [.sceneDepth, .smoothedSceneDepth]
-        if ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) {
-            config.sceneReconstruction = .mesh
+        if hasDepth {
+            config.frameSemantics = [.sceneDepth, .smoothedSceneDepth]
+            if ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) {
+                config.sceneReconstruction = .mesh
+            }
         }
         session.run(config)
         loop?.cancel()
@@ -96,12 +130,24 @@ final class GuidedSession {
     // MARK: Tick (5 Hz)
 
     private func tick() async {
-        guard phase == .findFloor || phase == .bag || phase == .items, !isCornerMode,
-              let frame = session.currentFrame,
-              let snapshot = DepthSnapshot(frame: frame) else { return }
-        let floorY = Self.floorY(frame)
+        guard phase == .findFloor || phase == .bag || phase == .items,
+              let frame = session.currentFrame else { return }
+        let planeFloorY = Self.floorY(frame)
+        if let planeFloorY { floorY = planeFloorY }
+
+        // Without LiDAR: wait for ARKit's floor plane, then measure by tapping.
+        guard hasDepth else {
+            if phase == .findFloor, planeFloorY != nil {
+                phase = .bag
+                beginCornerTaps()
+            }
+            return
+        }
+
+        guard !isCornerMode, !isTapMeasuring, let snapshot = DepthSnapshot(frame: frame) else { return }
         let mode: ScanWorker.Mode = phase == .items ? .items(bag: lockedCavity) : .bag
-        let result = await worker.process(snapshot, mode: mode, planeFloorY: floorY)
+        let result = await worker.process(snapshot, mode: mode, planeFloorY: planeFloorY)
+        if floorY == nil { floorY = result.floorY }
 
         switch phase {
         case .findFloor:
@@ -116,6 +162,7 @@ final class GuidedSession {
                 showCornerFallback = true
             }
         case .items:
+            lastItemStates = result.items
             updateTracked(result.items)
             updateCrops(frame)
         default:
@@ -170,63 +217,210 @@ final class GuidedSession {
             shellDepthCm: Double(fit.shellDepth * 100),
             confidence: state.confidence
         )
-        cavityBox?.update(
-            size: [fit.box.rect.long, fit.shellDepth, fit.box.rect.short],
-            transform: { var t = WireBox.transform(for: fit.box, floorY: fit.floorY); t.columns.3.y = fit.floorY + fit.shellDepth / 2; return t }(),
-            color: UIColor.white.withAlphaComponent(0.6)
-        )
+        showLockedCavity(fit)
         enterItems()
+    }
+
+    private func showLockedCavity(_ fit: CavityFit) {
+        let box = cavityBox ?? {
+            let b = WireBox(name: "cavity")
+            worldRoot.addChild(b.entity)
+            cavityBox = b
+            return b
+        }()
+        box.entity.isEnabled = true
+        var t = WireBox.transform(for: fit.box, floorY: fit.floorY)
+        t.columns.3.y = fit.floorY + fit.shellDepth / 2
+        box.update(size: [fit.box.rect.long, fit.shellDepth, fit.box.rect.short], transform: t, color: UIColor.white.withAlphaComponent(0.6))
     }
 
     /// Fallback when the cavity won't settle: tap the two inside back corners.
     func beginCornerTaps() {
         isCornerMode = true
         cornerTaps = []
+        errorText = nil
         cavityBox?.entity.isEnabled = false
     }
 
     func cancelCornerTaps() {
+        guard hasDepth else {
+            cornerTaps = []
+            return
+        }
         isCornerMode = false
         cornerTaps = []
         bagPhaseStart = Date()
     }
 
-    /// Back-left then back-right inside corners, on the cavity floor. The other two inner
-    /// sizes come from `preset` (the trip's bag).
-    func handleCornerTap(_ point: SIMD3<Float>, preset: Container?) {
+    /// Three inside corners of the open shell: back-left, back-right, then a front corner.
+    /// The shell depth comes from the trip's bag.
+    func handleCornerTap(_ point: SIMD3<Float>) {
         cornerTaps.append(point)
-        guard cornerTaps.count == 2 else { return }
-        let a = cornerTaps[0], b = cornerTaps[1]
-        var x = b - a
-        x.y = 0
-        let long = length(x)
-        guard long > 0.2 else {
+        errorText = nil
+        guard cornerTaps.count == 3 else { return }
+        guard let rect = TapMeasure.footprint(cornerTaps[0], cornerTaps[1], cornerTaps[2]), rect.short > 0.15 else {
             cornerTaps = []
             errorText = Copy.Guided.cornersTooClose
             return
         }
-        x = normalize(x)
-        let y = SIMD3<Float>(0, 1, 0)
-        let z = cross(x, y)
-        let inner = preset?.compartments.first?.dims ?? [72, 26, 47]
-        let short = Float(inner[2]) / 100, depth = Float(inner[1]) / 200
-        let origin = SIMD3<Float>(a.x, min(a.y, b.y), a.z)
-        bagTransform = simd_float4x4(SIMD4(x, 0), SIMD4(y, 0), SIMD4(z, 0), SIMD4(origin, 1))
-        let centre = origin + x * (long / 2) + z * (short / 2)
-        let yaw = OrientedRect.normalizedYaw(atan2(x.z, x.x))
-        lockedCavity = CavityFit(
-            box: BoxFit(rect: OrientedRect(center: [centre.x, centre.z], yaw: yaw, long: long, short: short), height: depth, cellCount: 0, fillRatio: 1),
-            floorY: origin.y
-        )
+        let inner = presetBag?.compartments.first?.dims ?? [72, 26, 47]
+        let floor = cornerTaps.map(\.y).min() ?? 0
+        let fit = CavityFit(box: BoxFit(rect: rect, height: Float(inner[1]) / 200, cellCount: 0, fillRatio: 1), floorY: floor)
+        let camera = session.currentFrame?.camera.transform.columns.3 ?? SIMD4(rect.center.x, 0, rect.center.y + 1, 1)
+        lockedCavity = fit
+        bagTransform = fit.transform(cameraXZ: [camera.x, camera.z])
         container = ContainerFactory.fromCavity(
-            innerLongCm: Double(long * 100),
-            innerShortCm: inner[2],
+            innerLongCm: Double(rect.long * 100),
+            innerShortCm: Double(rect.short * 100),
             shellDepthCm: inner[1] / 2,
-            confidence: 0.7
+            confidence: 0.7,
+            method: .manual
         )
         isCornerMode = false
+        cornerTaps = []
+        showLockedCavity(fit)
         enterItems()
     }
+
+    // MARK: Taps
+
+    /// Routes a tap on the AR view to whatever the current step needs.
+    func handleTap(at point: CGPoint, in view: ARView) {
+        if isCornerMode {
+            if let p = Self.hit(view, point, floorFirst: false) { handleCornerTap(p) }
+            return
+        }
+        guard phase == .items else { return }
+        if isTapMeasuring {
+            handleItemTap(at: point, in: view)
+        } else if let entity = view.entity(at: point) {
+            dropItem(entityName: entity.name)
+        }
+    }
+
+    /// A horizontal hit. Item corners sit on the floor, so they prefer the floor plane;
+    /// the bag's inside corners prefer the surface ARKit estimates under the tap.
+    private static func hit(_ view: ARView, _ point: CGPoint, floorFirst: Bool) -> SIMD3<Float>? {
+        let order: [ARRaycastQuery.Target] = floorFirst ? [.existingPlaneInfinite, .estimatedPlane] : [.estimatedPlane, .existingPlaneInfinite]
+        for target in order {
+            if let r = view.raycast(from: point, allowing: target, alignment: .horizontal).first {
+                let c = r.worldTransform.columns.3
+                return [c.x, c.y, c.z]
+            }
+        }
+        return nil
+    }
+
+    var tapStep: TapStep {
+        if itemTaps.count < 3 { return .corner(itemTaps.count + 1) }
+        return draft?.hasHeight == true ? .adjust : .top
+    }
+
+    func startTapMeasuring() {
+        isTapMeasuring = true
+        resetDraft()
+    }
+
+    /// Back to the LiDAR sweep. Without LiDAR, tapping is the only way to measure.
+    func stopTapMeasuring() {
+        resetDraft()
+        if hasDepth { isTapMeasuring = false }
+    }
+
+    func resetDraft() {
+        itemTaps = []
+        draft = nil
+        errorText = nil
+        draftBox?.entity.removeFromParent()
+        draftBox = nil
+    }
+
+    private func handleItemTap(at point: CGPoint, in view: ARView) {
+        errorText = nil
+        switch tapStep {
+        case .corner:
+            guard let p = Self.hit(view, point, floorFirst: true) else {
+                errorText = Copy.Guided.tapMissed
+                return
+            }
+            itemTaps.append(p)
+            guard itemTaps.count == 3 else { return }
+            guard let rect = TapMeasure.footprint(itemTaps[0], itemTaps[1], itemTaps[2]) else {
+                itemTaps = []
+                errorText = Copy.Guided.cornersTooClose
+                return
+            }
+            let floor = floorY ?? (itemTaps.map(\.y).reduce(0, +) / 3)
+            draft = TapDraft(rect: rect, floorY: floor, longCm: round1(rect.long * 100), shortCm: round1(rect.short * 100))
+            refreshDraftWire()
+
+        case .top:
+            guard var d = draft else { return }
+            var height: Float?
+            var fromSurface = false
+            if let r = view.raycast(from: point, allowing: .estimatedPlane, alignment: .any).first {
+                let c = r.worldTransform.columns.3
+                height = TapMeasure.heightFromSurfaceHit([c.x, c.y, c.z], footprint: d.rect, floorY: d.floorY)
+                fromSurface = height != nil
+            }
+            if height == nil, let ray = view.ray(through: point) {
+                height = TapMeasure.heightFromEdgeRay(origin: ray.origin, direction: ray.direction, footprint: d.rect, floorY: d.floorY)
+            }
+            guard let height else {
+                errorText = Copy.Guided.heightMissed
+                return
+            }
+            d.heightCm = round1(height * 100)
+            d.hasHeight = true
+            d.heightFromSurface = fromSurface
+            draft = d
+            refreshDraftWire()
+
+        case .adjust:
+            break
+        }
+    }
+
+    /// Redraws the draft box after taps or size edits.
+    func refreshDraftWire() {
+        guard let d = draft else { return }
+        let box = draftBox ?? {
+            let b = WireBox(name: "draft")
+            worldRoot.addChild(b.entity)
+            draftBox = b
+            return b
+        }()
+        var rect = d.rect
+        rect.long = Float(d.longCm / 100)
+        rect.short = Float(d.shortCm / 100)
+        let h = d.hasHeight ? Float(d.heightCm / 100) : 0.005
+        let fit = BoxFit(rect: rect, height: h, cellCount: 0, fillRatio: 1)
+        box.update(size: [rect.long, h, rect.short], transform: WireBox.transform(for: fit, floorY: d.floorY), color: .systemYellow)
+    }
+
+    /// Adds the measured draft as a found item.
+    func addDraftItem() {
+        guard let d = draft, d.hasHeight, d.longCm > 0, d.shortCm > 0, d.heightCm > 0 else { return }
+        var rect = d.rect
+        rect.long = Float(d.longCm / 100)
+        rect.short = Float(d.shortCm / 100)
+        let id = nextTapID
+        nextTapID += 1
+        numbers[id] = numbers.count + 1
+        tapTracked.append(TrackedItem(
+            id: id,
+            number: numbers[id]!,
+            fit: BoxFit(rect: rect, height: Float(d.heightCm / 100), cellCount: 0, fillRatio: 1),
+            floorY: d.floorY,
+            stable: true,
+            confidence: TapMeasure.confidence(heightFromSurface: d.heightFromSurface)
+        ))
+        resetDraft()
+        updateTracked(lastItemStates)
+        if let frame = session.currentFrame { updateCrops(frame) }
+    }
+
+    private func round1(_ v: Float) -> Double { (Double(v) * 10).rounded() / 10 }
 
     // MARK: Items
 
@@ -234,8 +428,12 @@ final class GuidedSession {
         phase = .items
         errorText = nil
         tracked = []
+        tapTracked = []
+        lastItemStates = []
         numbers = [:]
         crops = [:]
+        isTapMeasuring = !hasDepth
+        resetDraft()
         Task { await worker.resetItems() }
     }
 
@@ -246,6 +444,7 @@ final class GuidedSession {
             guard let number = numbers[s.id] else { continue }
             next.append(TrackedItem(id: s.id, number: number, fit: s.fit, floorY: s.floorY, stable: s.stable, confidence: s.confidence))
         }
+        next.append(contentsOf: tapTracked)
         tracked = next.sorted { $0.number < $1.number }
 
         let live = Set(tracked.map(\.id))
@@ -275,6 +474,7 @@ final class GuidedSession {
         itemBoxes[id]?.entity.removeFromParent()
         itemBoxes[id] = nil
         tracked.removeAll { $0.id == id }
+        tapTracked.removeAll { $0.id == id }
         crops[id] = nil
         Task { await worker.suppressItem(id: id) }
     }
@@ -332,10 +532,13 @@ final class GuidedSession {
             var image: String
             var dims: MeasuredDims
         }
+        let tapIDs = Set(tapTracked.map(\.id))
         let jobs: [Job] = found.enumerated().map { index, t in
             let cm = t.fit.dimsCm
             let image = crops[t.id].flatMap { ImageCapture.jpegBase64(from: $0.image) } ?? ImageCapture.placeholderBase64()
-            return Job(index: index, image: image, dims: MeasuredDims(w: cm.w, h: cm.h, d: cm.d, method: .lidar, confidence: t.confidence))
+            // Tapped sizes are user-measured; the schema has no separate AR-tap method.
+            let method: MeasureMethod = tapIDs.contains(t.id) ? .manual : .lidar
+            return Job(index: index, image: image, dims: MeasuredDims(w: cm.w, h: cm.h, d: cm.d, method: method, confidence: t.confidence))
         }
 
         let client = self.client
@@ -359,6 +562,7 @@ final class GuidedSession {
             }
         }
 
+        tapMeasuredItemIDs = []
         items = jobs.map { job in
             var item = results[job.index] ?? Item(
                 id: UUID().uuidString,
@@ -369,12 +573,13 @@ final class GuidedSession {
                 confidence: 0.5,
                 source: .scan
             )
-            // LiDAR is the authority on size (rule 6).
+            // The device measurement is the authority on size (rule 6).
             item.w = job.dims.w
             item.h = job.dims.h
             item.d = job.dims.d
             item.source = .scan
-            item.measurement = Measurement(method: .lidar, confidence: job.dims.confidence, deviceHasLidar: true)
+            item.measurement = Measurement(method: job.dims.method, confidence: job.dims.confidence, deviceHasLidar: hasDepth)
+            if job.dims.method != .lidar { tapMeasuredItemIDs.insert(item.id) }
             return item
         }
         phase = .review
@@ -391,6 +596,7 @@ final class GuidedSession {
         guard let container, let bagTransform else { return }
         phase = .packing
         itemsStore.items = items
+        itemsStore.tapMeasuredIDs = tapMeasuredItemIDs.intersection(items.map(\.id))
         tripStore.setBag(container)
         await planStore.computePlan(items: items, into: container)
         guard let plan = planStore.plan else {
@@ -426,7 +632,11 @@ final class GuidedSession {
         bagTransform = nil
         container = nil
         tracked = []
+        tapTracked = []
+        lastItemStates = []
         items = []
+        resetDraft()
+        isTapMeasuring = false
         showCornerFallback = false
         isCornerMode = false
         phase = .findFloor

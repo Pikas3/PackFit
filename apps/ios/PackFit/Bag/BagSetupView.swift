@@ -35,8 +35,8 @@ struct BagSetupView: View {
                 }
             }
             Section(Copy.Bag.custom) {
-                if caps.hasLidar && !caps.isSimulator {
-                    Button(Copy.Bag.measureLidar) { path.append(.guidedScan) }
+                if caps.supportsAR {
+                    Button(caps.hasLidar ? Copy.Bag.measureLidar : Copy.Bag.measureCamera) { path.append(.guidedScan) }
                 }
                 Button(Copy.Bag.measureManual) { showManual = true }
             }

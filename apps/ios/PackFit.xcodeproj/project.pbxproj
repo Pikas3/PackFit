@@ -60,6 +60,8 @@
 	AF195091621E2C2E6D615A79 /* GuidedSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66C29C9109E89FCD4392361 /* GuidedSession.swift */; };
 	0C970C06CB51ED08C26AED24 /* GuidedARView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672E033FC3C0BB05772F27AA /* GuidedARView.swift */; };
 	6DE82B905DC99550B43DA85E /* GuidedScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1F4ADDD97AABA1893CE03F /* GuidedScanView.swift */; };
+	1A2506A12F72FC9F102B8860 /* TapMeasure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0913B27655C80F6857600E1C /* TapMeasure.swift */; };
+	61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21859376838BF23B0332273D /* TapMeasureTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -125,6 +127,8 @@
 	F66C29C9109E89FCD4392361 /* GuidedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guided/GuidedSession.swift"; sourceTree = "<group>"; };
 	672E033FC3C0BB05772F27AA /* GuidedARView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guided/GuidedARView.swift"; sourceTree = "<group>"; };
 	4A1F4ADDD97AABA1893CE03F /* GuidedScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Guided/GuidedScanView.swift"; sourceTree = "<group>"; };
+	0913B27655C80F6857600E1C /* TapMeasure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/TapMeasure.swift"; sourceTree = "<group>"; };
+	21859376838BF23B0332273D /* TapMeasureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TapMeasureTests.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +142,7 @@
 	1098403B55AF3C1CDA92BD33 /* PackFit */ = {
 		isa = PBXGroup;
 		children = (
+			0913B27655C80F6857600E1C /* TapMeasure.swift */,
 			4A1F4ADDD97AABA1893CE03F /* GuidedScanView.swift */,
 			672E033FC3C0BB05772F27AA /* GuidedARView.swift */,
 			F66C29C9109E89FCD4392361 /* GuidedSession.swift */,
@@ -198,6 +203,7 @@
 	A155AA44B1D1618D2F5AF75E /* PackFitTests */ = {
 		isa = PBXGroup;
 		children = (
+			21859376838BF23B0332273D /* TapMeasureTests.swift */,
 			B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
 			7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */,
 		);
@@ -246,6 +252,7 @@
 
 /* Begin PBXSourcesBuildPhase section */
 	1A190EB2A888CEB4E47C3A22 /* Sources */ = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			1A2506A12F72FC9F102B8860 /* TapMeasure.swift in Sources */,
 			6DE82B905DC99550B43DA85E /* GuidedScanView.swift in Sources */,
 			0C970C06CB51ED08C26AED24 /* GuidedARView.swift in Sources */,
 			AF195091621E2C2E6D615A79 /* GuidedSession.swift in Sources */,
@@ -299,6 +306,7 @@
 			84E1A9AA802DA01A2CD49B9D /* SceneBuilder.swift in Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 	11E68E1234980A6E737D024A /* Sources */ = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */,
 			23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
 			F4BA7A26C39806719BC98BA7 /* MeasurementMathTests.swift in Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };

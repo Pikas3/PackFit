@@ -10,7 +10,6 @@ struct GuidedScanView: View {
 
     @State private var session: GuidedSession
     @State private var editing: Item?
-    @State private var presetBag: Container?
 
     init(path: Binding<[Route]>, client: any APIClient) {
         _path = path
@@ -19,9 +18,9 @@ struct GuidedScanView: View {
 
     var body: some View {
         Group {
-            if caps.hasLidar && !caps.isSimulator {
+            if caps.supportsAR {
                 ZStack {
-                    GuidedARView(session: session, presetBag: presetBag)
+                    GuidedARView(session: session)
                         .ignoresSafeArea()
                     if showsReticle {
                         Circle()
@@ -37,7 +36,7 @@ struct GuidedScanView: View {
                     }
                 }
             } else {
-                EmptyStateView(Copy.Guided.noLidar, actionTitle: Copy.Guided.usePresets) {
+                EmptyStateView(Copy.Guided.noAR, actionTitle: Copy.Guided.usePresets) {
                     path.append(.bagSetup)
                 }
             }
@@ -56,13 +55,15 @@ struct GuidedScanView: View {
             }
         }
         .onAppear {
-            presetBag = tripStore.bag
-            if caps.hasLidar && !caps.isSimulator { session.start() }
+            session.presetBag = tripStore.bag
+            if caps.supportsAR { session.start() }
         }
         .onDisappear { session.stop() }
         .sheet(isPresented: reviewBinding) { reviewSheet }
     }
 
+    /// The LiDAR bag scan aims with the reticle; taps aim with the finger, so the reticle
+    /// marks the screen centre as a hint only when nothing else is drawn.
     private var showsReticle: Bool {
         session.phase == .bag && !session.isCornerMode
     }
@@ -84,10 +85,22 @@ struct GuidedScanView: View {
         case .findFloor: return Copy.Guided.findFloor
         case .bag:
             if session.isCornerMode {
-                return session.cornerTaps.isEmpty ? Copy.Guided.tapCornerLeft : Copy.Guided.tapCornerRight
+                switch session.cornerTaps.count {
+                case 0: return Copy.Guided.tapCornerLeft
+                case 1: return Copy.Guided.tapCornerRight
+                default: return Copy.Guided.tapCornerFront
+                }
             }
             return session.canLockBag ? Copy.Guided.bagStable : Copy.Guided.bag
-        case .items: return Copy.Guided.items
+        case .items:
+            guard session.isTapMeasuring else { return Copy.Guided.items }
+            switch session.tapStep {
+            case .corner(1): return Copy.Guided.tapItemCorner1
+            case .corner(2): return Copy.Guided.tapItemCorner2
+            case .corner: return Copy.Guided.tapItemCorner3
+            case .top: return Copy.Guided.tapItemTop
+            case .adjust: return Copy.Guided.tapItemAdjust
+            }
         case .identifying: return Copy.Guided.identifying
         case .review: return Copy.Guided.review
         case .packing: return Copy.Guided.packing
@@ -144,7 +157,8 @@ struct GuidedScanView: View {
             }
             HStack {
                 if session.isCornerMode {
-                    Button("Cancel") { session.cancelCornerTaps() }
+                    Button(session.hasDepth ? "Cancel" : Copy.Guided.redo) { session.cancelCornerTaps() }
+                        .disabled(!session.hasDepth && session.cornerTaps.isEmpty)
                 } else if session.showCornerFallback {
                     Button(Copy.Guided.tapCorners) { session.beginCornerTaps() }
                         .font(Tokens.TypeScale.caption)
@@ -162,6 +176,12 @@ struct GuidedScanView: View {
 
     private var itemsPanel: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
+            if session.isTapMeasuring {
+                tapPanel
+            } else if session.hasDepth {
+                Button(Copy.Guided.measureByTapping) { session.startTapMeasuring() }
+                    .font(Tokens.TypeScale.caption)
+            }
             let found = session.tracked.filter(\.stable)
             Text("\(found.count) \(Copy.Guided.itemsFound)")
                 .font(Tokens.TypeScale.title)
@@ -183,9 +203,11 @@ struct GuidedScanView: View {
                         }
                     }
                 }
-                Text(Copy.Guided.itemsHint)
-                    .font(Tokens.TypeScale.caption)
-                    .foregroundStyle(.secondary)
+                if !session.isTapMeasuring {
+                    Text(Copy.Guided.itemsHint)
+                        .font(Tokens.TypeScale.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             HStack {
                 Spacer()
@@ -194,6 +216,48 @@ struct GuidedScanView: View {
                     .tint(Tokens.Color.brand)
                     .disabled(!session.canFinishItems)
             }
+        }
+    }
+
+    /// Size fields after the four taps, so every measured value can be corrected (rule 6).
+    @ViewBuilder
+    private var tapPanel: some View {
+        if session.draft?.hasHeight == true {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                dimStepper(Copy.Guided.lengthCm, \.longCm)
+                dimStepper(Copy.Guided.widthCm, \.shortCm)
+                dimStepper(Copy.Guided.heightCm, \.heightCm)
+                ConfidenceBadge(confidence: TapMeasure.confidence(heightFromSurface: session.draft?.heightFromSurface ?? false))
+            }
+        }
+        HStack {
+            if session.hasDepth {
+                Button(Copy.Guided.backToSweep) { session.stopTapMeasuring() }
+            }
+            Spacer()
+            Button(Copy.Guided.redo) { session.resetDraft() }
+                .disabled(session.itemTaps.isEmpty)
+            Button(Copy.Guided.addItem) { session.addDraftItem() }
+                .buttonStyle(.bordered)
+                .disabled(session.draft?.hasHeight != true)
+        }
+        .font(Tokens.TypeScale.callout)
+    }
+
+    private func dimStepper(_ label: String, _ key: WritableKeyPath<GuidedSession.TapDraft, Double>) -> some View {
+        Stepper(
+            value: Binding(
+                get: { session.draft?[keyPath: key] ?? 0 },
+                set: { value in
+                    session.draft?[keyPath: key] = max(0.5, value)
+                    session.refreshDraftWire()
+                }
+            ),
+            in: 0.5...200,
+            step: 0.5
+        ) {
+            Text(String(format: "%@ %.1f cm", label, session.draft?[keyPath: key] ?? 0))
+                .font(Tokens.TypeScale.callout)
         }
     }
 
@@ -240,7 +304,7 @@ struct GuidedScanView: View {
                                 .font(Tokens.TypeScale.caption)
                                 .foregroundStyle(.secondary)
                             HStack {
-                                MeasurementMethodBadge(method: item.measurement?.method)
+                                MeasurementMethodBadge(method: item.measurement?.method, tapMeasured: item.measurement?.method == .manual)
                                 ConfidenceBadge(confidence: item.measurement?.confidence ?? item.confidence)
                             }
                         }

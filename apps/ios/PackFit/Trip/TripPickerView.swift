@@ -39,9 +39,9 @@ struct TripPickerView: View {
         .sheet(isPresented: $showNew) { newTripForm }
     }
 
-    /// LiDAR phones go straight to the guided scan; others pick a bag preset.
+    /// AR-capable phones go straight to the guided scan (LiDAR sweep or AR taps).
     private var nextRoute: Route {
-        caps.hasLidar && !caps.isSimulator ? .guidedScan : .bagSetup
+        caps.supportsAR ? .guidedScan : .bagSetup
     }
 
     private var newTripForm: some View {

@@ -6,14 +6,19 @@ import SwiftUI
 /// `ARView` configure one itself.
 struct GuidedARView: UIViewRepresentable {
     let session: GuidedSession
-    /// The trip's bag, used for the corner-tap fallback's missing sizes.
-    let presetBag: Container?
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     func makeUIView(context: Context) -> ARView {
         let view = ARView(frame: .zero, cameraMode: .ar, automaticallyConfigureSession: false)
         view.session = session.session
+        // Built-in coaching tells the user to move the phone until ARKit finds the floor.
+        let coaching = ARCoachingOverlayView()
+        coaching.session = session.session
+        coaching.goal = .horizontalPlane
+        coaching.activatesAutomatically = true
+        coaching.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(coaching)
         view.renderOptions.insert(.disableMotionBlur)
         view.scene.addAnchor(session.worldRoot)
         let tap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.tapped(_:)))
@@ -37,18 +42,7 @@ struct GuidedARView: UIViewRepresentable {
 
         @objc func tapped(_ gesture: UITapGestureRecognizer) {
             guard let view, let parent else { return }
-            let point = gesture.location(in: view)
-            let session = parent.session
-            if session.isCornerMode {
-                if let hit = view.raycast(from: point, allowing: .estimatedPlane, alignment: .horizontal).first {
-                    let c = hit.worldTransform.columns.3
-                    session.handleCornerTap([c.x, c.y, c.z], preset: parent.presetBag)
-                }
-                return
-            }
-            if session.phase == .items, let entity = view.entity(at: point) {
-                session.dropItem(entityName: entity.name)
-            }
+            parent.session.handleTap(at: gesture.location(in: view), in: view)
         }
     }
 }

@@ -31,6 +31,7 @@ enum Copy {
         static let presets = "Presets"
         static let custom = "Custom"
         static let measureLidar = "Measure with LiDAR"
+        static let measureCamera = "Measure with the camera"
         static let measureManual = "Enter dimensions"
         static let wheelsPrompt = "Where are the wheels?"
         static let wheelsBack = "Back"
@@ -68,6 +69,7 @@ enum Copy {
         static let measuredLidar = "Measured with LiDAR"
         static let measuredManual = "Entered manually"
         static let measuredReference = "Scaled from credit card"
+        static let measuredARTaps = "Measured with AR taps"
     }
 
     enum Guided {
@@ -76,10 +78,25 @@ enum Copy {
         static let bag = "Open your suitcase on the floor. Aim the dot at the bottom of the empty shell."
         static let bagStable = "Got it. Tap “Use this bag”."
         static let useBag = "Use this bag"
-        static let tapCorners = "Tap the two inside back corners"
-        static let tapCornerLeft = "Tap the inside back-left corner."
+        static let tapCorners = "Measure by tapping corners"
+        static let tapCornerLeft = "Open the bag on the floor. Tap the inside back-left corner."
         static let tapCornerRight = "Now tap the inside back-right corner."
+        static let tapCornerFront = "Now tap an inside front corner."
         static let cornersTooClose = "Those corners are too close. Try again."
+        static let tapMissed = "Couldn’t find the floor there. Move the phone a little and tap again."
+        static let heightMissed = "Couldn’t read the height. Tap the top edge of the side facing you."
+        static let measureByTapping = "Measure by tapping"
+        static let backToSweep = "Back to scanning"
+        static let tapItemCorner1 = "Tap a bottom corner of an item."
+        static let tapItemCorner2 = "Tap the next bottom corner along one side."
+        static let tapItemCorner3 = "Tap a bottom corner on the opposite side."
+        static let tapItemTop = "Tap the top edge of the side facing you."
+        static let tapItemAdjust = "Check the size, then add the item."
+        static let addItem = "Add item"
+        static let redo = "Redo"
+        static let lengthCm = "Length"
+        static let widthCm = "Width"
+        static let heightCm = "Height"
         static let items = "Spread your items a hand apart on the floor, then pan slowly over all of them."
         static let itemsHint = "Tap a box to remove it."
         static let itemsFound = "items found"
@@ -97,7 +114,7 @@ enum Copy {
         static let view3D = "3D view"
         static let itemsLink = "Items"
         static let restart = "Start over"
-        static let noLidar = "This iPhone has no LiDAR. Choose a bag preset instead."
+        static let noAR = "This device can’t run AR. Choose a bag preset instead."
     }
 
     enum Viewer {
