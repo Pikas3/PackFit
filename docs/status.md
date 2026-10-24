@@ -325,3 +325,24 @@ Built:
 - Demo fixtures offline; optional `AVIATIONSTACK_API_KEY` for live lookup
 Run: enter UA / 88 ? Use this flight ? weather for DEL + rules appear
 Cut: browsing a dropdown of all sample trips as the primary path
+
+## 2026-10-24 — Section 3: live flight lookup through Apify; weather for any trip date
+Flight lookup (`/trip/lookup`):
+- Tested four Apify flight-status actors on UA 901, BA 178, EK 202, AI 173 and 6E 1.
+  `apt_marble/flight-status-tracker` won: right routes for every flight that operates now
+  (as did travelcode and parseforge), 4-7 s per run, $0.003 per flight, airport names and
+  countries included, 97 runs in 30 days with none failed. `moving_beacon-owner1/flightaware-flight-scraper`
+  found nothing. None of them know flights months ahead, so the route comes from the flight
+  operating now or next and the user's date is kept.
+- Order: demo fixtures, then the in-memory route cache (7 days; misses 1 hour), then Apify,
+  then AviationStack if configured. Not found is a 404 with a reason; a failing service a 502.
+  Measured on the dev server: first UA 901 lookup 4.6 s, cached 2 ms.
+- The app shows the server's message and no longer substitutes SFO→DEL for unknown flights.
+Weather (`/trip/suggest`): Open-Meteo's forecast reaches 16 days; trips used to ask for the
+whole stay and always fell back to a default. Now the forecast is cut where it ends, and
+later trips get last year's weather on the same dates from the archive.
+Run: backend 25 tests passing (no test calls Apify; live keys are cleared per test).
+- Follow-up: the lookup now follows the trip date. The actor's history (about ten days back,
+  two days ahead) gives that day's own flight when covered; later dates take the route flown
+  on the same weekday most recently and return `routeNote` (shown in the app) saying it is
+  inferred. One history run per flight number serves every date for 12 hours.

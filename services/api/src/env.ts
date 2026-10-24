@@ -36,8 +36,12 @@ export const env = {
   anthropicModel: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5-20250929",
   anthropicModelFast: process.env.ANTHROPIC_MODEL_FAST ?? "claude-haiku-4-5-20251001",
   apifyToken: process.env.APIFY_TOKEN ?? "",
+  /** Apify actor that turns a flight number into its route for /trip/lookup. */
+  flightActor: process.env.APIFY_FLIGHT_ACTOR || "apt_marble~flight-status-tracker",
   /** Optional. When empty, /trip/lookup uses demo fixture flights only. */
   aviationStackKey: process.env.AVIATIONSTACK_API_KEY ?? "",
+  /** AviationStack's free plan only answers over plain http: set http://api.aviationstack.com/v1. */
+  aviationStackBaseUrl: process.env.AVIATIONSTACK_BASE_URL || "https://api.aviationstack.com/v1",
   mockClaude: flag("MOCK_CLAUDE", !process.env.ANTHROPIC_API_KEY),
   version: "0.1.0",
 };

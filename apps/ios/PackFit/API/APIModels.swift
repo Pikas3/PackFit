@@ -166,5 +166,7 @@ struct FlightLookupResponse: Codable, Sendable, Equatable {
     var departDate: String?
     var international: Bool
     var source: String
+    /// Set when the route is inferred for the date (schedule not published yet) rather than that day's own flight.
+    var routeNote: String? = nil
     var routeNotices: [RouteNotice]
 }

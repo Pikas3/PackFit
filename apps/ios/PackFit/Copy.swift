@@ -209,5 +209,6 @@ enum Copy {
         static let generic = "Something went wrong."
         static let retry = "Try again"
         static let network = "Couldn’t reach the server. Using offline demo data."
+        static let serverUnreachable = "Couldn’t reach the server. Check your connection and try again."
     }
 }

@@ -30,6 +30,12 @@ enum APIError: Error, LocalizedError {
     case upstream(String)
     case network
 
+    /// The server could not be reached at all, as opposed to answering with an error.
+    var isNetwork: Bool {
+        if case .network = self { return true }
+        return false
+    }
+
     var errorDescription: String? {
         switch self {
         case .unauthorized: return "Unauthorized"

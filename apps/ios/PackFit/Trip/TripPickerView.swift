@@ -89,6 +89,11 @@ struct TripPickerView: View {
                         Text("\(Copy.Trip.departField): \(depart)")
                             .font(Tokens.TypeScale.caption)
                     }
+                    if let note = pending.routeNote {
+                        Label(note, systemImage: "calendar.badge.exclamationmark")
+                            .font(Tokens.TypeScale.caption)
+                            .foregroundStyle(Tokens.Color.restricted)
+                    }
                     Button(Copy.Trip.useThisFlight) {
                         Task { await confirmFlight(pending) }
                     }
@@ -183,7 +188,8 @@ struct TripPickerView: View {
             client: client
         )
         if pendingLookup == nil {
-            formError = tripStore.lookupError ?? Copy.Trip.flightNotFound
+            // The store's message is already shown below the button; don't repeat it.
+            if tripStore.lookupError == nil { formError = Copy.Trip.flightNotFound }
         }
     }
 

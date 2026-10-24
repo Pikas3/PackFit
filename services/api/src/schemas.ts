@@ -205,6 +205,8 @@ export const TripLookupResponseSchema = z.object({
   departDate: z.string().nullable(),
   international: z.boolean(),
   source: z.enum(["live", "fixture"]),
+  /** How sure the route is for the requested date, when it is not that day's own flight. */
+  routeNote: z.string().nullable().optional(),
   routeNotices: z.array(
     z.object({
       text: z.string(),

@@ -76,6 +76,9 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
 
     func lookupFlight(airline: String, flightNumber: String, departDate: String?) async throws -> FlightLookupResponse {
         try await Task.sleep(for: .milliseconds(300))
-        return AppFixtures.flightLookupFallback(airline: airline, flightNumber: flightNumber, departDate: departDate)
+        guard let flight = AppFixtures.flightLookupFallback(airline: airline, flightNumber: flightNumber, departDate: departDate) else {
+            throw APIError.badRequest(Copy.Trip.flightNotFound)
+        }
+        return flight
     }
 }

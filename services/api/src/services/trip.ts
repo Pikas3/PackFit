@@ -87,46 +87,57 @@ async function fetchWeather(
     };
   }
 
+  const window = weatherWindow(trip.departDate, trip.nights);
+  const forecast = window.source === "forecast";
+  const url = new URL(forecast ? "https://api.open-meteo.com/v1/forecast" : "https://archive-api.open-meteo.com/v1/archive");
+  url.searchParams.set("latitude", String(coords.lat));
+  url.searchParams.set("longitude", String(coords.lon));
+  url.searchParams.set(
+    "daily",
+    forecast
+      ? "temperature_2m_max,temperature_2m_min,precipitation_probability_max"
+      : "temperature_2m_max,temperature_2m_min,precipitation_sum",
+  );
+  url.searchParams.set("timezone", "auto");
+  url.searchParams.set("start_date", window.start);
+  url.searchParams.set("end_date", window.end);
   try {
-    const start = trip.departDate;
-    const endDate = new Date(start + "T00:00:00Z");
-    endDate.setUTCDate(endDate.getUTCDate() + Math.max(0, trip.nights));
-    const end = endDate.toISOString().slice(0, 10);
-    const url = new URL("https://api.open-meteo.com/v1/forecast");
-    url.searchParams.set("latitude", String(coords.lat));
-    url.searchParams.set("longitude", String(coords.lon));
-    url.searchParams.set("daily", "temperature_2m_max,temperature_2m_min,precipitation_probability_max");
-    url.searchParams.set("timezone", "auto");
-    url.searchParams.set("start_date", start);
-    url.searchParams.set("end_date", end);
-
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
     const body = (await res.json()) as {
+      reason?: string;
       daily?: {
-        temperature_2m_max?: number[];
-        temperature_2m_min?: number[];
-        precipitation_probability_max?: number[];
+        temperature_2m_max?: (number | null)[];
+        temperature_2m_min?: (number | null)[];
+        precipitation_probability_max?: (number | null)[];
+        precipitation_sum?: (number | null)[];
       };
     };
-    const highs = body.daily?.temperature_2m_max ?? [];
-    const lows = body.daily?.temperature_2m_min ?? [];
-    const precip = body.daily?.precipitation_probability_max ?? [];
-    const highC = highs.length ? Math.max(...highs) : 22;
-    const lowC = lows.length ? Math.min(...lows) : 12;
-    const precipChance = precip.length
-      ? precip.reduce((a, b) => a + b, 0) / precip.length / 100
-      : 0.2;
+    if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}: ${body.reason ?? "no reason"}`);
+    const nums = (a?: (number | null)[]) => (a ?? []).filter((n): n is number => typeof n === "number");
+    const highs = nums(body.daily?.temperature_2m_max);
+    const lows = nums(body.daily?.temperature_2m_min);
+    if (!highs.length || !lows.length) throw new Error("Open-Meteo returned no temperatures");
+    const highC = Math.max(...highs);
+    const lowC = Math.min(...lows);
+    let precipChance = 0.2;
+    if (forecast) {
+      const p = nums(body.daily?.precipitation_probability_max);
+      if (p.length) precipChance = p.reduce((a, b) => a + b, 0) / p.length / 100;
+    } else {
+      // Archive has rain amounts, not chances: the share of days with at least 1 mm.
+      const p = nums(body.daily?.precipitation_sum);
+      if (p.length) precipChance = p.filter((mm) => mm >= 1).length / p.length;
+    }
+    const temps = `highs around ${Math.round(highC)}°C and lows around ${Math.round(lowC)}°C`;
+    const span = `${shortDate(window.start)}–${shortDate(window.end)}`;
+    const summary = forecast
+      ? `Forecast for ${span}: ${temps}.${window.clamped ? ` The forecast only reaches ${shortDate(window.end)}.` : ""}`
+      : `Too far ahead for a forecast. Last year on these dates (${span} ${window.start.slice(0, 4)}): ${temps}.`;
     return {
-      weather: {
-        summary: `Forecast highs around ${Math.round(highC)}°C and lows around ${Math.round(lowC)}°C.`,
-        lowC,
-        highC,
-        precipChance,
-        sourceUrl: url.toString(),
-      },
+      weather: { summary, lowC, highC, precipChance, sourceUrl: url.toString() },
     };
-  } catch {
+  } catch (err) {
+    console.warn(`[weather] ${trip.to} ${window.start}..${window.end}: ${(err as Error).message}`);
     return {
       weather: {
         summary: "Live weather is unavailable — using a mild default. Pack layers to be safe.",
@@ -140,8 +151,45 @@ async function fetchWeather(
   }
 }
 
+/** Open-Meteo's forecast reaches this many days ahead, today included. */
+export const FORECAST_DAYS = 16;
+
+/**
+ * Which dates to ask Open-Meteo for. Inside the forecast range: the trip's days, cut off where
+ * the forecast ends. Starting later (or already past): the same days last year, from the archive.
+ */
+export function weatherWindow(
+  departDate: string,
+  nights: number,
+  today: Date = new Date(),
+): { source: "forecast" | "last_year"; start: string; end: string; clamped: boolean } {
+  const day = (d: Date) => d.toISOString().slice(0, 10);
+  const addDays = (iso: string, n: number) => {
+    const d = new Date(iso + "T00:00:00Z");
+    d.setUTCDate(d.getUTCDate() + n);
+    return day(d);
+  };
+  const start = departDate;
+  const end = addDays(start, Math.max(0, nights));
+  const first = day(today);
+  const last = addDays(first, FORECAST_DAYS - 1);
+  if (start >= first && start <= last) {
+    return { source: "forecast", start, end: end > last ? last : end, clamped: end > last };
+  }
+  const lastYear = (iso: string) => `${Number(iso.slice(0, 4)) - 1}${iso.slice(4)}`.replace(/-02-29$/, "-02-28");
+  // Last year's archive ends a few days before today; never ask past that.
+  const archiveEnd = addDays(first, -6);
+  let ly = { start: lastYear(start), end: lastYear(end) };
+  if (ly.end > archiveEnd) ly = { start: lastYear(ly.start), end: lastYear(ly.end) };
+  return { source: "last_year", start: ly.start, end: ly.end, clamped: false };
+}
+
+function shortDate(iso: string): string {
+  return new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+}
+
 function mockSuggestions(trip: Trip) {
-  const base = [
+  const base: { name: string; reason: string; category: Category; qty: number; essential: boolean }[] = [
     {
       name: "T-shirt stack",
       reason: `Everyday tops for ${trip.nights} nights`,

@@ -1,4 +1,4 @@
-import AVFoundation
+@preconcurrency import AVFoundation
 import CoreImage
 import Foundation
 import UIKit
@@ -6,15 +6,17 @@ import UIKit
 /// Synchronized RGB + absolute LiDAR depth from `builtInLiDARDepthCamera` (AVFoundation).
 @MainActor
 final class LidarCaptureSession: NSObject {
-    struct Frame: Sendable {
+    /// Handed from the capture queue to main once and never mutated, so sharing it is safe.
+    struct Frame: @unchecked Sendable {
         let depthData: AVDepthData
         let videoBuffer: CVPixelBuffer
         let timestamp: TimeInterval
     }
 
     let session = AVCaptureSession()
-    private let videoOutput = AVCaptureVideoDataOutput()
-    private let depthOutput = AVCaptureDepthDataOutput()
+    // Read by the synchronizer delegate on the capture queue; configured only before it runs.
+    private nonisolated(unsafe) let videoOutput = AVCaptureVideoDataOutput()
+    private nonisolated(unsafe) let depthOutput = AVCaptureDepthDataOutput()
     private var synchronizer: AVCaptureDataOutputSynchronizer?
     private let queue = DispatchQueue(label: "packfit.lidar.capture", qos: .userInitiated)
 
@@ -59,8 +61,8 @@ final class LidarCaptureSession: NSObject {
         ]
         guard session.canAddOutput(videoOutput) else { throw CaptureError.cannotAddOutput }
         session.addOutput(videoOutput)
-        if let conn = videoOutput.connection(with: .video), conn.isVideoOrientationSupported {
-            conn.videoOrientation = .portrait
+        if let conn = videoOutput.connection(with: .video), conn.isVideoRotationAngleSupported(90) {
+            conn.videoRotationAngle = 90 // portrait
         }
 
         depthOutput.isFilteringEnabled = false
@@ -93,17 +95,17 @@ final class LidarCaptureSession: NSObject {
             guard dims.width >= preferredWidth,
                   format.formatDescription.mediaSubType.rawValue == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
                   !format.isVideoBinned,
-                  !format.activeDepthDataFormats.isEmpty
+                  !format.supportedDepthDataFormats.isEmpty
             else { return false }
-            return format.activeDepthDataFormats.contains {
+            return format.supportedDepthDataFormats.contains {
                 CMFormatDescriptionGetMediaSubType($0.formatDescription) == kCVPixelFormatType_DepthFloat32
             }
-        } ?? device.formats.last { !$0.activeDepthDataFormats.isEmpty }
+        } ?? device.formats.last { !$0.supportedDepthDataFormats.isEmpty }
 
         guard let format = match,
-              let depthFormat = format.activeDepthDataFormats.first(where: {
+              let depthFormat = format.supportedDepthDataFormats.first(where: {
                   CMFormatDescriptionGetMediaSubType($0.formatDescription) == kCVPixelFormatType_DepthFloat32
-              }) ?? format.activeDepthDataFormats.first
+              }) ?? format.supportedDepthDataFormats.first
         else { throw CaptureError.noDepthFormat }
 
         try device.lockForConfiguration()
@@ -138,9 +140,9 @@ extension LidarCaptureSession: AVCaptureDataOutputSynchronizerDelegate {
         didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection
     ) {
         guard let syncedDepth = synchronizedDataCollection.synchronizedData(for: depthOutput) as? AVCaptureSynchronizedDepthData,
-              !syncedDepth.wasDropped,
+              !syncedDepth.depthDataWasDropped,
               let syncedVideo = synchronizedDataCollection.synchronizedData(for: videoOutput) as? AVCaptureSynchronizedSampleBufferData,
-              !syncedVideo.wasDropped,
+              !syncedVideo.sampleBufferWasDropped,
               let pixelBuffer = CMSampleBufferGetImageBuffer(syncedVideo.sampleBuffer)
         else { return }
 
@@ -152,7 +154,7 @@ extension LidarCaptureSession: AVCaptureDataOutputSynchronizerDelegate {
         let frame = Frame(depthData: depth, videoBuffer: pixelBuffer, timestamp: seconds)
         Task { @MainActor in
             self.latest = frame
-            self.latestVideoBuffer = pixelBuffer
+            self.latestVideoBuffer = frame.videoBuffer
         }
     }
 }
