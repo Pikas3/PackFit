@@ -1,12 +1,30 @@
 import { randomUUID } from "node:crypto";
 import { callClaudeTool } from "../claude/client.js";
 import { buildSuggestItemsPrompt, SuggestItemsToolSchema } from "../claude/prompts/suggestItems.js";
-import { airportCoords, countryForAirport } from "../rules/store.js";
-import type { Item, Trip } from "../schemas.js";
+import { airportCoords, countryForAirport, loadCountryTips } from "../rules/store.js";
+import type { Category, Trip } from "../schemas.js";
 import { catalogFor } from "./catalog.js";
 
+export type Suggestion = {
+  id: string;
+  name: string;
+  reason: string;
+  category: Category;
+  estDims: [number, number, number];
+  estKg: number;
+  fragile: boolean;
+  soft: boolean;
+  essential: boolean;
+};
+
+export type BeforeYouGoTip = {
+  text: string;
+  sourceUrl: string;
+  lastVerified: string;
+};
+
 export type TripSuggestResult = {
-  suggestions: Item[];
+  suggestions: Suggestion[];
   weather: {
     summary: string;
     lowC: number;
@@ -18,8 +36,19 @@ export type TripSuggestResult = {
     | { kind: "overweight"; bag: "checked"; estimatedKg: number; limitKg: number }
     | { kind: "souvenir_space"; reservedLitres: number }
     | { kind: "weather_unavailable"; message: string }
+    | { kind: "unknown_airline"; message: string }
   >;
+  beforeYouGo: {
+    pack: BeforeYouGoTip[];
+    leaveOrDeclare: BeforeYouGoTip[];
+    medicationFood: BeforeYouGoTip[];
+  };
+  destinationCountry: string | null;
 };
+
+const KNOWN_AIRLINES = new Set([
+  "UA", "AA", "DL", "WN", "B6", "AS", "NK", "F9", "BA", "LH", "AF", "KL", "EK", "QR", "SQ", "CX", "NH", "KE", "AI", "UK",
+]);
 
 async function fetchWeather(
   trip: Trip,
@@ -29,26 +58,32 @@ async function fetchWeather(
   if (!coords) {
     return {
       weather: {
-        summary: "Weather unavailable for this airport code.",
+        summary: "No forecast for that airport code — pick a listed destination or check the weather yourself.",
         lowC: 15,
         highC: 25,
         precipChance: 0.2,
         sourceUrl,
       },
-      warning: { kind: "weather_unavailable", message: `No coordinates for ${trip.to}` },
+      warning: {
+        kind: "weather_unavailable",
+        message: `No coordinates for ${trip.to}. Using a mild default summary.`,
+      },
     };
   }
 
   if (!trip.departDate) {
     return {
       weather: {
-        summary: "No departDate provided; using mild temperate defaults.",
+        summary: "No departure date yet — showing a mild temperate default forecast.",
         lowC: 12,
         highC: 22,
         precipChance: 0.25,
         sourceUrl,
       },
-      warning: { kind: "weather_unavailable", message: "departDate missing; skipped live forecast" },
+      warning: {
+        kind: "weather_unavailable",
+        message: "Add a depart date (YYYY-MM-DD) for a live forecast.",
+      },
     };
   }
 
@@ -94,31 +129,103 @@ async function fetchWeather(
   } catch {
     return {
       weather: {
-        summary: "Live weather fetch failed; using mild defaults.",
+        summary: "Live weather is unavailable — using a mild default. Pack layers to be safe.",
         lowC: 12,
         highC: 22,
         precipChance: 0.25,
         sourceUrl,
       },
-      warning: { kind: "weather_unavailable", message: "Open-Meteo unavailable" },
+      warning: { kind: "weather_unavailable", message: "Open-Meteo unavailable; offline defaults applied." },
     };
   }
 }
 
 function mockSuggestions(trip: Trip) {
   const base = [
-    { name: "T-shirt stack", category: "clothing" as const, qty: Math.min(5, Math.max(2, trip.nights)) },
-    { name: "Jeans", category: "clothing" as const, qty: 1 },
-    { name: "Toiletry pouch", category: "toiletries" as const, qty: 1 },
-    { name: "Phone charger cable", category: "electronics" as const, qty: 1 },
+    {
+      name: "T-shirt stack",
+      reason: `Everyday tops for ${trip.nights} nights`,
+      category: "clothing" as const,
+      qty: Math.min(5, Math.max(2, trip.nights)),
+      essential: true,
+    },
+    {
+      name: "Jeans",
+      reason: "One durable pair for the trip",
+      category: "clothing" as const,
+      qty: 1,
+      essential: false,
+    },
+    {
+      name: "Toiletry pouch",
+      reason: "Basics for the trip length",
+      category: "toiletries" as const,
+      qty: 1,
+      essential: true,
+    },
+    {
+      name: "Phone charger cable",
+      reason: "Keep devices charged",
+      category: "electronics" as const,
+      qty: 1,
+      essential: true,
+    },
   ];
   if (trip.activities.some((a) => /ski|cold|winter/i.test(a))) {
-    base.push({ name: "Warm sweater", category: "clothing", qty: 2 });
+    base.push({
+      name: "Warm sweater",
+      reason: "Cold activity on the itinerary",
+      category: "clothing",
+      qty: 2,
+      essential: true,
+    });
   }
   if (countryForAirport(trip.to) !== countryForAirport(trip.from)) {
-    base.push({ name: "Passport wallet", category: "documents", qty: 1 });
+    base.push({
+      name: "Passport wallet",
+      reason: "International documents",
+      category: "documents",
+      qty: 1,
+      essential: true,
+    });
   }
   return { suggestions: base };
+}
+
+function buildBeforeYouGo(country: string | undefined): TripSuggestResult["beforeYouGo"] {
+  const tips = loadCountryTips(country);
+  const pack: BeforeYouGoTip[] = [
+    {
+      text: `Pack a power adapter suitable for ${country ?? "your destination"} and check charger voltage.`,
+      sourceUrl: "https://www.iatatravelcentre.com/",
+      lastVerified: "2026-09-20",
+    },
+    {
+      text: "Keep passport and visas in your cabin bag.",
+      sourceUrl: "https://travel.state.gov/",
+      lastVerified: "2026-09-20",
+    },
+  ];
+  const medicationFood: BeforeYouGoTip[] = [
+    {
+      text: "Keep prescription medication in original packaging with a copy of the prescription.",
+      sourceUrl: "https://www.tsa.gov/travel/security-screening/whatcanibring/items/medications",
+      lastVerified: "2026-09-18",
+    },
+  ];
+  return {
+    pack,
+    leaveOrDeclare: tips.length
+      ? tips
+      : [
+          {
+            text: "Check destination customs for food, plants, drones, vapes, and cash limits.",
+            sourceUrl: "https://www.iatatravelcentre.com/",
+            lastVerified: "2026-09-20",
+          },
+        ],
+    medicationFood,
+  };
 }
 
 export async function suggestTrip(trip: Trip): Promise<TripSuggestResult> {
@@ -130,33 +237,34 @@ export async function suggestTrip(trip: Trip): Promise<TripSuggestResult> {
     mock: () => mockSuggestions(trip),
   });
 
-  const suggestions: Item[] = [];
+  const suggestions: Suggestion[] = [];
   for (const s of data.suggestions) {
     const cat = catalogFor(s.category);
     for (let i = 0; i < s.qty; i++) {
       suggestions.push({
         id: randomUUID(),
         name: s.qty > 1 ? `${s.name} (${i + 1})` : s.name,
-        w: cat.w,
-        h: cat.h,
-        d: cat.d,
-        kg: cat.kg,
-        fragile: cat.fragile,
-        hardness: cat.hardness,
-        soft: cat.soft,
-        upright: cat.upright,
+        reason: s.reason,
         category: s.category,
-        confidence: 1,
-        source: "suggested",
-        measurement: { method: "catalog", confidence: 1, deviceHasLidar: false },
+        estDims: [cat.w, cat.h, cat.d],
+        estKg: cat.kg,
+        fragile: cat.fragile,
+        soft: cat.soft,
+        essential: s.essential,
       });
     }
   }
 
   const warnings: TripSuggestResult["warnings"] = [];
   if (warning) warnings.push(warning);
+  if (!KNOWN_AIRLINES.has(trip.airline.toUpperCase())) {
+    warnings.push({
+      kind: "unknown_airline",
+      message: `Airline ${trip.airline} isn’t in our short list — baggage limits may be wrong. Check the airline site.`,
+    });
+  }
 
-  const estimatedKg = suggestions.reduce((sum, i) => sum + i.kg, 0);
+  const estimatedKg = suggestions.reduce((sum, i) => sum + i.estKg, 0);
   if (estimatedKg > trip.checked.weightLimitKg) {
     warnings.push({
       kind: "overweight",
@@ -166,10 +274,17 @@ export async function suggestTrip(trip: Trip): Promise<TripSuggestResult> {
     });
   }
 
-  const international = countryForAirport(trip.from) !== countryForAirport(trip.to);
+  const destinationCountry = countryForAirport(trip.to) ?? null;
+  const international = countryForAirport(trip.from) !== destinationCountry;
   if (international) {
     warnings.push({ kind: "souvenir_space", reservedLitres: Math.max(5, trip.nights) });
   }
 
-  return { suggestions, weather, warnings };
+  return {
+    suggestions,
+    weather,
+    warnings,
+    beforeYouGo: buildBeforeYouGo(destinationCountry ?? undefined),
+    destinationCountry,
+  };
 }

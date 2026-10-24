@@ -9,6 +9,8 @@ protocol APIClient: Sendable {
     ) async throws -> ScanItemResponse
 
     func checkRules(items: [Item], trip: Trip, bag: String) async throws -> RulesCheckResponse
+
+    func suggestTrip(_ trip: Trip) async throws -> TripSuggestResponse
 }
 
 struct MeasuredDims: Codable, Sendable, Equatable {

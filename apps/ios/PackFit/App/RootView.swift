@@ -29,6 +29,10 @@ struct RootView: View {
                                 RulesView()
                             case .arOverlay, .guidedScan:
                                 GuidedScanView(path: $path, client: client)
+                            case .suggestions:
+                                SuggestionsView(path: $path)
+                            case .beforeYouGo:
+                                BeforeYouGoView()
                             }
                         }
                 }

@@ -291,3 +291,28 @@ Run: `pnpm --filter api test`
 Measured: mock prompt test only (Windows host)
 Blocked on: live photo eval with `ANTHROPIC_API_KEY`
 Schema changes: none
+
+## 2026-10-24 trip/rules/suggestions wiring (branch objectdetection)
+Built:
+- **F1 Trip setup:** `TripPickerView` activities multi-select, airport autocomplete (`AirportCatalog`),
+  bag choice, validation; weather + warnings via `TripStore.loadSuggestions` ? `POST /trip/suggest`
+- **F2 Apify:** airline-baggage public README + INPUT_SCHEMA; fixtures in `data/rules/*` remain the
+  offline cache; stale labeling unchanged
+- **F3 Flags:** item list badges + pack advice (`PackAdvice`); low-confidence confirm sheet;
+  flags refresh when the list changes; banned items skipped at pack time; Rules sheet + disclaimer
+- **F4 Suggestions:** `SuggestionsView` grouped by category, essentials, one-tap accept ? `Item`
+  with `measurement.method = estimate`; subtracts already-scanned names
+- **F5 Before you go:** `BeforeYouGoView` from `beforeYouGo` panel + country flags + overweight warning
+- **F6:** Routes wired; README sponsor sections; API tests for Suggestion JSON (`suggestions.test.ts`)
+- Backend: `/trip/suggest` now returns `Suggestion[]` + `beforeYouGo` + `destinationCountry`
+  (additive; see `docs/requests.md`)
+Cut:
+- Live Apify publish (`apify push` still needs token)
+- Separate `/trip/forecast` route (weather stays inside suggest)
+- Changing `Trip.airline` to optional in JSON Schema
+Run:
+- `pnpm --filter api test` (15 passing)
+- iOS: open `apps/ios/PackFit.xcodeproj`, mock API default
+Measured: API unit tests green on Windows host
+Blocked on: device build; live Anthropic/Apify keys for non-mock demo
+Schema changes: none to `schemas/*.schema.json`; additive API DTOs only

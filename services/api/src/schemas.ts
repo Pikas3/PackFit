@@ -190,8 +190,27 @@ export const TripSuggestRequestSchema = z.object({
   trip: TripSchema,
 });
 
+/** Packing suggestion DTO (not Item). Additive API shape — see docs/requests.md. */
+export const SuggestionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  reason: z.string(),
+  category: CategorySchema,
+  estDims: z.tuple([z.number(), z.number(), z.number()]),
+  estKg: z.number(),
+  fragile: z.boolean(),
+  soft: z.boolean(),
+  essential: z.boolean(),
+});
+
+export const BeforeYouGoTipSchema = z.object({
+  text: z.string(),
+  sourceUrl: z.string(),
+  lastVerified: z.string(),
+});
+
 export const TripSuggestResponseSchema = z.object({
-  suggestions: z.array(ItemSchema),
+  suggestions: z.array(SuggestionSchema),
   weather: z.object({
     summary: z.string(),
     lowC: z.number(),
@@ -215,8 +234,20 @@ export const TripSuggestResponseSchema = z.object({
         kind: z.literal("weather_unavailable"),
         message: z.string(),
       }),
+      z.object({
+        kind: z.literal("unknown_airline"),
+        message: z.string(),
+      }),
     ]),
   ),
+  beforeYouGo: z
+    .object({
+      pack: z.array(BeforeYouGoTipSchema),
+      leaveOrDeclare: z.array(BeforeYouGoTipSchema),
+      medicationFood: z.array(BeforeYouGoTipSchema),
+    })
+    .optional(),
+  destinationCountry: z.string().nullable().optional(),
   meta: MetaSchema,
 });
 

@@ -68,4 +68,9 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
             rulesLastSynced: "2026-10-01T04:00:00Z"
         )
     }
+
+    func suggestTrip(_ trip: Trip) async throws -> TripSuggestResponse {
+        try await Task.sleep(for: .milliseconds(400))
+        return AppFixtures.tripSuggestFallback(for: trip)
+    }
 }

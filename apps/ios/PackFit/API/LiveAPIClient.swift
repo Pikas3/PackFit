@@ -62,6 +62,11 @@ struct LiveAPIClient: APIClient, Sendable {
         )
     }
 
+    func suggestTrip(_ trip: Trip) async throws -> TripSuggestResponse {
+        struct Body: Encodable { var trip: Trip }
+        return try await post(path: "/trip/suggest", body: Body(trip: trip))
+    }
+
     private func post<B: Encodable, R: Decodable>(path: String, body: B) async throws -> R {
         var request = URLRequest(url: config.apiBaseURL.appending(path: path))
         request.httpMethod = "POST"
