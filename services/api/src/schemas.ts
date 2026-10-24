@@ -151,6 +151,37 @@ export const ScanItemResponseSchema = z.object({
   meta: MetaSchema,
 });
 
+/** Normalized box in the photo: origin top-left, all values 0-1 of image width/height. */
+export const BoxSchema = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  w: z.number().min(0).max(1),
+  h: z.number().min(0).max(1),
+});
+
+export const ScanInventoryRequestSchema = z.object({
+  imageBase64: z.string().min(1),
+  hint: z.string().optional(),
+  /** A scale reference the user placed in the photo; the app measures against it. */
+  reference: z.enum(["credit_card"]).nullable().optional(),
+});
+
+export const ScanInventoryResponseSchema = z.object({
+  detections: z.array(
+    z.object({
+      item: ItemSchema,
+      box: BoxSchema.nullable(),
+      alternatives: z.array(z.object({ name: z.string(), category: CategorySchema })),
+      /** Solid the phone fits when measuring: box, cylinder_upright or cylinder_lying. */
+      shape: z.enum(["box", "cylinder_upright", "cylinder_lying"]).nullable(),
+    }),
+  ),
+  /** Where the scale reference is in the photo, when one was asked for and seen. */
+  reference: z.object({ box: BoxSchema }).nullable(),
+  warnings: z.array(z.string()),
+  meta: MetaSchema,
+});
+
 export const RulesCheckRequestSchema = z.object({
   items: z.array(ItemSchema),
   trip: z.object({

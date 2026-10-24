@@ -41,6 +41,7 @@ export async function callClaudeTool<T extends ZodTypeAny>(opts: {
   prompt: PromptPayload;
   schema: T;
   model?: string;
+  maxTokens?: number;
   mock: () => z.infer<T>;
 }): Promise<ClaudeCallResult<z.infer<T>>> {
   const model = opts.model ?? env.anthropicModel;
@@ -72,7 +73,7 @@ export async function callClaudeTool<T extends ZodTypeAny>(opts: {
     const message = await client.messages.create(
       {
         model,
-        max_tokens: 2048,
+        max_tokens: opts.maxTokens ?? 2048,
         system: opts.prompt.system,
         messages,
         tools: opts.prompt.tools,

@@ -16,8 +16,12 @@ struct ItemListView: View {
     var body: some View {
         Group {
             if itemsStore.items.isEmpty {
-                EmptyStateView(Copy.Items.empty, actionTitle: Copy.Items.emptyAction) {
-                    path.append(.scan)
+                VStack(spacing: Tokens.Spacing.md) {
+                    EmptyStateView(Copy.Items.empty, actionTitle: Copy.Items.emptyAction) {
+                        path.append(.scan)
+                    }
+                    Button(Copy.Inventory.entry) { path.append(.inventoryScan) }
+                        .buttonStyle(.bordered)
                 }
             } else {
                 List {
@@ -86,7 +90,10 @@ struct ItemListView: View {
                 Button(Copy.Trip.suggestionsTitle) { path.append(.suggestions) }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button(Copy.Items.scan) { path.append(.scan) }
+                Menu(Copy.Items.scan) {
+                    Button(Copy.Items.scan) { path.append(caps.supportsGuidedScan ? .guidedScan : .scan) }
+                    Button(Copy.Inventory.entry) { path.append(.inventoryScan) }
+                }
             }
             ToolbarItem(placement: .bottomBar) {
                 Button(Copy.Items.pack) {

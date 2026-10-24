@@ -241,7 +241,8 @@ struct DepthSnapshotTests {
         conf[0] = 1
         let snap = DepthSnapshot(
             width: 3, height: 3, depth: Array(repeating: 1, count: 9), confidence: conf,
-            fx: 1, fy: 1, cx: 1.5, cy: 1.5, cameraToWorld: matrix_identity_float4x4, timestamp: 0
+            fx: 1, fy: 1, cx: 1.5, cy: 1.5, cameraToWorld: matrix_identity_float4x4, timestamp: 0,
+            videoWidth: 3, videoHeight: 3
         )
         let points = snap.worldPoints()
         #expect(points.count == 8)

@@ -55,6 +55,38 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
         return ScanItemResponse(item: item, alternatives: alternatives, warnings: [])
     }
 
+    func scanInventory(imageBase64: String, hint: String?, reference: String?) async throws -> ScanInventoryResponse {
+        _ = imageBase64
+        _ = hint
+        try await Task.sleep(for: .milliseconds(1200))
+        let fixtures = AppFixtures.items()
+        guard !fixtures.isEmpty else {
+            throw APIError.upstream("No fixture items available")
+        }
+        // Four items per photo, laid out in a 2×2 grid; a second scan returns the next four.
+        let start = lock.withLock {
+            defer { scanIndex += 4 }
+            return scanIndex
+        }
+        let detections = (0..<4).map { i -> InventoryDetection in
+            var item = fixtures[(start + i) % fixtures.count]
+            item.id = UUID().uuidString
+            item.source = .scan
+            item.measurement = Measurement(method: .estimate, confidence: 0.5, deviceHasLidar: false)
+            let box = InventoryBox(x: i % 2 == 0 ? 0.06 : 0.54, y: i < 2 ? 0.1 : 0.55, w: 0.4, h: 0.32)
+            return InventoryDetection(
+                item: item,
+                box: box,
+                alternatives: [ItemAlternative(name: "Similar \(item.category.rawValue)", category: item.category)]
+            )
+        }
+        return ScanInventoryResponse(
+            detections: detections,
+            reference: reference == nil ? nil : InventoryReference(box: InventoryBox(x: 0.42, y: 0.44, w: 0.16, h: 0.08)),
+            warnings: ["no_scale_reference", "sample_data"]
+        )
+    }
+
     func checkRules(items: [Item], trip: Trip, bag: String) async throws -> RulesCheckResponse {
         _ = trip
         _ = bag

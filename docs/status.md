@@ -113,139 +113,6 @@ Measured: not re-run on device in this change (Windows host)
 Blocked on: Section 3 live API; device fps / LiDAR MAE as before
 Schema changes: none
 
-## 2026-10-24 section-2 guided LiDAR flow (branch `arjun99ab/lidar-ar`)
-Built:
-- **Guided flow is the main path on LiDAR iPhones.** After picking a trip, the app goes to
-  `Route.guidedScan` (`PackFit/Guided/`):
-  1. Scan the open suitcase on the floor. The app measures the inner cavity and keeps it anchored.
-  2. Pan over the items spread on the floor. Every separate object gets a numbered box.
-  3. Identify all items in parallel through `/scan/item`, with cropped photos and LiDAR dims.
-  4. Review the list, then pack. The plan is drawn inside the real bag, with step and play controls.
-  Non-LiDAR devices and the simulator keep the old path: presets, manual entry, item list, 3D viewer.
-- **Depth pipeline** (`Scan/Measurement/`, pure and unit-tested):
-  - `DepthSnapshot`: a Sendable copy of the frame's depth, with intrinsics scaled to the depth resolution.
-  - `HeightMap`: a persistent 1 cm world grid, taking the median of the last 8 per-snapshot top heights.
-  - `BoxFitter`: components, convex hull and minimum-area rectangle.
-  - `CavityFitter`: a basin flood-fill from the reticle point, measuring rim minus cavity floor.
-  - `FitStabilizer`: EMA smoothing; a fit is stable after 6 fits within tolerance.
-  - `ScanWorker`: an actor that runs all of this off the main thread at 5 Hz.
-- **Shared plan stepping:** `PlanStepper` drives both the 3D viewer and the AR overlay. It conforms to
-  `PlanViewerControlling`, so the voice coach can drive either one. `PlanStepControls` is the shared UI.
-- **Container from a scan:** `ContainerFactory.fromCavity` gives inner `[long, 2 × shell depth, short]`,
-  outer = inner + 6, method `.lidar`, `wheelsSide .back`.
-- **Fallbacks:**
-  - If the cavity isn't stable after 8 s, the user taps the two inside back corners. The other
-    sizes come from the trip's preset bag.
-  - "Add one manually" opens the manual scan form; "Use bag presets instead" goes to bag setup.
-  - Tapping a box drops a false positive.
-- **Fixes:**
-  - `Category` is now unambiguous.
-  - Bundle ID per team: put `DEVELOPMENT_TEAM` in the gitignored `Config/Local.xcconfig`.
-  - Test target: `TEST_HOST` and target dependency fixed.
-  - The 3D viewer's bag volume was opaque and hid the items. It is translucent now.
-  - The viewer uses the inner dims and the first compartment only.
-  - Materials are cached per (category, opacity).
-Retired: `LidarSessionController` and `ARScanRepresentable` (tap-corner item scan). `ScanView` is
-the manual and non-LiDAR form only.
-Cut: occlusion toggle; per-item 3D labels in the overlay (the name shows in the step panel).
-Run:
-- Open `apps/ios/PackFit.xcodeproj` and add `Config/Local.xcconfig` with `DEVELOPMENT_TEAM = <team>`.
-- Run on an iPhone Pro.
-- Unit tests:
-  `xcodebuild -scheme PackFit -destination 'platform=iOS Simulator,name=iPhone 18 Pro' test`
-Measured:
-- 21/21 unit tests pass on the simulator. They cover synthetic boxes within ±1 cm and ±3°, cavity
-  inner dims within ±1.5 cm, and the frame orthonormal with its origin at the back-left corner.
-- Device build compiles.
-- Simulator smoke test: trip → presets → manual item → pack → viewer works.
-- **Not yet run on a LiDAR device.** Bag accuracy against a tape, item MAE, overlay alignment and
-  end-to-end time are still to measure.
-Known limits:
-- Items must be spread about a hand apart; touching or stacked items merge into one box.
-- The bag must not move between the scan and the overlay.
-- The cavity assumes a 50/50 clamshell.
-Blocked on: device time with an iPhone Pro and a real suitcase.
-
-## 2026-10-24 section-2 AR tap-measure for phones without LiDAR (branch `arjun99ab/lidar-ar`)
-Built:
-- **The guided flow now runs on any ARKit iPhone** (`DeviceCapabilities.supportsAR`), not only on LiDAR models.
-  - It uses ARKit world tracking (camera plus motion sensors, in metric units) and plane detection. There is no depth map.
-  - Apple's coaching overlay guides the user until the floor is found.
-- **Bag:** tap three inside corners of the open shell: back-left, back-right, then a front one.
-  - Length and width are measured from the taps. Depth comes from the trip's preset bag.
-  - The container is recorded as method `.manual` with confidence 0.7.
-  - This 3-tap flow is also the LiDAR fallback now, replacing the 2-tap one.
-- **Items:** tap two bottom corners along one side, a bottom corner on the opposite side, then the top edge facing you.
-  - Height comes from a surface hit over the item when ARKit has one. Otherwise it's where the tap ray meets the item's front face.
-  - Length, width and height steppers allow correction before "Add item".
-  - LiDAR phones can switch to this with "Measure by tapping".
-- **Labelling:** tap-measured items are sent and stored as `.manual`, with confidence 0.65–0.75, so the badge reads "Check the size".
-  - The app keeps their IDs in `ItemsStore.tapMeasuredIDs` and shows "Measured with AR taps".
-- **Overlay:** the plan inside the bag works the same on these phones, anchored to the tapped corners.
-- **Code:** the geometry is pure and unit-tested in `Scan/Measurement/TapMeasure.swift`.
-Run:
-- Same as before; any ARKit iPhone opens "Scan & pack" after a trip is picked.
-- The simulator still uses presets and manual entry.
-Measured:
-- 28/28 unit tests pass, 7 of them new for taps.
-- Device build compiles.
-- Simulator routing checked.
-- **Not yet run on a device.** Tap accuracy (expected 1–3 cm on footprints; height is worse) still to measure.
-Known limits:
-- Bag depth is not measured without LiDAR.
-- Plain, shiny or dark surfaces make ARKit's floor and the surface hits less reliable.
-
-## 2026-10-24 section-2 one-tap LiDAR measuring (branch `arjun99ab/lidar-ar`)
-Built:
-- **Bag in one tap:** tap the bottom of the open shell. `CavityFitter` raises a water level from the
-  tap until it spills over the walls, takes the basin at half that level (so handle channels and seams
-  on the floor stay inside), then pushes each side out to its wall across floor hidden behind the near rim.
-- **Items in one tap each:** tap an item; its box goes yellow, refines over ~1 s, then turns green and numbered.
-  - Vision's foreground instance mask (`Segmenter`) picks the object under the tap in the camera image.
-  - Only LiDAR points inside that mask, shrunk 2 depth pixels from the outline, build the box (`ObjectCloud`).
-  - The ground is the median of a ring of points just outside the mask, so boxes sit on the real
-    surface (floor or table) instead of ARKit's floor plane.
-  - No mask under the tap: `SeedFitter` grows the object from the tapped cell in the height map,
-    with a cut halfway up the object, measured from the surrounding surface.
-  - Tap a boxed item again to re-measure it; the × on its chip removes it.
-- **Depth fixes behind the "box floats above the item" bug:**
-  - Raw `sceneDepth` instead of temporally smoothed depth.
-  - Pixels on depth discontinuities are dropped. They used to smear each item back and up, away from the camera.
-- The automatic sweep is no longer used in the flow (`BoxFitter` stays, with its tests).
-  Corner taps stay available ("Measure by corners instead") and remain the only path without LiDAR.
-Run: same as before. Tests: `xcodebuild -scheme PackFit -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test`
-Measured:
-- 41/41 unit tests pass (13 new).
-- Synthetic results:
-  - A 30×20×10 box on a table: within ±1 cm footprint and ±6 mm height, with mask spill onto the table.
-  - A 6 mm passport: within ±1 cm footprint and ±4 mm height.
-  - A 1.2 cm item with the floor plane 8 mm wrong: found, height within ±4 mm.
-  - Cavity with 3 cm handle ridges, or with an 8 cm strip hidden behind the near wall: within ±1.5 cm.
-- Device build compiles.
-- **Not yet run on a device.** Item MAE against a tape is still to measure.
-Known limits:
-- Vision may group touching items into one instance. Leave a small gap between items.
-- Segmentation runs only while an item is measuring, at about 50 ms per frame.
-
-## 2026-10-24 section-2 lidarpure (AVFoundation LiDAR, from lidar-ar)
-Built:
-- Reset `lidarpure` onto `origin/arjun99ab/lidar-ar` guided one-tap flow
-- Replaced ARKit `ARSession` / `ARView` with AVFoundation `builtInLiDARDepthCamera`:
-  - `LidarCaptureSession` � synced RGB + absolute depth (filtering off)
-  - `GravityPose` � CoreMotion gravity frame for `cameraToWorld` (no VIO translation)
-  - `DepthSnapshot` from `AVDepthData` (no ARKit confidenceMap; valid depths = high)
-  - `GuidedCameraView` + projected `LiveWire` overlays (no RealityKit AR)
-- Capability gate: `DeviceCapabilities.supportsGuidedScan` = LiDAR device only
-- After pack: non-AR `RealityView` plan viewer (no world-anchored overlay)
-Cut:
-- ARKit world tracking, plane raycasts, coaching overlay, non-LiDAR AR tap path
-- AR plan-in-bag overlay (use in-app 3D viewer instead)
-Run:
-- Open `apps/ios/PackFit.xcodeproj`, scheme PackFit, iPhone Pro with LiDAR
-- Unit tests unchanged (synthetic depth math)
-Measured: not yet on device (Windows host)
-Blocked on: Pro device for MAE; hold still while measuring (no translation tracking)
-
 ## 2026-10-24 section-3 backend API + Apify scaffold
 Built:
 - `services/api` Hono app on port 8787: `GET /health`, `POST /scan/item`, `POST /rules/check`,
@@ -276,20 +143,7 @@ Where Claude can be wrong:
   catalog fallbacks hide bad kg/dims but can disagree with the photo.
 - Rules: may drop a real candidate or over-flag when keywords are broad; server always overwrites
   sourceUrl/lastVerified from records so invented URLs cannot ship.
-Blocked on: fixture photos for scan eval; Apify tokens to publish/schedule actors\nSchema changes: none
-
-## 2026-10-24 section-3 objectdetection (vision ID, dims for packing)
-Built:
-- Merged `origin/backend` onto `objectdetection` (from lidarpure)
-- `/scan/item` measured path is object-detection prompting: Claude identifies name/category
-  from the image only; measured `w/h/d` are withheld from the prompt and copied onto the
-  Item server-side for the packer (`scanItem.ts`, `services/scan.ts`)
-- Dropped `dimsPlausible` / `dims_implausible_for_item` (dims no longer shown to the model)
-- Docs: `docs/api.md`, `services/api/CLAUDE.md`; unit test asserts no numeric dims in prompt
-Cut: using measured size as an identification cue
-Run: `pnpm --filter api test`
-Measured: mock prompt test only (Windows host)
-Blocked on: live photo eval with `ANTHROPIC_API_KEY`
+Blocked on: fixture photos for scan eval; Apify tokens to publish/schedule actors
 Schema changes: none
 
 ## 2026-10-24 trip/rules/suggestions wiring (branch objectdetection)
@@ -325,3 +179,96 @@ Built:
 - Demo fixtures offline; optional `AVIATIONSTACK_API_KEY` for live lookup
 Run: enter UA / 88 ? Use this flight ? weather for DEL + rules appear
 Cut: browsing a dropdown of all sample trips as the primary path
+## 2026-10-24 — Section 2 + 3: photo inventory (Claude object detection)
+Built:
+- `POST /scan/inventory` (services/api): one photo in, every distinct packable object out, each as an
+  `Item` (`source: scan`, `measurement.method: estimate`, confidence capped 0.5) plus a rough
+  normalized box. Prompt `src/claude/prompts/scanInventory.ts`, forced tool `report_inventory`,
+  max 25 objects, 8192 max tokens. Catalog fallbacks for kg/dims as in `/scan/item`. Mock returns 4 items.
+- iOS "Photo inventory" screen (`PackFit/Scan/Inventory/`): plain back camera (any iPhone, no LiDAR),
+  take photo → frozen photo with numbered boxes → list with thumbnails cropped from the boxes,
+  confidence badges, tick/untick, tap to edit (ItemDetailView), delete. "Scan more" takes another
+  photo; names already seen in an earlier photo start unticked ("Seen in an earlier photo").
+  "Add N items" appends to `ItemsStore` and returns to the item list.
+- Entry: Items toolbar "Scan item" is now a menu (single-item scan / "Snap the pile"), plus a
+  "Snap the pile" button on the empty item list. `Route.inventoryScan`.
+- Badge for `estimate` now reads "Estimated from photo" (was "Scaled from credit card").
+Cut:
+- LiDAR refinement of inventory items (dims stay estimates; re-measure with the single-item scan).
+- Live-key accuracy run: not measured. Claude's boxes are approximate; they are only used for UI.
+Run:
+- Backend: `pnpm --filter api test` (15 passing, mock Claude). iOS: `PackFitTests` 45 passing incl.
+  `InventoryMergeTests`; device build clean. Simulator smoke test with MockAPIClient: trip → bag →
+  Snap the pile → Take photo → 4 items → Add → item list.
+Where Claude can be wrong: misses small or overlapping objects, counts a folded stack as one item,
+names one object twice across photos (dedupe is by name only), and estimated sizes have no scale
+reference, so packing from them is rough until the user edits or re-measures.
+Blocked on: on-device test with a live key.
+
+## 2026-10-24 — Section 2: photo inventory measured against a credit card
+Built:
+- The inventory photo must include a credit card (ISO/IEC 7810 ID-1, 85.60 × 53.98 mm). On device:
+  1. `VNDetectRectanglesRequest` finds rectangle candidates. `PlanePose.fromCard`
+     (`Scan/Measurement/CardScale.swift`) fits each one to an ID-1 card through the camera
+     (homography + intrinsics from the lens field of view), recovering the floor's pose. Quads
+     that do not fit a real card (error > 0.2) are rejected; Claude's card box breaks ties.
+  2. `VNGenerateForegroundInstanceMaskRequest` outlines objects; each Claude box picks the
+     instance under it, cut to the box so touching objects split, card pixels removed.
+  3. `SilhouetteFit` finds the floor-standing box (centre, yaw, w, d, h) whose projection best
+     overlaps the outline (Nelder-Mead on soft IoU, smallest box among equal fits).
+- Items get `measurement.method = reference` and confidence 0.35-0.85 (lower for poor overlap,
+  small card, straight-down or near-level views, cut-off objects, no segmentation outline).
+  Straight-down photos keep Claude's heights and say so.
+- Camera: live card outline (green) and "Card found" before the shot; the card is drawn on the
+  frozen photo. No card → "No credit card found" with Try again or Use rough estimates.
+- Server: `/scan/inventory` takes `reference: "credit_card"`, keeps the card out of the list and
+  returns its box.
+Measured: synthetic tests only (`CardScaleTests`): floor distances exact; 30×20×12 box within
+10%; 7×7×24 bottle → 8.6×7.9×23.4. Not yet measured on real photos.
+Limits: objects must rest on the same flat surface as the card; one view cannot see the back of
+an object (smallest consistent box is used); soft or irregular things are boxed.
+Run: iOS `PackFitTests` 53 passing; backend 16 passing; device build clean.
+
+## 2026-10-24 — Section 2 + 3: card measurement follows Vision's outlines, cylinders for cans and bottles
+Why: on a real photo, Claude's boxes were offset or clipped (can box beside the can, bottle box
+over half the bottle). Masks were cut to those boxes, so the can measured 40.6×103.5×6.9 cm and
+the bottle was not measured at all.
+Built:
+- Vision's segmented outlines are now the objects; Claude only names them. Each detection takes
+  the outline its box overlaps best (or a nearby one if it misses), greedy and deterministic
+  (`CardMeasurer.match`). Outlines are cut by Claude's boxes only when two detections share one
+  (touching objects), and that lowers confidence. No outline means no measurement: the item
+  keeps Claude's estimate rather than fitting a rectangle.
+- `SilhouetteFit` fits a box, a standing cylinder or a lying cylinder. `/scan/inventory`
+  detections carry `shape` (Claude picks: cans, bottles, jars are cylinders); null fits a box.
+- The photo shows each measured solid's outline, traced over the object; boxes and thumbnails
+  use the segmented outline's bounds, not Claude's box.
+Measured (synthetic, `CardScaleTests`): can 6.6×12.2 → 6.6×6.6×12.2; bottle 7×24 → 7.0×7.0×23.9;
+lying bottle 24×7 → 23.9×7.0×7.0. The same outlines fitted as boxes were off by up to 70%
+(can 11.2 cm wide).
+Limits: if Vision's foreground segmentation misses an object (e.g. low contrast against the
+floor) it is not measured; touching objects that segment as one still depend on Claude's boxes.
+Run: iOS `PackFitTests` all passing; backend 16 passing; device build clean.
+
+## 2026-10-24 — Section 2 + 3: sharper card corners, re-segmenting missed objects, scan replay
+Why: on device (13:25 and 13:28 photos) the fitted cylinders sat beside the objects and came out
+too big (sparkling-water can 8.2 × 11.8 cm), Claude's boxes were consistently left of the
+objects, and the sunglasses were found alone but not alongside the bottle and can.
+Built:
+- `CardEdges` (`Scan/Measurement/CardEdges.swift`): refines the card's corners from its four
+  straight edges on the full-resolution photo (wide search, then a tight one; steps against the
+  edge's brightness direction are dropped). Synthetic: Vision's corners were 10-15 px off; 3 px
+  of corner error tilts the floor about 13 degrees; refined corners are within 0.3 px, tilt
+  about 1 degree. A badly placed card used to give wrong shapes and sizes everywhere.
+- Objects the whole-photo segmentation leaves out are re-segmented in a crop around Claude's
+  box, skipping outlines already taken.
+- `/scan/inventory` tells Claude the photo's pixel size and asks for pixel corners
+  (x0, y0, x1, y1); the server normalizes. The response shape is unchanged.
+- Debug builds save every inventory photo (original JPEG with EXIF) plus `scan.json` (Claude's
+  answer, intrinsics, EXIF 35 mm focal length, card corners, measurements) to Documents/Scans,
+  visible in Files › On My iPhone › PackFit. A Mac replay tool reruns `CardMeasurer` on a saved
+  scan and draws the result.
+Measured: synthetic end-to-end scene (Vision on the Mac, Claude boxes shifted 6% left and
+clipped): can 5.8 × 15.7 → 5.8 × 15.7, bottle 7.5 × 25 → 7.6 × 25.0, sunglasses 14 × 5 × 4 →
+14.1 × 5.1 × 3.9. Real photos not yet re-measured.
+Run: iOS `PackFitTests`; backend 17 passing; device build clean.

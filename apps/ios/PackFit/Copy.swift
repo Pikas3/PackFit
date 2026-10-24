@@ -95,6 +95,34 @@ enum Copy {
         static let confirmEdit = "Edit name"
     }
 
+    enum Inventory {
+        static let title = "Photo inventory"
+        static let entry = "Snap the pile"
+        static let hint = "Put a credit card flat on the floor next to your things. Hold the phone at about 45°, with everything in the frame."
+        static let cardSeen = "Card found. Take the photo."
+        static let capture = "Take photo"
+        static let identifying = "Finding everything in the photo… usually 5–15 seconds."
+        static let privacy = "The photo goes to our server and Claude, and is not stored."
+        static let simulator = "No camera in the simulator. Tap Take photo to use sample items."
+        static let cameraUnavailable = "Camera unavailable. Check camera access in Settings."
+        static let failed = "We couldn't identify anything just now. Try again, or add items by hand."
+        static let nothingFound = "Nothing to pack found in that photo. Move closer and try again."
+        static let sampleData = "Sample data: these items are not from your photo. Claude is not connected (mock mode or no API key on the server)."
+        static let noCard = "No credit card found in the photo. Lay a card flat next to your things, fully in view, and try again."
+        static let useEstimates = "Use rough estimates"
+        static let measuredNote = "Sizes measured against your card. Tap an item to fix it."
+        static let steepNote = "Heights are guesses: the photo looks straight down. Tilt the phone to about 45° for heights."
+        static let tryAgain = "Try again"
+        static let scanMore = "Scan more"
+        static let estimateNote = "Sizes are guesses from the photo. Tap an item to fix it."
+        static let duplicate = "Seen in an earlier photo"
+        static let included = "Will be added"
+        static let excluded = "Won't be added"
+        static func found(_ n: Int) -> String { n == 1 ? "1 thing found" : "\(n) things found" }
+        static func review(_ n: Int) -> String { "Review \(n) found" }
+        static func add(_ n: Int) -> String { n == 1 ? "Add 1 item" : "Add \(n) items" }
+    }
+
     enum Scan {
         static let title = "Scan"
         static let lidarMeasuring = "LiDAR measuring"
@@ -121,6 +149,7 @@ enum Copy {
         static let manualFallbackShort = "Enter dims only"
         static let cameraDenied = "Camera access is off. Enable it in Settings, or enter dimensions manually."
         static let cameraStartFailed = "Couldn’t start the camera. Enter dimensions manually instead."
+        static let estimatedFromPhoto = "Estimated from photo"
     }
 
     enum Guided {

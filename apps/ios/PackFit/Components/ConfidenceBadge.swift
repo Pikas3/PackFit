@@ -43,7 +43,8 @@ struct MeasurementMethodBadge: View {
         switch method {
         case .lidar: return Copy.Scan.measuredLidar
         case .manual: return Copy.Scan.measuredManual
-        case .reference, .estimate: return Copy.Scan.measuredReference
+        case .reference: return Copy.Scan.measuredReference
+        case .estimate: return Copy.Scan.estimatedFromPhoto
         case .catalog: return "From catalog"
         case .none: return "Unknown"
         }
