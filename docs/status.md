@@ -259,3 +259,84 @@ Where Claude can be wrong:
   sourceUrl/lastVerified from records so invented URLs cannot ship.
 Blocked on: fixture photos for scan eval; Apify tokens to publish/schedule actors
 Schema changes: none
+
+## 2026-10-24 sections 1-3: one-tap measuring without LiDAR, robust packing, offline identification (branch `ws/scan-robust`)
+Built:
+- **Measuring without depth** (`apps/ios/PackFit/Scan/Measurement/`). Pure geometry, unit-tested:
+  - `SilhouetteHull.swift`:
+    - `VoxelHull` carves a 1 cm × 5 mm grid on the floor with Vision's outline of the tapped object from each camera pose (ARKit world tracking is metric on every iPhone).
+    - A voxel dies only when at least 2 views, and at least 25% of the views that saw it, put it outside, so a few bad masks don't cut the object.
+    - The hull isolates the object from neighbours and gives the first box.
+  - `BoxSilhouetteFit.swift` refines centre, yaw, long, short and height by coordinate descent so that the box's projected outline matches every view. Two things make this necessary:
+    - Hull height is unreliable: the hull's roof rises toward the cameras when nobody looks from the far side or from low down.
+    - The hull keeps a "shadow" behind the object that elevated views can't see past.
+
+    The score is a trimmed mean IoU, with the worst fifth of views dropped.
+  - `HullCoverage`: the views must include at least 90° of azimuth, one view from above (elevation 70° or more, bounds the far side) and one low view (40° or less, bounds the height). Until then the hint says "hold above", "lower the phone" or "walk around", and confidence is capped at 0.6.
+  - `ShellSplitter`: an open clamshell becomes base plus lid. It splits at the hinge valley if one shows, otherwise at the middle of the long axis, and the two boxes are refined together.
+  - `HullWorker` (actor) runs at 5 Hz:
+    - segments each frame;
+    - tracks the target by the instance under its current box;
+    - keeps up to 20 views at least 6° apart;
+    - locks when coverage is complete and 3 fits agree within 8 mm (15 mm for bags), or after 12 s.
+- **Guided flow on phones without LiDAR** (`Guided/`):
+  - One tap per item, then move around it. Corner taps remain a fallback.
+  - Bag: pick Hard shell, Soft / zip lid, or Backpack (goes to the presets), then tap inside the bottom half of the open suitcase.
+  - `ContainerFactory.fromShells` turns the measured outer shells into inner dims. It subtracts per-kind allowances (hard shell: 6 / 2 / 1 cm for wheels and handle, sides, shell wall; soft: 6 / 3 / 1.5) plus a 1 cm camera margin per axis.
+  - The scanned bag takes the trip's weight limit for that bag.
+  - After packing, non-LiDAR phones open the 3D viewer, not the AR overlay.
+- **New measurement method `ar`** (camera plus ARKit pose, no depth) in `item.schema.json`, PackFitSchemas, zod and `/scan/item`. Badge: "Measured with the camera".
+- **Packer** (`Packages/Packer`, rules 4, 8, 11 and 12 in its CLAUDE.md):
+  - Uncertainty gap: rigid items measured by `lidar`, `ar`, `reference` or `estimate` get up to 1.5 cm more width and depth, scaled by confidence. Height is never padded. An item that fits nowhere padded is placed unpadded.
+  - `planWarnings`: over weight, within 10% of the limit, didn't fit. Shown in the viewer, with the names of items that didn't fit. The packer never refuses a plan over weight.
+  - Rule 8 opening is max y for suitcases too: they're packed lying open on their back, so the lid closes over the top.
+  - Rule 4 only protects crushable items: not soft, hardness under 0.5. The old rule made a laptop on a jumper or a folder invalid, which left the laptop unplaced in a mostly empty carry-on.
+  - Faster candidate generation: no tuple keys and no per-item arrays.
+  - `BenchTests` times thread CPU, not wall clock.
+  - Demo plans regenerated.
+- **Identification:**
+  - Claude through the backend first. `FallbackAPIClient` falls back to `OnDeviceAPIClient` on any error, after a 15 s request timeout.
+  - `OnDeviceAPIClient`: Vision `VNClassifyImageRequest` labels are matched on whole words against `Resources/travel_catalog.json` (58 typical travel items). The measured size breaks ties between look-alikes.
+  - `MOCK_API=YES` on a phone now means on-device identification. The simulator keeps the fixtures.
+  - `/scan/item`: when a camera size has confidence under 0.7, Claude also estimates the size. More than 30% apart on any sorted side gives `dims_disagree`, and the app lowers the size confidence to 0.6 ("Check the size") but keeps the measured size (rule 6).
+- **Rules before packing:**
+  - The guided review has a Carry-on / Checked picker and checks the whole list once.
+  - Flags appear under each item with scope, text, source link and "verified N days ago".
+  - A banned item needs Remove or Keep anyway before Pack is enabled.
+  - Offline, `LocalRules` uses a bundled copy of the backend's rule records and requires a keyword match. A category alone would flag every electronics item as a spare battery. Refresh the copy with `apps/ios/scripts/sync-rules.sh`.
+- **Review:** the guided review uses `ReviewCardView`, so every field is editable:
+  - Picking an alternative or typing a name refills weight and handling from the catalog.
+  - A corrected size is recorded as `manual`, at confidence 1, and gets no gap.
+Cut:
+- The AR overlay on non-LiDAR phones: the 3D viewer instead.
+- A background-removed second image for Claude.
+- Automatic detection of which end the wheels are on.
+Run:
+- `xcodebuild -scheme PackFit -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test`
+- `swift test --package-path Packages/Packer`
+- `swift run --package-path Packages/Packer GenPlans`
+- `pnpm --filter api test`
+- `pnpm schemas:check`
+- On a phone, `MOCK_API=YES` identifies items on the device. Set `MOCK_API=NO` and `API_BASE_URL` to use Claude.
+Measured (Mac, simulator, synthetic outlines rendered from known poses; not yet on a phone):
+- Hull plus box fit, 12 views over 150°, mixed elevations:
+  - 30×20×10 box: within ±1.5 cm on the footprint and ±2 cm in height.
+  - 25 cm bottle: height within ±2 cm.
+  - Passport: footprint within ±1.5 cm, height 2 cm or less.
+  - Two of 12 masks blank: still within tolerance.
+  - Open clamshell 70×45 with a 14 cm base and a 9 cm lid: base within ±3 cm, depths within ±2.5 cm.
+- Views from above only: confidence 0.6 or less.
+- iOS: 59 test cases pass (18 new).
+- Packer: 37 tests pass (7 new), including 600 random padded trials.
+- Bench, 30 items: release 25.9 ms (was 31.6). Debug 763 ms alone, about 830–930 ms with the other suites running in parallel.
+- All 10 demo plans place every item.
+- API: 14 of 14 tests pass. `tsc` shows the same 17 errors as before, none in changed files.
+Known limits:
+- Concave items come out as their bounding box.
+- Touching items can merge in Vision's mask, so leave a hand's gap between them.
+- Glossy, black or very thin items segment worse.
+- Accuracy depends on ARKit's floor plane, so use a matte, textured floor.
+Blocked on:
+- Time on an iPhone 17 (no LiDAR) to measure item and bag error against a tape, scan time per item, and frame rate while segmenting.
+- **Open:** which end of the bag the wheels are on. Rule 7 biases heavy items toward low z, but in the lying-open frame the wheel end is a short end (an x end).
+Schema changes: `measurement.method` adds `ar` (additive). See `docs/requests.md`.
