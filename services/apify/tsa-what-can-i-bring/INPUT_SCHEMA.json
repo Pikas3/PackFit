@@ -1,0 +1,24 @@
+{
+  "title": "TSA What Can I Bring",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "startUrls": {
+      "title": "Start URLs",
+      "type": "array",
+      "description": "TSA What Can I Bring listing or item pages",
+      "editor": "requestListSources",
+      "default": [
+        { "url": "https://www.tsa.gov/travel/security-screening/whatcanibring/all" }
+      ]
+    },
+    "maxItems": {
+      "title": "Max items",
+      "type": "integer",
+      "description": "Maximum item pages to scrape",
+      "default": 200,
+      "minimum": 1,
+      "maximum": 5000
+    }
+  }
+}
