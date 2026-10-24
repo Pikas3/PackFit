@@ -1,0 +1,57 @@
+{
+  "suggestions": [
+    {
+      "name": "T-shirt stack (1)",
+      "category": "clothing"
+    },
+    {
+      "name": "T-shirt stack (2)",
+      "category": "clothing"
+    },
+    {
+      "name": "T-shirt stack (3)",
+      "category": "clothing"
+    },
+    {
+      "name": "T-shirt stack (4)",
+      "category": "clothing"
+    },
+    {
+      "name": "T-shirt stack (5)",
+      "category": "clothing"
+    },
+    {
+      "name": "Jeans",
+      "category": "clothing"
+    },
+    {
+      "name": "Toiletry pouch",
+      "category": "toiletries"
+    },
+    {
+      "name": "Phone charger cable",
+      "category": "electronics"
+    },
+    {
+      "name": "Passport wallet",
+      "category": "documents"
+    }
+  ],
+  "warnings": [
+    {
+      "kind": "weather_unavailable",
+      "message": "Open-Meteo unavailable"
+    },
+    {
+      "kind": "souvenir_space",
+      "reservedLitres": 21
+    }
+  ],
+  "weather": {
+    "summary": "Live weather fetch failed; using mild defaults.",
+    "lowC": 12,
+    "highC": 22,
+    "precipChance": 0.25,
+    "sourceUrl": "https://open-meteo.com/"
+  }
+}

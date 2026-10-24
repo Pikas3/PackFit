@@ -1,0 +1,71 @@
+[
+  {
+    "ruleId": "airline:ua-checked-23kg",
+    "scope": "airline",
+    "subject": "UA",
+    "keywords": ["weight", "overweight", "checked bag", "baggage"],
+    "categories": ["other", "clothing", "shoes", "electronics", "liquids", "food"],
+    "severity": "restricted",
+    "carryOn": "ok",
+    "checked": "restricted",
+    "text": "United Economy international checked bags are typically limited to 50 lb / 23 kg. Excess weight fees apply above that.",
+    "sourceUrl": "https://www.united.com/ual/en/us/fly/baggage/checked-bags.html",
+    "lastVerified": "2026-10-01",
+    "limits": { "maxKg": 23 }
+  },
+  {
+    "ruleId": "airline:aa-checked-23kg",
+    "scope": "airline",
+    "subject": "AA",
+    "keywords": ["weight", "overweight", "checked bag"],
+    "categories": ["other", "clothing"],
+    "severity": "restricted",
+    "carryOn": "ok",
+    "checked": "restricted",
+    "text": "American Airlines checked bags on many international routes are limited to 50 lb / 23 kg for Economy.",
+    "sourceUrl": "https://www.aa.com/i18n/travel-info/baggage/checked-baggage.jsp",
+    "lastVerified": "2026-09-25",
+    "limits": { "maxKg": 23 }
+  },
+  {
+    "ruleId": "airline:ai-checked-23kg",
+    "scope": "airline",
+    "subject": "AI",
+    "keywords": ["weight", "checked bag", "air india"],
+    "categories": ["other", "clothing", "food"],
+    "severity": "restricted",
+    "carryOn": "ok",
+    "checked": "restricted",
+    "text": "Air India Economy checked baggage allowances are commonly 23 kg per piece on international routes; confirm your ticket.",
+    "sourceUrl": "https://www.airindia.com/in/en/book/baggage-information.html",
+    "lastVerified": "2026-09-20",
+    "limits": { "maxKg": 23 }
+  },
+  {
+    "ruleId": "airline:ek-lithium",
+    "scope": "airline",
+    "subject": "EK",
+    "keywords": ["power bank", "lithium", "battery"],
+    "categories": ["electronics"],
+    "severity": "restricted",
+    "carryOn": "restricted",
+    "checked": "banned",
+    "text": "Emirates requires spare lithium batteries and power banks in cabin baggage only, within watt-hour limits.",
+    "sourceUrl": "https://www.emirates.com/us/english/before-you-fly/baggage/restricted-items/",
+    "lastVerified": "2026-09-18",
+    "limits": { "maxWh": 100 }
+  },
+  {
+    "ruleId": "airline:qr-liquids",
+    "scope": "airline",
+    "subject": "QR",
+    "keywords": ["liquid", "duty free", "shampoo"],
+    "categories": ["liquids"],
+    "severity": "check",
+    "carryOn": "restricted",
+    "checked": "ok",
+    "text": "Qatar Airways follows standard security liquids rules for cabin bags; large toiletries belong in checked baggage.",
+    "sourceUrl": "https://www.qatarairways.com/en/baggage/restricted-items.html",
+    "lastVerified": "2026-09-22"
+  }
+]

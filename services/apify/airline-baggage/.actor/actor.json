@@ -1,0 +1,8 @@
+{
+  "actorSpecification": 1,
+  "name": "airline-baggage",
+  "title": "Airline baggage policy scraper",
+  "description": "Scrapes cabin and checked baggage dims/weight for a fixed list of airlines.",
+  "version": "0.1",
+  "input": "./INPUT_SCHEMA.json"
+}
