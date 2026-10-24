@@ -14,10 +14,10 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
         _ = reference
         try await Task.sleep(for: .milliseconds(900))
 
-        lock.lock()
-        let index = scanIndex
-        scanIndex += 1
-        lock.unlock()
+        let index = lock.withLock {
+            defer { scanIndex += 1 }
+            return scanIndex
+        }
 
         let fixtures = Fixtures.items()
         var item = fixtures[index % fixtures.count]

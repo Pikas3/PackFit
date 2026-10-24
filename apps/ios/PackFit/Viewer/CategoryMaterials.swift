@@ -1,6 +1,7 @@
 import RealityKit
 import UIKit
 
+@MainActor
 enum CategoryMaterials {
     private static var cache: [Category: SimpleMaterial] = [:]
     private static let sharedBox: MeshResource = .generateBox(size: 1)
