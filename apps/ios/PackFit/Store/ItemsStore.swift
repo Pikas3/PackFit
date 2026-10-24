@@ -27,6 +27,6 @@ final class ItemsStore {
 
     /// Seeds the first three fixture items for a cold demo if needed.
     func loadDemoSeed() {
-        items = Array(Fixtures.items().prefix(3))
+        items = Array(AppFixtures.items().prefix(3))
     }
 }

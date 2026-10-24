@@ -15,7 +15,7 @@ struct BagSetupView: View {
     var body: some View {
         List {
             Section(Copy.Bag.presets) {
-                ForEach(Fixtures.containers()) { bag in
+                ForEach(AppFixtures.containers()) { bag in
                     Button {
                         if bag.type == .backpack {
                             pendingBag = bag
@@ -86,6 +86,7 @@ struct BagSetupView: View {
         let inner = outer.map { max(1, $0 - wallInsetCm * 2) }
         // Keep height inset consistent with "3 cm per side".
         return Container(
+            id: UUID().uuidString,
             name: "Custom bag",
             type: .suitcase,
             outer: outer,

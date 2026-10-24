@@ -6,150 +6,157 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-	9ABFDCA0348125581C919074 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2942BBAFCDD4DA65F321500F /* APIClient.swift */; };
-	9626299E5A9C72A35886EDBF /* LiveAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EB0A5DC589C97CCEAA72259 /* LiveAPIClient.swift */; };
-	475107B87EAD1F7F9098024A /* MockAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D5C6AB53DCDBD2FB4B0937 /* MockAPIClient.swift */; };
-	AF79B3F8FD00D8F04C693427 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E3D2833783F2383557CA5D /* AppConfig.swift */; };
-	33EE41B1AC5725C7036FF75D /* DeviceCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D1C926CC008849DCE8E86C9 /* DeviceCapabilities.swift */; };
-	6E8A9F90D3D1F73CA8D1B1DE /* PackFitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4B5F23F0A9620D10883723 /* PackFitApp.swift */; };
-	683723F45B27464FE359CE80 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73254BEC465828B22DE054F /* RootView.swift */; };
-	245C021F380136A53763D6D7 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC03CEDFE25BDA9BCFB9A5BD /* Route.swift */; };
-	5B7D9A10FF35FDE8D305CF7F /* BackpackEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B520FD10CF17CE5B70EE2F2E /* BackpackEditorView.swift */; };
-	2AD21ACF63EAFF555775D7F6 /* BagSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAC30628769970B59CAF02A3 /* BagSetupView.swift */; };
-	1BB5F85F35319614F5B9E075 /* ManualBagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5422BD9101CCF7B0FA2E35 /* ManualBagView.swift */; };
-	B8BC373BDE1003BCD23E3AFA /* ConfidenceBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BF1069EEE523922C9B5D69 /* ConfidenceBadge.swift */; };
-	948B8B8AB4386E5D41D453E1 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885EDD17B90642085042E5CE /* EmptyStateView.swift */; };
-	3EC5325A8DFD0CE9B467A7E9 /* Copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A301C52EE182BC9C3BC19D58 /* Copy.swift */; };
-	5E8DC93973F030D7C78631AA /* ItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE90D81D60ECB702D1FDD497 /* ItemDetailView.swift */; };
-	8092DF781C0C5272F3693D8B /* ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986F84F5176B4224B3FB802 /* ItemListView.swift */; };
-	6D041464EB8AE58F3DDEDD31 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A666FA1FE51B436BD37A0D /* OnboardingView.swift */; };
-	51516870DC9CC9381DFB72B0 /* RuleFreshness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E856009616EFFCEB7941522 /* RuleFreshness.swift */; };
-	FE21F8121E31BBBE2D82FC2B /* RulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 892B7124FC16E64A241664FA /* RulesView.swift */; };
-	EF712B877692A377E6CF4B3E /* ARScanRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32183DB76B28A640278E25E /* ARScanRepresentable.swift */; };
-	76898E33BF4C29D3B8DC39AF /* ImageCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6794CA49B989E390DEEAE5B2 /* ImageCapture.swift */; };
-	03B8FE40FE507F87E4F6B32E /* LidarSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E8CEC997291E719B67C1DF /* LidarSessionController.swift */; };
-	E6DF83167F69206CC22F690B /* MeasurementMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 709CEDE3BCA000D521D45E3C /* MeasurementMath.swift */; };
-	17335ADC7ACCA6819855C37A /* ReviewCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA4A2C8BAE93A694E8E9341 /* ReviewCardView.swift */; };
-	13C660E5848F1257034548AA /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421E873EB190A1E7B1C599C1 /* ScanView.swift */; };
-	1CA6AA417FCDEF6700CB03EE /* ItemsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D55E1775DB0A16AE91F414C /* ItemsStore.swift */; };
-	FBF6B3BA7934D33D0CC17A21 /* PlanStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3BC5A7A9885F219387B208B /* PlanStore.swift */; };
-	6D27E09A8AD8C0C5ACE0C4C4 /* RulesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB80BCC5FC5CA5D0C6B7D67 /* RulesStore.swift */; };
-	DFAB67ED8D4B7220A2DBDCCA /* TripStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90539108DB305D694F4789D3 /* TripStore.swift */; };
-	70FB8F515676BDDDFA480344 /* Fixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDFCB4D68D85447848C873E /* Fixtures.swift */; };
-	C9B4F410EAD8BAA756DF2B94 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E8A54C5D45E0BD305B18A /* Types.swift */; };
-	D5EA6678E27CC97E3424418C /* Tokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E87CDCF7A9F9159E165F54 /* Tokens.swift */; };
-	2ABF146096CD1FDFB3268CF7 /* TripPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DA8079B11F37DBE5FD32D3 /* TripPickerView.swift */; };
-	3BAE850D5FFA1528B00F5B95 /* CategoryMaterials.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA310A10586BBEEB00CF7F1 /* CategoryMaterials.swift */; };
-	883D5BB0C32AE8A6CAF9FBF4 /* PlanViewerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D22BF73CB8A3D364C5816EF9 /* PlanViewerController.swift */; };
-	AD2691BF6F7D1A0297C64116 /* PlanViewerControlling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA60093C9E2C1CDF34A2B5E /* PlanViewerControlling.swift */; };
-	B31A73D43F60041427E9355C /* PlanViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245B79EF56C4DF7A6FC5FA23 /* PlanViewerView.swift */; };
-	86140CE71E03D374F8826353 /* SceneBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9855DC9A3957A894E3315066 /* SceneBuilder.swift */; };
-	6DF7802669F47CAFEAAEAB60 /* MeasurementMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8C38E62A13C65E89495304 /* MeasurementMathTests.swift */; };
-	983BBFF58E3926B2CA57C74F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E260F38D87DD85E5819F7817 /* Assets.xcassets */; };
+	DBA5E5729F6C84D710C69309 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3058F8F659288DFDF70F961A /* APIClient.swift */; };
+	2A4A9FF8FC681FEB293AEDE5 /* APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08F3A3360D4792AB0E26C18F /* APIModels.swift */; };
+	8AF00A0F049540687D771375 /* LiveAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC42A8E2E5AB9B31725AD363 /* LiveAPIClient.swift */; };
+	2D7B759A62D7215890790D94 /* MockAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421EB981FB9A453BA46D7E28 /* MockAPIClient.swift */; };
+	BD06E43EF8672AFAE24395B7 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3467DF633313A8EC8841DFC /* AppConfig.swift */; };
+	F7A65844B020944520D0A897 /* DeviceCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF695D66250FBEAA42EFE360 /* DeviceCapabilities.swift */; };
+	0DFEB8EBA44D30131E86090E /* PackFitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090FFBE868FA2262A05105D6 /* PackFitApp.swift */; };
+	F755594F4E512B33FF66F3FF /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C14EB720F640176AE2C558 /* RootView.swift */; };
+	20B1DD80B6AC802BE111161A /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8333C6DE760161CAE93C1C52 /* Route.swift */; };
+	FA1B9A13D587789F07FD1529 /* SchemaExports.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F89F00E16174E2212EBC12 /* SchemaExports.swift */; };
+	0E1773D78C7C806428582046 /* BackpackEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766AAD86A3BC760EAF309F29 /* BackpackEditorView.swift */; };
+	44F114F1947D19406C6C526E /* BagSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43044EAE08FA480AA92FABF5 /* BagSetupView.swift */; };
+	26C3EACC1B8847EB0F01A544 /* ManualBagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C44E31532AEB2379E46FD76 /* ManualBagView.swift */; };
+	402088880466E75D06993EFE /* ConfidenceBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72799E8B1EDACCBDAEE30AC /* ConfidenceBadge.swift */; };
+	0E191DEE2F928DE346813B9E /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AD92DD3741F52867232BEA /* EmptyStateView.swift */; };
+	5AC2AC808D4BC1C9128B3913 /* Copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D7531BBDEFE09B8BD3835C /* Copy.swift */; };
+	8645FE56D70A3836978D09FC /* AppFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C37326FA86B1FAB0AFEFA4 /* AppFixtures.swift */; };
+	5D0D018104719AA773FDCC57 /* ItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D6EC85506565815AA9A661 /* ItemDetailView.swift */; };
+	7AF248AC41048243D389AF99 /* ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42EC5F14651F0BA4677111B3 /* ItemListView.swift */; };
+	4BB7994D087A33E99C8171A3 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E75621B8FBCFDC67E72FEE /* OnboardingView.swift */; };
+	7AD5AF99560544CCBA5FCDE6 /* RuleFreshness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0AE81C52B847861EB9A0BA /* RuleFreshness.swift */; };
+	1C6FECAA6DA3EE3D84D0B600 /* RulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E16EAEAAA83259437104DE /* RulesView.swift */; };
+	47F31A462B02383DDD919AC6 /* ARScanRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 553BD5AA1B3BA645ECA5C7D5 /* ARScanRepresentable.swift */; };
+	B9C1A04462EFEE8567B08177 /* ImageCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9B039218A877058BD20208 /* ImageCapture.swift */; };
+	A8786DA1D190BEEBD60199D6 /* LidarSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCF56D28590CE64525A6E31 /* LidarSessionController.swift */; };
+	B5853417EA8FD10643516233 /* MeasurementMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = D039890D9726C4C97A6C288F /* MeasurementMath.swift */; };
+	2F765AB914536D55CB4CA660 /* ReviewCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D8A43DD535E7BF1BBEF46E /* ReviewCardView.swift */; };
+	EBF10FA8A7805DD06308DF1D /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC741861ECD4DFC4978C2FA /* ScanView.swift */; };
+	6FC7176E9A0FC11D0205E479 /* ItemsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572CFF43E4103C56C45E4B8B /* ItemsStore.swift */; };
+	9537A78B97C8C0F0F8236F85 /* PlanStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5D149DD8E2B472C0A9DC01 /* PlanStore.swift */; };
+	5AACCE3E4C8999C4CE38CD63 /* RulesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E444B89265FD7480F247EE0 /* RulesStore.swift */; };
+	F436272D604EB0735B2B7BCD /* TripStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28C2B5C5FE88F267FC7FEA5 /* TripStore.swift */; };
+	13BE9B3EBD7C636000D59103 /* Tokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F2CE94E61FAD274AECF24A /* Tokens.swift */; };
+	E3F5229D430902EDDDF0DF87 /* TripPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 617D3D4CAAA174FD8C38A312 /* TripPickerView.swift */; };
+	79F634F3DF6BD96955797306 /* CategoryMaterials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EEF0C19C2FAB59249B7B900 /* CategoryMaterials.swift */; };
+	1F068A91541C56ECEE7F98AD /* PlanViewerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18DE82273B61AAF3BE3F467 /* PlanViewerController.swift */; };
+	42CB41A3657DCC9614643BAD /* PlanViewerControlling.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FCF6861C8BA9911B865B78 /* PlanViewerControlling.swift */; };
+	7E069614943364CCBB88AF7D /* PlanViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1950DD945B6CC68218F0DC64 /* PlanViewerView.swift */; };
+	84E1A9AA802DA01A2CD49B9D /* SceneBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38669DE6D35F140DD245C56 /* SceneBuilder.swift */; };
+	F4BA7A26C39806719BC98BA7 /* MeasurementMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */; };
+	8D54DC65EEEAC96AD8ECDE15 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58A12493A45D71A84E6E9B01 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-	06EE08E9A915C214AC9527EA /* PackFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PackFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
-	81B84531F4F427A953312C55 /* PackFitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PackFitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-	EA608143245C188C790FE27A /* Example.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Example.xcconfig; sourceTree = "<group>"; };
-	E260F38D87DD85E5819F7817 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-	F1C55A337203D800DA04A767 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-	2942BBAFCDD4DA65F321500F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API/APIClient.swift"; sourceTree = "<group>"; };
-	0EB0A5DC589C97CCEAA72259 /* LiveAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API/LiveAPIClient.swift"; sourceTree = "<group>"; };
-	67D5C6AB53DCDBD2FB4B0937 /* MockAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API/MockAPIClient.swift"; sourceTree = "<group>"; };
-	11E3D2833783F2383557CA5D /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/AppConfig.swift"; sourceTree = "<group>"; };
-	3D1C926CC008849DCE8E86C9 /* DeviceCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/DeviceCapabilities.swift"; sourceTree = "<group>"; };
-	6A4B5F23F0A9620D10883723 /* PackFitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/PackFitApp.swift"; sourceTree = "<group>"; };
-	C73254BEC465828B22DE054F /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/RootView.swift"; sourceTree = "<group>"; };
-	DC03CEDFE25BDA9BCFB9A5BD /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/Route.swift"; sourceTree = "<group>"; };
-	B520FD10CF17CE5B70EE2F2E /* BackpackEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bag/BackpackEditorView.swift"; sourceTree = "<group>"; };
-	AAC30628769970B59CAF02A3 /* BagSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bag/BagSetupView.swift"; sourceTree = "<group>"; };
-	FC5422BD9101CCF7B0FA2E35 /* ManualBagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bag/ManualBagView.swift"; sourceTree = "<group>"; };
-	99BF1069EEE523922C9B5D69 /* ConfidenceBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Components/ConfidenceBadge.swift"; sourceTree = "<group>"; };
-	885EDD17B90642085042E5CE /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Components/EmptyStateView.swift"; sourceTree = "<group>"; };
-	A301C52EE182BC9C3BC19D58 /* Copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Copy.swift"; sourceTree = "<group>"; };
-	AE90D81D60ECB702D1FDD497 /* ItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Items/ItemDetailView.swift"; sourceTree = "<group>"; };
-	B986F84F5176B4224B3FB802 /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Items/ItemListView.swift"; sourceTree = "<group>"; };
-	85A666FA1FE51B436BD37A0D /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Onboarding/OnboardingView.swift"; sourceTree = "<group>"; };
-	6E856009616EFFCEB7941522 /* RuleFreshness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Rules/RuleFreshness.swift"; sourceTree = "<group>"; };
-	892B7124FC16E64A241664FA /* RulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Rules/RulesView.swift"; sourceTree = "<group>"; };
-	F32183DB76B28A640278E25E /* ARScanRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ARScanRepresentable.swift"; sourceTree = "<group>"; };
-	6794CA49B989E390DEEAE5B2 /* ImageCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ImageCapture.swift"; sourceTree = "<group>"; };
-	C9E8CEC997291E719B67C1DF /* LidarSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/LidarSessionController.swift"; sourceTree = "<group>"; };
-	709CEDE3BCA000D521D45E3C /* MeasurementMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/MeasurementMath.swift"; sourceTree = "<group>"; };
-	1DA4A2C8BAE93A694E8E9341 /* ReviewCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ReviewCardView.swift"; sourceTree = "<group>"; };
-	421E873EB190A1E7B1C599C1 /* ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ScanView.swift"; sourceTree = "<group>"; };
-	5D55E1775DB0A16AE91F414C /* ItemsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Store/ItemsStore.swift"; sourceTree = "<group>"; };
-	C3BC5A7A9885F219387B208B /* PlanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Store/PlanStore.swift"; sourceTree = "<group>"; };
-	2DB80BCC5FC5CA5D0C6B7D67 /* RulesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Store/RulesStore.swift"; sourceTree = "<group>"; };
-	90539108DB305D694F4789D3 /* TripStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Store/TripStore.swift"; sourceTree = "<group>"; };
-	DCDFCB4D68D85447848C873E /* Fixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Temp/Fixtures.swift"; sourceTree = "<group>"; };
-	4F3E8A54C5D45E0BD305B18A /* Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Temp/Types.swift"; sourceTree = "<group>"; };
-	C0E87CDCF7A9F9159E165F54 /* Tokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Theme/Tokens.swift"; sourceTree = "<group>"; };
-	13DA8079B11F37DBE5FD32D3 /* TripPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Trip/TripPickerView.swift"; sourceTree = "<group>"; };
-	BEA310A10586BBEEB00CF7F1 /* CategoryMaterials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/CategoryMaterials.swift"; sourceTree = "<group>"; };
-	D22BF73CB8A3D364C5816EF9 /* PlanViewerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/PlanViewerController.swift"; sourceTree = "<group>"; };
-	4EA60093C9E2C1CDF34A2B5E /* PlanViewerControlling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/PlanViewerControlling.swift"; sourceTree = "<group>"; };
-	245B79EF56C4DF7A6FC5FA23 /* PlanViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/PlanViewerView.swift"; sourceTree = "<group>"; };
-	9855DC9A3957A894E3315066 /* SceneBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/SceneBuilder.swift"; sourceTree = "<group>"; };
-	DE8C38E62A13C65E89495304 /* MeasurementMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MeasurementMathTests.swift"; sourceTree = "<group>"; };
+	03A3523DF5FBF2CC57EE8249 /* PackFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PackFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
+	F71B9DAE26775B429CF08342 /* PackFitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PackFitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+	5C3B4B3D43BC697E8A223126 /* Example.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Example.xcconfig; sourceTree = "<group>"; };
+	58A12493A45D71A84E6E9B01 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+	CCC85518DAF74D311A328861 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+	3058F8F659288DFDF70F961A /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API/APIClient.swift"; sourceTree = "<group>"; };
+	08F3A3360D4792AB0E26C18F /* APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API/APIModels.swift"; sourceTree = "<group>"; };
+	FC42A8E2E5AB9B31725AD363 /* LiveAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API/LiveAPIClient.swift"; sourceTree = "<group>"; };
+	421EB981FB9A453BA46D7E28 /* MockAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API/MockAPIClient.swift"; sourceTree = "<group>"; };
+	A3467DF633313A8EC8841DFC /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/AppConfig.swift"; sourceTree = "<group>"; };
+	EF695D66250FBEAA42EFE360 /* DeviceCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/DeviceCapabilities.swift"; sourceTree = "<group>"; };
+	090FFBE868FA2262A05105D6 /* PackFitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/PackFitApp.swift"; sourceTree = "<group>"; };
+	97C14EB720F640176AE2C558 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/RootView.swift"; sourceTree = "<group>"; };
+	8333C6DE760161CAE93C1C52 /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/Route.swift"; sourceTree = "<group>"; };
+	C3F89F00E16174E2212EBC12 /* SchemaExports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/SchemaExports.swift"; sourceTree = "<group>"; };
+	766AAD86A3BC760EAF309F29 /* BackpackEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bag/BackpackEditorView.swift"; sourceTree = "<group>"; };
+	43044EAE08FA480AA92FABF5 /* BagSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bag/BagSetupView.swift"; sourceTree = "<group>"; };
+	3C44E31532AEB2379E46FD76 /* ManualBagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bag/ManualBagView.swift"; sourceTree = "<group>"; };
+	B72799E8B1EDACCBDAEE30AC /* ConfidenceBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Components/ConfidenceBadge.swift"; sourceTree = "<group>"; };
+	61AD92DD3741F52867232BEA /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Components/EmptyStateView.swift"; sourceTree = "<group>"; };
+	C1D7531BBDEFE09B8BD3835C /* Copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Copy.swift"; sourceTree = "<group>"; };
+	56C37326FA86B1FAB0AFEFA4 /* AppFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Fixtures/AppFixtures.swift"; sourceTree = "<group>"; };
+	55D6EC85506565815AA9A661 /* ItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Items/ItemDetailView.swift"; sourceTree = "<group>"; };
+	42EC5F14651F0BA4677111B3 /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Items/ItemListView.swift"; sourceTree = "<group>"; };
+	E5E75621B8FBCFDC67E72FEE /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Onboarding/OnboardingView.swift"; sourceTree = "<group>"; };
+	1D0AE81C52B847861EB9A0BA /* RuleFreshness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Rules/RuleFreshness.swift"; sourceTree = "<group>"; };
+	47E16EAEAAA83259437104DE /* RulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Rules/RulesView.swift"; sourceTree = "<group>"; };
+	553BD5AA1B3BA645ECA5C7D5 /* ARScanRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ARScanRepresentable.swift"; sourceTree = "<group>"; };
+	0A9B039218A877058BD20208 /* ImageCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ImageCapture.swift"; sourceTree = "<group>"; };
+	6FCF56D28590CE64525A6E31 /* LidarSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/LidarSessionController.swift"; sourceTree = "<group>"; };
+	D039890D9726C4C97A6C288F /* MeasurementMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/MeasurementMath.swift"; sourceTree = "<group>"; };
+	86D8A43DD535E7BF1BBEF46E /* ReviewCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ReviewCardView.swift"; sourceTree = "<group>"; };
+	EAC741861ECD4DFC4978C2FA /* ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/ScanView.swift"; sourceTree = "<group>"; };
+	572CFF43E4103C56C45E4B8B /* ItemsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Store/ItemsStore.swift"; sourceTree = "<group>"; };
+	BD5D149DD8E2B472C0A9DC01 /* PlanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Store/PlanStore.swift"; sourceTree = "<group>"; };
+	1E444B89265FD7480F247EE0 /* RulesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Store/RulesStore.swift"; sourceTree = "<group>"; };
+	C28C2B5C5FE88F267FC7FEA5 /* TripStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Store/TripStore.swift"; sourceTree = "<group>"; };
+	40F2CE94E61FAD274AECF24A /* Tokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Theme/Tokens.swift"; sourceTree = "<group>"; };
+	617D3D4CAAA174FD8C38A312 /* TripPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Trip/TripPickerView.swift"; sourceTree = "<group>"; };
+	0EEF0C19C2FAB59249B7B900 /* CategoryMaterials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/CategoryMaterials.swift"; sourceTree = "<group>"; };
+	E18DE82273B61AAF3BE3F467 /* PlanViewerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/PlanViewerController.swift"; sourceTree = "<group>"; };
+	D0FCF6861C8BA9911B865B78 /* PlanViewerControlling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/PlanViewerControlling.swift"; sourceTree = "<group>"; };
+	1950DD945B6CC68218F0DC64 /* PlanViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/PlanViewerView.swift"; sourceTree = "<group>"; };
+	B38669DE6D35F140DD245C56 /* SceneBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Viewer/SceneBuilder.swift"; sourceTree = "<group>"; };
+	7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MeasurementMathTests.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFrameworksBuildPhase section */
+	D28CFE3946B1BC15FC466830 /* Frameworks */ = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
-	1F9F37909CDB086DB503CF67 = { isa = PBXGroup; children = (790BF8EBC12BF1A45611A945 /* Config */, 2DA284D8554371769EEEB6E0 /* PackFit */, 0E9B73E9E61969D977BDEA8B /* PackFitTests */, 9D3AAE2A59E394F21A6B4DD0 /* Products */); sourceTree = "<group>"; };
-	9D3AAE2A59E394F21A6B4DD0 /* Products */ = { isa = PBXGroup; children = (06EE08E9A915C214AC9527EA /* PackFit.app */, 81B84531F4F427A953312C55 /* PackFitTests.xctest */); name = Products; sourceTree = "<group>"; };
-	790BF8EBC12BF1A45611A945 /* Config */ = { isa = PBXGroup; children = (EA608143245C188C790FE27A /* Example.xcconfig */); path = Config; sourceTree = "<group>"; };
-	2DA284D8554371769EEEB6E0 /* PackFit */ = {
+	553EAD4DB85A0D966552B1A0 = { isa = PBXGroup; children = (8867C9E9FA22C670EA04522D /* Config */, 1098403B55AF3C1CDA92BD33 /* PackFit */, A155AA44B1D1618D2F5AF75E /* PackFitTests */, A7D309F376CCEBE22BDF6CA1 /* Products */); sourceTree = "<group>"; };
+	A7D309F376CCEBE22BDF6CA1 /* Products */ = { isa = PBXGroup; children = (03A3523DF5FBF2CC57EE8249 /* PackFit.app */, F71B9DAE26775B429CF08342 /* PackFitTests.xctest */); name = Products; sourceTree = "<group>"; };
+	8867C9E9FA22C670EA04522D /* Config */ = { isa = PBXGroup; children = (5C3B4B3D43BC697E8A223126 /* Example.xcconfig */); path = Config; sourceTree = "<group>"; };
+	1098403B55AF3C1CDA92BD33 /* PackFit */ = {
 		isa = PBXGroup;
 		children = (
-			2942BBAFCDD4DA65F321500F /* APIClient.swift */,
-			0EB0A5DC589C97CCEAA72259 /* LiveAPIClient.swift */,
-			67D5C6AB53DCDBD2FB4B0937 /* MockAPIClient.swift */,
-			11E3D2833783F2383557CA5D /* AppConfig.swift */,
-			3D1C926CC008849DCE8E86C9 /* DeviceCapabilities.swift */,
-			6A4B5F23F0A9620D10883723 /* PackFitApp.swift */,
-			C73254BEC465828B22DE054F /* RootView.swift */,
-			DC03CEDFE25BDA9BCFB9A5BD /* Route.swift */,
-			B520FD10CF17CE5B70EE2F2E /* BackpackEditorView.swift */,
-			AAC30628769970B59CAF02A3 /* BagSetupView.swift */,
-			FC5422BD9101CCF7B0FA2E35 /* ManualBagView.swift */,
-			99BF1069EEE523922C9B5D69 /* ConfidenceBadge.swift */,
-			885EDD17B90642085042E5CE /* EmptyStateView.swift */,
-			A301C52EE182BC9C3BC19D58 /* Copy.swift */,
-			AE90D81D60ECB702D1FDD497 /* ItemDetailView.swift */,
-			B986F84F5176B4224B3FB802 /* ItemListView.swift */,
-			85A666FA1FE51B436BD37A0D /* OnboardingView.swift */,
-			6E856009616EFFCEB7941522 /* RuleFreshness.swift */,
-			892B7124FC16E64A241664FA /* RulesView.swift */,
-			F32183DB76B28A640278E25E /* ARScanRepresentable.swift */,
-			6794CA49B989E390DEEAE5B2 /* ImageCapture.swift */,
-			C9E8CEC997291E719B67C1DF /* LidarSessionController.swift */,
-			709CEDE3BCA000D521D45E3C /* MeasurementMath.swift */,
-			1DA4A2C8BAE93A694E8E9341 /* ReviewCardView.swift */,
-			421E873EB190A1E7B1C599C1 /* ScanView.swift */,
-			5D55E1775DB0A16AE91F414C /* ItemsStore.swift */,
-			C3BC5A7A9885F219387B208B /* PlanStore.swift */,
-			2DB80BCC5FC5CA5D0C6B7D67 /* RulesStore.swift */,
-			90539108DB305D694F4789D3 /* TripStore.swift */,
-			DCDFCB4D68D85447848C873E /* Fixtures.swift */,
-			4F3E8A54C5D45E0BD305B18A /* Types.swift */,
-			C0E87CDCF7A9F9159E165F54 /* Tokens.swift */,
-			13DA8079B11F37DBE5FD32D3 /* TripPickerView.swift */,
-			BEA310A10586BBEEB00CF7F1 /* CategoryMaterials.swift */,
-			D22BF73CB8A3D364C5816EF9 /* PlanViewerController.swift */,
-			4EA60093C9E2C1CDF34A2B5E /* PlanViewerControlling.swift */,
-			245B79EF56C4DF7A6FC5FA23 /* PlanViewerView.swift */,
-			9855DC9A3957A894E3315066 /* SceneBuilder.swift */,
-			E260F38D87DD85E5819F7817 /* Assets.xcassets */,
-			F1C55A337203D800DA04A767 /* Info.plist */,
+			3058F8F659288DFDF70F961A /* APIClient.swift */,
+			08F3A3360D4792AB0E26C18F /* APIModels.swift */,
+			FC42A8E2E5AB9B31725AD363 /* LiveAPIClient.swift */,
+			421EB981FB9A453BA46D7E28 /* MockAPIClient.swift */,
+			A3467DF633313A8EC8841DFC /* AppConfig.swift */,
+			EF695D66250FBEAA42EFE360 /* DeviceCapabilities.swift */,
+			090FFBE868FA2262A05105D6 /* PackFitApp.swift */,
+			97C14EB720F640176AE2C558 /* RootView.swift */,
+			8333C6DE760161CAE93C1C52 /* Route.swift */,
+			C3F89F00E16174E2212EBC12 /* SchemaExports.swift */,
+			766AAD86A3BC760EAF309F29 /* BackpackEditorView.swift */,
+			43044EAE08FA480AA92FABF5 /* BagSetupView.swift */,
+			3C44E31532AEB2379E46FD76 /* ManualBagView.swift */,
+			B72799E8B1EDACCBDAEE30AC /* ConfidenceBadge.swift */,
+			61AD92DD3741F52867232BEA /* EmptyStateView.swift */,
+			C1D7531BBDEFE09B8BD3835C /* Copy.swift */,
+			56C37326FA86B1FAB0AFEFA4 /* AppFixtures.swift */,
+			55D6EC85506565815AA9A661 /* ItemDetailView.swift */,
+			42EC5F14651F0BA4677111B3 /* ItemListView.swift */,
+			E5E75621B8FBCFDC67E72FEE /* OnboardingView.swift */,
+			1D0AE81C52B847861EB9A0BA /* RuleFreshness.swift */,
+			47E16EAEAAA83259437104DE /* RulesView.swift */,
+			553BD5AA1B3BA645ECA5C7D5 /* ARScanRepresentable.swift */,
+			0A9B039218A877058BD20208 /* ImageCapture.swift */,
+			6FCF56D28590CE64525A6E31 /* LidarSessionController.swift */,
+			D039890D9726C4C97A6C288F /* MeasurementMath.swift */,
+			86D8A43DD535E7BF1BBEF46E /* ReviewCardView.swift */,
+			EAC741861ECD4DFC4978C2FA /* ScanView.swift */,
+			572CFF43E4103C56C45E4B8B /* ItemsStore.swift */,
+			BD5D149DD8E2B472C0A9DC01 /* PlanStore.swift */,
+			1E444B89265FD7480F247EE0 /* RulesStore.swift */,
+			C28C2B5C5FE88F267FC7FEA5 /* TripStore.swift */,
+			40F2CE94E61FAD274AECF24A /* Tokens.swift */,
+			617D3D4CAAA174FD8C38A312 /* TripPickerView.swift */,
+			0EEF0C19C2FAB59249B7B900 /* CategoryMaterials.swift */,
+			E18DE82273B61AAF3BE3F467 /* PlanViewerController.swift */,
+			D0FCF6861C8BA9911B865B78 /* PlanViewerControlling.swift */,
+			1950DD945B6CC68218F0DC64 /* PlanViewerView.swift */,
+			B38669DE6D35F140DD245C56 /* SceneBuilder.swift */,
+			58A12493A45D71A84E6E9B01 /* Assets.xcassets */,
+			CCC85518DAF74D311A328861 /* Info.plist */,
 		);
 		path = PackFit;
 		sourceTree = "<group>";
 	};
-	0E9B73E9E61969D977BDEA8B /* PackFitTests */ = {
+	A155AA44B1D1618D2F5AF75E /* PackFitTests */ = {
 		isa = PBXGroup;
 		children = (
-			DE8C38E62A13C65E89495304 /* MeasurementMathTests.swift */,
+			7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */,
 		);
 		path = PackFitTests;
 		sourceTree = "<group>";
@@ -157,21 +164,33 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-	998E39BF3A0CE5C1401D22A1 /* PackFit */ = { isa = PBXNativeTarget; buildConfigurationList = C81D7827313DC2C97E4FE26D; buildPhases = (AA4B01E8A5F9C901BF9B7065 /* Sources */, 3FC9C3595B34F86DD8E10B9B /* Frameworks */, E16D5103CE1669D9E4E6AC87 /* Resources */); buildRules = (); dependencies = (); name = PackFit; productName = PackFit; productReference = 06EE08E9A915C214AC9527EA; productType = "com.apple.product-type.application"; };
-	DB3E39D852D8A00F57495F08 /* PackFitTests */ = { isa = PBXNativeTarget; buildConfigurationList = 73A37BE34C23A0A13223EDD3; buildPhases = (214923690AD1C99743E5507A /* Sources */); buildRules = (); dependencies = (); name = PackFitTests; productName = PackFitTests; productReference = 81B84531F4F427A953312C55; productType = "com.apple.product-type.bundle.unit-test"; };
+	998E39BF3A0CE5C1401D22A1 /* PackFit */ = {
+		isa = PBXNativeTarget;
+		buildConfigurationList = A589B45970681E9265A8E921;
+		buildPhases = (1A190EB2A888CEB4E47C3A22 /* Sources */, D28CFE3946B1BC15FC466830 /* Frameworks */, F1E9EE32FEBDDDCFA6E6E7B1 /* Resources */);
+		buildRules = ();
+		dependencies = ();
+		name = PackFit;
+		packageProductDependencies = (18100CFFC579293092C83886 /* PackFitSchemas */, 383790838E72F3070C8D6CB6 /* Packer */);
+		productName = PackFit;
+		productReference = 03A3523DF5FBF2CC57EE8249;
+		productType = "com.apple.product-type.application";
+	};
+	DB3E39D852D8A00F57495F08 /* PackFitTests */ = { isa = PBXNativeTarget; buildConfigurationList = 53164C758C4968133EEF70B9; buildPhases = (11E68E1234980A6E737D024A /* Sources */); buildRules = (); dependencies = (); name = PackFitTests; productName = PackFitTests; productReference = F71B9DAE26775B429CF08342; productType = "com.apple.product-type.bundle.unit-test"; };
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-	20D9BA2C9381B1B124A5AAD0 /* Project object */ = {
+	1D47969A85F9A42BBD9D38A3 /* Project object */ = {
 		isa = PBXProject;
 		attributes = { BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 2600; LastUpgradeCheck = 2600; TargetAttributes = { 998E39BF3A0CE5C1401D22A1 = { CreatedOnToolsVersion = 26.0; }; DB3E39D852D8A00F57495F08 = { CreatedOnToolsVersion = 26.0; TestTargetID = 998E39BF3A0CE5C1401D22A1; }; }; };
-		buildConfigurationList = A097BDEE6D60DC256ABB65D6;
+		buildConfigurationList = 485101FE58829BB1453566C8;
 		compatibilityVersion = "Xcode 15.0";
 		developmentRegion = en;
 		hasScannedForEncodings = 0;
 		knownRegions = (en, Base);
-		mainGroup = 1F9F37909CDB086DB503CF67;
-		productRefGroup = 9D3AAE2A59E394F21A6B4DD0;
+		mainGroup = 553EAD4DB85A0D966552B1A0;
+		packageReferences = (017045828300ADC3969DCF05 /* XCLocalSwiftPackageReference "../../Packages/PackFitSchemas" */, 2C6F5AB5302975005639E17B /* XCLocalSwiftPackageReference "../../Packages/Packer" */);
+		productRefGroup = A7D309F376CCEBE22BDF6CA1;
 		projectDirPath = "";
 		projectRoot = "";
 		targets = (998E39BF3A0CE5C1401D22A1 /* PackFit */, DB3E39D852D8A00F57495F08 /* PackFitTests */);
@@ -179,73 +198,80 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-	E16D5103CE1669D9E4E6AC87 /* Resources */ = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (983BBFF58E3926B2CA57C74F /* Assets.xcassets in Resources */); runOnlyForDeploymentPostprocessing = 0; };
+	F1E9EE32FEBDDDCFA6E6E7B1 /* Resources */ = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (8D54DC65EEEAC96AD8ECDE15 /* Assets.xcassets in Resources */); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXFrameworksBuildPhase section */
-	3FC9C3595B34F86DD8E10B9B /* Frameworks */ = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-/* End PBXFrameworksBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
-	AA4B01E8A5F9C901BF9B7065 /* Sources */ = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
-			9ABFDCA0348125581C919074 /* APIClient.swift in Sources */,
-			9626299E5A9C72A35886EDBF /* LiveAPIClient.swift in Sources */,
-			475107B87EAD1F7F9098024A /* MockAPIClient.swift in Sources */,
-			AF79B3F8FD00D8F04C693427 /* AppConfig.swift in Sources */,
-			33EE41B1AC5725C7036FF75D /* DeviceCapabilities.swift in Sources */,
-			6E8A9F90D3D1F73CA8D1B1DE /* PackFitApp.swift in Sources */,
-			683723F45B27464FE359CE80 /* RootView.swift in Sources */,
-			245C021F380136A53763D6D7 /* Route.swift in Sources */,
-			5B7D9A10FF35FDE8D305CF7F /* BackpackEditorView.swift in Sources */,
-			2AD21ACF63EAFF555775D7F6 /* BagSetupView.swift in Sources */,
-			1BB5F85F35319614F5B9E075 /* ManualBagView.swift in Sources */,
-			B8BC373BDE1003BCD23E3AFA /* ConfidenceBadge.swift in Sources */,
-			948B8B8AB4386E5D41D453E1 /* EmptyStateView.swift in Sources */,
-			3EC5325A8DFD0CE9B467A7E9 /* Copy.swift in Sources */,
-			5E8DC93973F030D7C78631AA /* ItemDetailView.swift in Sources */,
-			8092DF781C0C5272F3693D8B /* ItemListView.swift in Sources */,
-			6D041464EB8AE58F3DDEDD31 /* OnboardingView.swift in Sources */,
-			51516870DC9CC9381DFB72B0 /* RuleFreshness.swift in Sources */,
-			FE21F8121E31BBBE2D82FC2B /* RulesView.swift in Sources */,
-			EF712B877692A377E6CF4B3E /* ARScanRepresentable.swift in Sources */,
-			76898E33BF4C29D3B8DC39AF /* ImageCapture.swift in Sources */,
-			03B8FE40FE507F87E4F6B32E /* LidarSessionController.swift in Sources */,
-			E6DF83167F69206CC22F690B /* MeasurementMath.swift in Sources */,
-			17335ADC7ACCA6819855C37A /* ReviewCardView.swift in Sources */,
-			13C660E5848F1257034548AA /* ScanView.swift in Sources */,
-			1CA6AA417FCDEF6700CB03EE /* ItemsStore.swift in Sources */,
-			FBF6B3BA7934D33D0CC17A21 /* PlanStore.swift in Sources */,
-			6D27E09A8AD8C0C5ACE0C4C4 /* RulesStore.swift in Sources */,
-			DFAB67ED8D4B7220A2DBDCCA /* TripStore.swift in Sources */,
-			70FB8F515676BDDDFA480344 /* Fixtures.swift in Sources */,
-			C9B4F410EAD8BAA756DF2B94 /* Types.swift in Sources */,
-			D5EA6678E27CC97E3424418C /* Tokens.swift in Sources */,
-			2ABF146096CD1FDFB3268CF7 /* TripPickerView.swift in Sources */,
-			3BAE850D5FFA1528B00F5B95 /* CategoryMaterials.swift in Sources */,
-			883D5BB0C32AE8A6CAF9FBF4 /* PlanViewerController.swift in Sources */,
-			AD2691BF6F7D1A0297C64116 /* PlanViewerControlling.swift in Sources */,
-			B31A73D43F60041427E9355C /* PlanViewerView.swift in Sources */,
-			86140CE71E03D374F8826353 /* SceneBuilder.swift in Sources */,
+	1A190EB2A888CEB4E47C3A22 /* Sources */ = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			DBA5E5729F6C84D710C69309 /* APIClient.swift in Sources */,
+			2A4A9FF8FC681FEB293AEDE5 /* APIModels.swift in Sources */,
+			8AF00A0F049540687D771375 /* LiveAPIClient.swift in Sources */,
+			2D7B759A62D7215890790D94 /* MockAPIClient.swift in Sources */,
+			BD06E43EF8672AFAE24395B7 /* AppConfig.swift in Sources */,
+			F7A65844B020944520D0A897 /* DeviceCapabilities.swift in Sources */,
+			0DFEB8EBA44D30131E86090E /* PackFitApp.swift in Sources */,
+			F755594F4E512B33FF66F3FF /* RootView.swift in Sources */,
+			20B1DD80B6AC802BE111161A /* Route.swift in Sources */,
+			FA1B9A13D587789F07FD1529 /* SchemaExports.swift in Sources */,
+			0E1773D78C7C806428582046 /* BackpackEditorView.swift in Sources */,
+			44F114F1947D19406C6C526E /* BagSetupView.swift in Sources */,
+			26C3EACC1B8847EB0F01A544 /* ManualBagView.swift in Sources */,
+			402088880466E75D06993EFE /* ConfidenceBadge.swift in Sources */,
+			0E191DEE2F928DE346813B9E /* EmptyStateView.swift in Sources */,
+			5AC2AC808D4BC1C9128B3913 /* Copy.swift in Sources */,
+			8645FE56D70A3836978D09FC /* AppFixtures.swift in Sources */,
+			5D0D018104719AA773FDCC57 /* ItemDetailView.swift in Sources */,
+			7AF248AC41048243D389AF99 /* ItemListView.swift in Sources */,
+			4BB7994D087A33E99C8171A3 /* OnboardingView.swift in Sources */,
+			7AD5AF99560544CCBA5FCDE6 /* RuleFreshness.swift in Sources */,
+			1C6FECAA6DA3EE3D84D0B600 /* RulesView.swift in Sources */,
+			47F31A462B02383DDD919AC6 /* ARScanRepresentable.swift in Sources */,
+			B9C1A04462EFEE8567B08177 /* ImageCapture.swift in Sources */,
+			A8786DA1D190BEEBD60199D6 /* LidarSessionController.swift in Sources */,
+			B5853417EA8FD10643516233 /* MeasurementMath.swift in Sources */,
+			2F765AB914536D55CB4CA660 /* ReviewCardView.swift in Sources */,
+			EBF10FA8A7805DD06308DF1D /* ScanView.swift in Sources */,
+			6FC7176E9A0FC11D0205E479 /* ItemsStore.swift in Sources */,
+			9537A78B97C8C0F0F8236F85 /* PlanStore.swift in Sources */,
+			5AACCE3E4C8999C4CE38CD63 /* RulesStore.swift in Sources */,
+			F436272D604EB0735B2B7BCD /* TripStore.swift in Sources */,
+			13BE9B3EBD7C636000D59103 /* Tokens.swift in Sources */,
+			E3F5229D430902EDDDF0DF87 /* TripPickerView.swift in Sources */,
+			79F634F3DF6BD96955797306 /* CategoryMaterials.swift in Sources */,
+			1F068A91541C56ECEE7F98AD /* PlanViewerController.swift in Sources */,
+			42CB41A3657DCC9614643BAD /* PlanViewerControlling.swift in Sources */,
+			7E069614943364CCBB88AF7D /* PlanViewerView.swift in Sources */,
+			84E1A9AA802DA01A2CD49B9D /* SceneBuilder.swift in Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
-	214923690AD1C99743E5507A /* Sources */ = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
-			6DF7802669F47CAFEAAEAB60 /* MeasurementMathTests.swift in Sources */,
+	11E68E1234980A6E737D024A /* Sources */ = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			F4BA7A26C39806719BC98BA7 /* MeasurementMathTests.swift in Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-	39823A4CE54D54AB5D0D864B /* Debug */ = { isa = XCBuildConfiguration; baseConfigurationReference = EA608143245C188C790FE27A; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = dwarf; GCC_DYNAMIC_NO_PIC = NO; GCC_OPTIMIZATION_LEVEL = 0; GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)"); IPHONEOS_DEPLOYMENT_TARGET = 18.0; ONLY_ACTIVE_ARCH = YES; SDKROOT = iphoneos; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)"; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; SWIFT_VERSION = 6.0; }; name = Debug; };
-	EB484773D1A679345F3FF312 /* Release */ = { isa = XCBuildConfiguration; baseConfigurationReference = EA608143245C188C790FE27A; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; IPHONEOS_DEPLOYMENT_TARGET = 18.0; SDKROOT = iphoneos; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_VERSION = 6.0; }; name = Release; };
-	BFF6B10F519C0D8D6502502C /* Debug */ = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = PackFit/Info.plist; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks"); MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_APPROACHABLE_CONCURRENCY = YES; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; }; name = Debug; };
-	812137F2B20F65DFDB38D32E /* Release */ = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = PackFit/Info.plist; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks"); MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_APPROACHABLE_CONCURRENCY = YES; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; }; name = Release; };
-	0CCA1EA69BE281ED36EADDE9 /* Debug */ = { isa = XCBuildConfiguration; buildSettings = { BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app.tests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PackFit.app/${PRODUCT_NAME}/PackFit"; }; name = Debug; };
-	9AB24C434AC131EA47C8E7C0 /* Release */ = { isa = XCBuildConfiguration; buildSettings = { BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app.tests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PackFit.app/${PRODUCT_NAME}/PackFit"; }; name = Release; };
+	6838C20AC32FE1FB9963CE9D /* Debug */ = { isa = XCBuildConfiguration; baseConfigurationReference = 5C3B4B3D43BC697E8A223126; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = dwarf; GCC_DYNAMIC_NO_PIC = NO; GCC_OPTIMIZATION_LEVEL = 0; GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)"); IPHONEOS_DEPLOYMENT_TARGET = 18.0; ONLY_ACTIVE_ARCH = YES; SDKROOT = iphoneos; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)"; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; SWIFT_VERSION = 6.0; }; name = Debug; };
+	DB74CB8EAA9BD297D1099A04 /* Release */ = { isa = XCBuildConfiguration; baseConfigurationReference = 5C3B4B3D43BC697E8A223126; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; IPHONEOS_DEPLOYMENT_TARGET = 18.0; SDKROOT = iphoneos; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_VERSION = 6.0; }; name = Release; };
+	36CC0473D6D9A0D7E04DBE4F /* Debug */ = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = PackFit/Info.plist; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks"); MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_APPROACHABLE_CONCURRENCY = YES; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; }; name = Debug; };
+	F638EAE0D6C07B1C966317A3 /* Release */ = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = PackFit/Info.plist; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks"); MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_APPROACHABLE_CONCURRENCY = YES; SWIFT_STRICT_CONCURRENCY = complete; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; }; name = Release; };
+	C30F3787DC3F798E8003E787 /* Debug */ = { isa = XCBuildConfiguration; buildSettings = { BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app.tests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PackFit.app/${PRODUCT_NAME}/PackFit"; }; name = Debug; };
+	FA0CCF0ACE1B162DEBFDFF4B /* Release */ = { isa = XCBuildConfiguration; buildSettings = { BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.packfit.app.tests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PackFit.app/${PRODUCT_NAME}/PackFit"; }; name = Release; };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-	A097BDEE6D60DC256ABB65D6 /* Build configuration list for PBXProject "PackFit" */ = { isa = XCConfigurationList; buildConfigurations = (39823A4CE54D54AB5D0D864B /* Debug */, EB484773D1A679345F3FF312 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-	C81D7827313DC2C97E4FE26D /* Build configuration list for PBXNativeTarget "PackFit" */ = { isa = XCConfigurationList; buildConfigurations = (BFF6B10F519C0D8D6502502C /* Debug */, 812137F2B20F65DFDB38D32E /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-	73A37BE34C23A0A13223EDD3 /* Build configuration list for PBXNativeTarget "PackFitTests" */ = { isa = XCConfigurationList; buildConfigurations = (0CCA1EA69BE281ED36EADDE9 /* Debug */, 9AB24C434AC131EA47C8E7C0 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+	485101FE58829BB1453566C8 /* Build configuration list for PBXProject "PackFit" */ = { isa = XCConfigurationList; buildConfigurations = (6838C20AC32FE1FB9963CE9D /* Debug */, DB74CB8EAA9BD297D1099A04 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+	A589B45970681E9265A8E921 /* Build configuration list for PBXNativeTarget "PackFit" */ = { isa = XCConfigurationList; buildConfigurations = (36CC0473D6D9A0D7E04DBE4F /* Debug */, F638EAE0D6C07B1C966317A3 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+	53164C758C4968133EEF70B9 /* Build configuration list for PBXNativeTarget "PackFitTests" */ = { isa = XCConfigurationList; buildConfigurations = (C30F3787DC3F798E8003E787 /* Debug */, FA0CCF0ACE1B162DEBFDFF4B /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+	017045828300ADC3969DCF05 /* XCLocalSwiftPackageReference "../../Packages/PackFitSchemas" */ = { isa = XCLocalSwiftPackageReference; relativePath = ../../Packages/PackFitSchemas; };
+	2C6F5AB5302975005639E17B /* XCLocalSwiftPackageReference "../../Packages/Packer" */ = { isa = XCLocalSwiftPackageReference; relativePath = ../../Packages/Packer; };
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+	18100CFFC579293092C83886 /* PackFitSchemas */ = { isa = XCSwiftPackageProductDependency; package = 017045828300ADC3969DCF05 /* XCLocalSwiftPackageReference "../../Packages/PackFitSchemas" */; productName = PackFitSchemas; };
+	383790838E72F3070C8D6CB6 /* Packer */ = { isa = XCSwiftPackageProductDependency; package = 2C6F5AB5302975005639E17B /* XCLocalSwiftPackageReference "../../Packages/Packer" */; productName = Packer; };
+/* End XCSwiftPackageProductDependency section */
 };
-	rootObject = 20D9BA2C9381B1B124A5AAD0 /* Project object */;
+	rootObject = 1D47969A85F9A42BBD9D38A3 /* Project object */;
 }

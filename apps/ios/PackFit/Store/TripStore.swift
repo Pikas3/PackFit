@@ -7,7 +7,7 @@ final class TripStore {
     var bag: Container?
     var useChecked: Bool = true
 
-    var sampleTrips: [Trip] { Fixtures.trips() }
+    var sampleTrips: [Trip] { AppFixtures.trips() }
 
     func select(_ trip: Trip) {
         self.trip = trip

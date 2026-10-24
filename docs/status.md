@@ -95,3 +95,20 @@ Blocked on:
   `items.json` (set `measurement.method` to `manual`), then run GenPlans and `pnpm schemas:check`. The same applies to the bag dims in `containers.json`.
 - The JS `pack()` prototype from the outline is not in the repo. The solver was written from the rules in `Packages/Packer/CLAUDE.md`.
 Schema changes: `Trip.id` (optional) added; see `docs/requests.md`.
+
+## 2026-10-24 section-2 integrate PackFitSchemas + Packer
+Built:
+- Linked local SPM packages in `apps/ios/PackFit.xcodeproj` and `project.yml`:
+  `../../Packages/PackFitSchemas`, `../../Packages/Packer`
+- Deleted `PackFit/Temp/` (Types + Fixtures). App uses `@_exported import PackFitSchemas`
+  via `App/SchemaExports.swift`
+- `Fixtures/AppFixtures.swift` wraps throwing `PackFitSchemas.Fixtures` for UI + mock rule flags
+- `PlanStore.computePlan` runs `Packer.pack` on a background task
+- API DTOs (`ScanItemResponse`, etc.) stay in `API/APIModels.swift`
+Cut: none for this integration
+Run:
+- Open `apps/ios/PackFit.xcodeproj` (or `xcodegen generate` from `apps/ios`)
+- Scheme PackFit; mock API still default via `Config/Example.xcconfig`
+Measured: not re-run on device in this change (Windows host)
+Blocked on: Section 3 live API; device fps / LiDAR MAE as before
+Schema changes: none

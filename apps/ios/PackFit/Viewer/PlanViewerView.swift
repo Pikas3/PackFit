@@ -34,7 +34,7 @@ struct PlanViewerView: View {
         }
         .task {
             if planStore.plan == nil, let bag = tripStore.bag {
-                await planStore.pack(items: itemsStore.items, into: bag)
+                await planStore.computePlan(items: itemsStore.items, into: bag)
             }
             reloadScene()
         }

@@ -19,7 +19,10 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
             return scanIndex
         }
 
-        let fixtures = Fixtures.items()
+        let fixtures = AppFixtures.items()
+        guard !fixtures.isEmpty else {
+            throw APIError.upstream("No fixture items available")
+        }
         var item = fixtures[index % fixtures.count]
         item.id = UUID().uuidString
         item.source = .scan
@@ -55,7 +58,7 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
     func checkRules(items: [Item], trip: Trip, bag: String) async throws -> RulesCheckResponse {
         _ = trip
         _ = bag
-        let flags = Fixtures.sampleFlags(for: items)
+        let flags = AppFixtures.sampleFlags(for: items)
         return RulesCheckResponse(
             flags: flags,
             summary: flags.isEmpty

@@ -54,12 +54,15 @@ struct TripPickerView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(Copy.Trip.continueButton) {
-                        let bags = Fixtures.containers()
+                        let bags = AppFixtures.containers()
+                        guard bags.count >= 2 else { return }
                         let trip = Trip(
+                            id: "\(from.lowercased())-\(to.lowercased())",
                             from: from.uppercased(),
                             to: to.uppercased(),
                             airline: airline.uppercased(),
                             nights: nights,
+                            activities: [],
                             carryOn: bags[0],
                             checked: bags[1],
                             departDate: date.isEmpty ? nil : date
