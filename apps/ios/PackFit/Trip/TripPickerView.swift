@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TripPickerView: View {
     @Environment(TripStore.self) private var tripStore
+    @Environment(DeviceCapabilities.self) private var caps
     @Binding var path: [Route]
 
     @State private var showNew = false
@@ -17,7 +18,7 @@ struct TripPickerView: View {
                 ForEach(Array(tripStore.sampleTrips.enumerated()), id: \.offset) { _, trip in
                     Button {
                         tripStore.select(trip)
-                        path.append(.bagSetup)
+                        path.append(nextRoute)
                     } label: {
                         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                             Text("\(trip.from) → \(trip.to)")
@@ -36,6 +37,11 @@ struct TripPickerView: View {
         }
         .navigationTitle(Copy.Trip.title)
         .sheet(isPresented: $showNew) { newTripForm }
+    }
+
+    /// AR-capable phones go straight to the guided scan (LiDAR sweep or AR taps).
+    private var nextRoute: Route {
+        caps.supportsGuidedScan ? .guidedScan : .bagSetup
     }
 
     private var newTripForm: some View {
@@ -69,7 +75,7 @@ struct TripPickerView: View {
                         )
                         tripStore.select(trip)
                         showNew = false
-                        path.append(.bagSetup)
+                        path.append(nextRoute)
                     }
                 }
             }

@@ -69,9 +69,9 @@ function mockScan(input: ScanInput) {
       soft: c.soft,
       hardness: c.hardness,
       upright: c.upright,
-      confidence: Math.min(0.9, input.measured.confidence),
+      // Identification confidence is visual, not measurement confidence.
+      confidence: 0.85,
       neededAtSecurity: category === "electronics",
-      dimsPlausible: true,
       alternatives: [
         { name: "Similar item", category },
         { name: "Travel accessory", category: "other" as const },
@@ -109,12 +109,12 @@ export async function scanItem(input: ScanInput): Promise<ScanResult> {
   const prompt = attachImage(basePrompt, imageBase64);
 
   if (input.measured) {
+    // Object detection from the image only; measured w/h/d are for packing, not the prompt.
     const { data } = await callClaudeTool({
       prompt,
       schema: ScanMeasuredToolSchema,
       mock: () => mockScan(input) as z.infer<typeof ScanMeasuredToolSchema>,
     });
-    if (!data.dimsPlausible) warnings.push("dims_implausible_for_item");
     const category = data.category;
     const cat = catalogFor(category);
     const item: Item = {

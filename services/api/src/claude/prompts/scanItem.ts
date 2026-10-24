@@ -3,7 +3,8 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { CategorySchema } from "../../schemas.js";
 import type { PromptPayload } from "../client.js";
 
-const MeasuredModelSchema = z.object({
+/** Vision / object-detection attributes only — no w/h/d (device dims are attached server-side). */
+const DetectModelSchema = z.object({
   name: z.string(),
   category: CategorySchema,
   kg: z.number(),
@@ -13,17 +14,17 @@ const MeasuredModelSchema = z.object({
   upright: z.boolean(),
   confidence: z.number().min(0).max(1),
   neededAtSecurity: z.boolean().optional(),
-  dimsPlausible: z.boolean(),
   alternatives: z.array(z.object({ name: z.string(), category: CategorySchema })).min(1).max(3),
 });
 
-const EstimateModelSchema = MeasuredModelSchema.extend({
+/** When the device did not measure size, the model also estimates dims from the photo. */
+const EstimateModelSchema = DetectModelSchema.extend({
   w: z.number().positive(),
   h: z.number().positive(),
   d: z.number().positive(),
-}).omit({ dimsPlausible: true });
+});
 
-export const ScanMeasuredToolSchema = MeasuredModelSchema;
+export const ScanMeasuredToolSchema = DetectModelSchema;
 export const ScanEstimateToolSchema = EstimateModelSchema;
 
 export type ScanMeasuredTool = z.infer<typeof ScanMeasuredToolSchema>;
@@ -39,6 +40,13 @@ function toolFromZod(name: string, description: string, schema: z.ZodTypeAny) {
   };
 }
 
+/**
+ * Build the Claude vision prompt for `/scan/item`.
+ *
+ * When `measured` is present, identification is pure object detection from the image.
+ * Measured dimensions are intentionally omitted from the prompt — the server copies them
+ * onto the Item for packing only.
+ */
 export function buildScanItemPrompt(input: {
   measured: { w: number; h: number; d: number; method: string; confidence: number } | null;
   reference?: string | null;
@@ -49,26 +57,32 @@ export function buildScanItemPrompt(input: {
   const toolName = "report_item";
 
   const system = hasMeasured
-    ? `You identify a single travel item in a photo and estimate weight and packing attributes.
-The item's dimensions were already measured by the device and are given — do NOT re-estimate w/h/d.
-Set dimsPlausible to false if the measured size is implausible for the item you identify.
-Output only via the report_item tool. Provide 2-3 alternatives (name + category).`
-    : `You identify a single travel item in a photo and estimate its dimensions (cm), weight, and packing attributes.
-Use the reference object for scale when provided. Output only via the report_item tool.
-Provide 2-3 alternatives (name + category).`;
+    ? `You are an object-detection model for travel packing.
+Look only at the attached photo. Detect and name the single primary item a traveler would pack.
+Do NOT use size, scale, dimensions, or any numeric measurements to decide what the item is —
+identify from visual appearance alone (shape, materials, labels, typical form).
+Also estimate packing attributes that cannot be seen as size: weight (kg), fragile, soft,
+hardness (0-1), whether it should stay upright, and confidence (0-1).
+Output only via the report_item tool. Provide 2-3 alternatives (name + category).
+Never invent or return w/h/d — dimensions are measured on-device and attached separately for packing.`
+    : `You are an object-detection model for travel packing.
+Look at the attached photo. Detect and name the single primary item a traveler would pack from
+visual appearance alone. Also estimate its dimensions in cm (using the scale reference when
+provided), weight, and packing attributes.
+Output only via the report_item tool. Provide 2-3 alternatives (name + category).`;
 
   const parts: string[] = [];
-  if (input.hint) parts.push(`User hint: ${input.hint}`);
-  if (input.measured) {
+  if (input.hint) parts.push(`User hint (optional, may be wrong): ${input.hint}`);
+  if (hasMeasured) {
     parts.push(
-      `Measured dimensions (cm): w=${input.measured.w}, h=${input.measured.h}, d=${input.measured.d} (method=${input.measured.method}, confidence=${input.measured.confidence}).`,
+      "Device-measured dimensions exist but are withheld on purpose. Identify the item from the image only; size is used later for packing, not for naming.",
     );
   } else if (input.reference) {
     parts.push(`Scale reference in the photo: ${input.reference.replace("_", " ")}.`);
   } else {
     parts.push("No scale reference was provided.");
   }
-  parts.push("The image is attached. Identify the single primary item to pack.");
+  parts.push("The image is attached. Detect the single primary item to pack.");
 
   return {
     system,
@@ -84,7 +98,7 @@ Provide 2-3 alternatives (name + category).`;
     tools: [
       toolFromZod(
         toolName,
-        "Structured packing attributes for the identified item",
+        "Object-detection result: identity and packing attributes for the detected item",
         schema,
       ),
     ],
@@ -117,4 +131,15 @@ type AnthropicContent =
 export function scanToolHasSchema(prompt: PromptPayload): boolean {
   const tool = prompt.tools[0];
   return !!tool && typeof tool.input_schema === "object" && tool.input_schema !== null;
+}
+
+/** User text for a measured (device-dims) prompt — must not leak numeric dimensions. */
+export function measuredPromptUserText(prompt: PromptPayload): string {
+  const content = prompt.messages[0]?.content;
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+  return content
+    .filter((c): c is { type: "text"; text: string } => c.type === "text")
+    .map((c) => c.text)
+    .join("\n");
 }

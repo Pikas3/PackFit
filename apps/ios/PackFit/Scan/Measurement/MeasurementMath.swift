@@ -1,51 +1,18 @@
 import Foundation
 import simd
 
-/// Pure measurement helpers from raycast hits / depth samples → (w, h, d, confidence).
+/// Pure measurement helpers from depth samples → (w, h, d, confidence).
 /// Units: metres in, centimetres out (for Item fields).
+/// A measured size ready for `/scan/item`. cm.
+struct MeasuredBox: Equatable, Sendable {
+    var w: Double
+    var h: Double
+    var d: Double
+    var confidence: Double
+    var method: MeasureMethod
+}
+
 enum MeasurementMath {
-    struct Footprint {
-        var widthM: Double
-        var depthM: Double
-        var planeNormal: SIMD3<Float>
-        var planeOrigin: SIMD3<Float>
-        var localX: SIMD3<Float>
-        var localZ: SIMD3<Float>
-    }
-
-    /// Project two opposite-corner hits onto the plane's local x/z axes.
-    static func footprint(
-        cornerA: SIMD3<Float>,
-        cornerB: SIMD3<Float>,
-        planeOrigin: SIMD3<Float>,
-        planeNormal: SIMD3<Float>
-    ) -> Footprint {
-        let n = normalize(planeNormal)
-        var localX = cross(n, SIMD3<Float>(0, 1, 0))
-        if length(localX) < 1e-4 {
-            localX = cross(n, SIMD3<Float>(1, 0, 0))
-        }
-        localX = normalize(localX)
-        let localZ = normalize(cross(localX, n))
-
-        let a = cornerA - planeOrigin
-        let b = cornerB - planeOrigin
-        let ax = Double(dot(a, localX))
-        let az = Double(dot(a, localZ))
-        let bx = Double(dot(b, localX))
-        let bz = Double(dot(b, localZ))
-        let width = abs(bx - ax)
-        let depth = abs(bz - az)
-        return Footprint(
-            widthM: max(width, 0.001),
-            depthM: max(depth, 0.001),
-            planeNormal: n,
-            planeOrigin: planeOrigin,
-            localX: localX,
-            localZ: localZ
-        )
-    }
-
     /// Height above plane from samples (metres). Uses 98th percentile.
     static func heightMeters(samplesAbovePlane: [Double]) -> (heightM: Double, sampleCount: Int) {
         let positive = samplesAbovePlane.filter { $0 > 0.002 }.sorted()
@@ -54,20 +21,21 @@ enum MeasurementMath {
         return (positive[index], positive.count)
     }
 
-    static func heightFromTopTap(topY: Float, planeY: Float) -> Double {
-        max(0.01, Double(topY - planeY))
-    }
-
-    /// Confidence model from CLAUDE.md WS3.
-    static func confidence(
-        meanDepthConfidenceBelowMedium: Bool,
-        footprintMinSideCm: Double,
-        heightSampleCount: Int
+    /// Confidence for a depth-fitted box. Starts at 0.95, floors at 0.5.
+    static func fitConfidence(
+        highConfidenceFraction: Double,
+        minSideCm: Double,
+        cellCount: Int,
+        fillRatio: Double,
+        longSideCm: Double,
+        maxLongSideCm: Double = 100
     ) -> Double {
         var c = 0.95
-        if meanDepthConfidenceBelowMedium { c -= 0.1 }
-        if footprintMinSideCm < 4 { c -= 0.1 }
-        if heightSampleCount < 20 { c -= 0.15 }
+        if highConfidenceFraction < 0.6 { c -= 0.1 }
+        if minSideCm < 4 { c -= 0.1 }
+        if cellCount < 30 { c -= 0.15 }
+        if fillRatio < 0.6 { c -= 0.1 }
+        if longSideCm > maxLongSideCm { c -= 0.2 }
         return max(0.5, c)
     }
 

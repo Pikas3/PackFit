@@ -26,9 +26,11 @@ mirror `schemas/*.schema.json`.
 
 ## POST /scan/item  (WS3 server, Section 3)
 
-Claude vision turns a photo plus the device's measurement into an `Item`. On LiDAR
-devices the app measures `w/h/d` itself and the model only identifies the item and
-estimates what cannot be measured (name, category, kg, fragile, soft, hardness, upright).
+Claude vision acts as an object-detection model on the photo and returns an `Item`.
+On LiDAR devices the app measures `w/h/d` itself for packing; those dims are attached
+server-side and are not sent into the identification prompt. The model names the item
+from the image alone and estimates what cannot be measured (category, kg, fragile, soft,
+hardness, upright).
 
 Request:
 ```json
@@ -58,8 +60,8 @@ Behaviour:
 - `item.id` is a fresh uuid, `item.source = 'scan'`, `item.confidence` in 0-1.
 - With `measured` present, copy `w/h/d` verbatim into the item and set
   `item.measurement = { method, confidence, deviceHasLidar: method == 'lidar' }`. The model
-  is told the dims and asked not to re-estimate them. It may add a warning
-  `"dims_implausible_for_item"` if, say, a 2 cm tall object is identified as a shoe.
+  does not see those dimensions — identification is image-only object detection; dims are
+  for the packer only.
 - With no `measured` and a `reference`, the model estimates dims from the reference object;
   `measurement.method = 'estimate'`, confidence capped at 0.7.
 - With neither, add a warning `"no_scale_reference"`, `measurement.method = 'estimate'`,

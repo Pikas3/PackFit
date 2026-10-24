@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { buildAskRulePrompt } from "../src/claude/prompts/askRule.js";
 import { buildMapRulesPrompt } from "../src/claude/prompts/mapRules.js";
-import { buildScanItemPrompt, scanToolHasSchema } from "../src/claude/prompts/scanItem.js";
+import {
+  buildScanItemPrompt,
+  measuredPromptUserText,
+  scanToolHasSchema,
+} from "../src/claude/prompts/scanItem.js";
 import { buildSuggestItemsPrompt } from "../src/claude/prompts/suggestItems.js";
 import type { Item, Trip } from "../src/schemas.js";
 
@@ -52,6 +56,21 @@ describe("prompts include tool schemas", () => {
     expect(scanToolHasSchema(measured)).toBe(true);
     const estimate = buildScanItemPrompt({ measured: null, reference: "credit_card" });
     expect(scanToolHasSchema(estimate)).toBe(true);
+  });
+
+  it("measured path is object detection: no numeric dims in the prompt", () => {
+    const measured = buildScanItemPrompt({
+      measured: { w: 30.2, h: 1.8, d: 21.4, method: "lidar", confidence: 0.93 },
+    });
+    const text = `${measured.system}\n${measuredPromptUserText(measured)}`;
+    expect(text.toLowerCase()).toMatch(/object-detection/);
+    expect(text).not.toMatch(/30\.2|1\.8|21\.4/);
+    expect(text).not.toMatch(/w=\d|h=\d|d=\d/);
+    const schema = measured.tools[0]?.input_schema as { properties?: Record<string, unknown> };
+    expect(schema.properties?.w).toBeUndefined();
+    expect(schema.properties?.h).toBeUndefined();
+    expect(schema.properties?.d).toBeUndefined();
+    expect(schema.properties?.dimsPlausible).toBeUndefined();
   });
 
   it("map / ask / suggest", () => {

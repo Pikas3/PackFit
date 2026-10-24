@@ -4,3 +4,12 @@
 API_BASE_URL = http:/$()/localhost:8787
 APP_TOKEN = local-dev-token
 MOCK_API = YES
+
+// Signing. Bundle IDs are unique across all Apple developer accounts, so the ID ends in the
+// signing team: com.packfit.app.<TEAMID>. Set your team in Config/Local.xcconfig
+// (gitignored), e.g. `DEVELOPMENT_TEAM = ABCDE12345`, rather than in the Xcode UI, so the
+// project file stays team-free. The simulator needs no team.
+DEVELOPMENT_TEAM =
+PACKFIT_BUNDLE_ID = com.packfit.app.$(DEVELOPMENT_TEAM:default=local)
+
+#include? "Local.xcconfig"

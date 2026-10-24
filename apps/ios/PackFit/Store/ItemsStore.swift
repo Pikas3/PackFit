@@ -4,6 +4,8 @@ import Foundation
 @MainActor
 final class ItemsStore {
     var items: [Item] = []
+    /// Items sized by AR taps rather than LiDAR. App-only: the schema records them as `.manual`.
+    var tapMeasuredIDs: Set<String> = []
 
     func append(_ item: Item) {
         if let index = items.firstIndex(where: { $0.id == item.id }) {

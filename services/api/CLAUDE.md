@@ -64,20 +64,18 @@ services/apify/
 
 ## WS3 server: `POST /scan/item`
 
-The iOS app measures `w/h/d` with LiDAR on most requests. The model's job is then
-identification and the attributes that cannot be measured: name, category, kg, fragile,
-soft, hardness, upright. Two prompt variants in `scanItem.ts`, chosen by whether `measured`
+The iOS app measures `w/h/d` with LiDAR on most requests. Those dims are for packing only.
+The model's job is object detection from the photo: name, category, kg, fragile, soft,
+hardness, upright. Two prompt variants in `scanItem.ts`, chosen by whether `measured`
 is present:
 
-- **Measured variant.** System: you identify a single travel item in a photo and estimate
-  its weight and handling attributes for packing. The item's dimensions have already been
-  measured and are given; do not re-estimate them, but set `dimsPlausible: false` if they
-  are implausible for the item you identified. Output only via the tool schema. Tool schema
-  omits `w/h/d` so the model cannot return them. Server copies `measured` into the item,
-  sets `measurement`, and adds warning `"dims_implausible_for_item"` when flagged.
-- **Estimate variant.** Same, but dims are requested and the reference object (if any) is
-  described for scale. Server sets `measurement.method = 'estimate'` and caps confidence
-  per `docs/api.md`.
+- **Measured (object-detection) variant.** System: act as an object-detection model; identify
+  the single travel item from visual appearance alone. Do not use size or scale for naming.
+  Measured `w/h/d` are withheld from the prompt and copied onto the Item by the server for
+  the packer. Tool schema omits `w/h/d`. Output only via the tool schema.
+- **Estimate variant.** Same visual identification, but dims are also requested and the
+  reference object (if any) is described for scale. Server sets `measurement.method =
+  'estimate'` and caps confidence per `docs/api.md`.
 - Both: include the JSON schema from zod (`zodToJsonSchema`) and use tool-use so the model
   returns structured output. Pass `hint` when present. Ask for 2-3 `alternatives`.
 - Post-process: kg clamped to 0.01-30, replaced from `catalog.json` by category when
