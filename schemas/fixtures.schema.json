@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://packfit.local/schemas/fixtures.schema.json",
+  "title": "Fixture files",
+  "description": "Shapes of the files in schemas/fixtures/. Fixture items and containers are the base types plus a required _source provenance string. The property lists must match the base schemas; schemas/scripts/check.mjs fails if they drift, and also validates every fixture object (with _source removed) against the base schema.",
+  "$defs": {
+    "source": { "type": "string", "minLength": 1 },
+    "fixtureItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "w", "h", "d", "kg", "fragile", "hardness", "soft", "upright", "category", "confidence", "_source"],
+      "properties": {
+        "id": { "$ref": "item.schema.json#/properties/id" },
+        "name": { "$ref": "item.schema.json#/properties/name" },
+        "w": { "$ref": "item.schema.json#/properties/w" },
+        "h": { "$ref": "item.schema.json#/properties/h" },
+        "d": { "$ref": "item.schema.json#/properties/d" },
+        "kg": { "$ref": "item.schema.json#/properties/kg" },
+        "fragile": { "$ref": "item.schema.json#/properties/fragile" },
+        "hardness": { "$ref": "item.schema.json#/properties/hardness" },
+        "soft": { "$ref": "item.schema.json#/properties/soft" },
+        "upright": { "$ref": "item.schema.json#/properties/upright" },
+        "category": { "$ref": "item.schema.json#/properties/category" },
+        "confidence": { "$ref": "item.schema.json#/properties/confidence" },
+        "neededAtSecurity": { "$ref": "item.schema.json#/properties/neededAtSecurity" },
+        "source": { "$ref": "item.schema.json#/properties/source" },
+        "measurement": { "$ref": "item.schema.json#/properties/measurement" },
+        "_source": { "$ref": "#/$defs/source" }
+      }
+    },
+    "fixtureContainer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "type", "outer", "compartments", "weightLimitKg", "_source"],
+      "properties": {
+        "id": { "$ref": "container.schema.json#/properties/id" },
+        "name": { "$ref": "container.schema.json#/properties/name" },
+        "type": { "$ref": "container.schema.json#/properties/type" },
+        "outer": { "$ref": "container.schema.json#/properties/outer" },
+        "compartments": { "$ref": "container.schema.json#/properties/compartments" },
+        "weightLimitKg": { "$ref": "container.schema.json#/properties/weightLimitKg" },
+        "wheelsSide": { "$ref": "container.schema.json#/properties/wheelsSide" },
+        "measurement": { "$ref": "container.schema.json#/properties/measurement" },
+        "_source": { "$ref": "#/$defs/source" }
+      }
+    },
+    "packList": {
+      "description": "Which fixture items go in which bag of which trip. Input to GenPlans; plans/<tripId>-<bag>.json is the output.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tripId", "bag", "itemIds"],
+      "properties": {
+        "tripId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "bag": { "enum": ["carryOn", "checked"] },
+        "itemIds": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "itemsFile": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/fixtureItem" } },
+    "containersFile": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/fixtureContainer" } },
+    "tripsFile": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "allOf": [{ "$ref": "trip.schema.json" }, { "type": "object", "properties": { "id": true }, "required": ["id"] }] }
+    },
+    "packListsFile": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/packList" } }
+  }
+}

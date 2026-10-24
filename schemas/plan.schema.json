@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://packfit.local/schemas/plan.schema.json",
+  "title": "Plan",
+  "description": "Packer output. Placement (x, y, z) is the min corner in the compartment frame: origin inner bottom-left-back, x right, y up, z toward the viewer. cm.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["placed", "unplaced", "stats"],
+  "properties": {
+    "placed": { "type": "array", "items": { "$ref": "#/$defs/placement" } },
+    "unplaced": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "stats": { "$ref": "#/$defs/stats" }
+  },
+  "$defs": {
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["itemId", "x", "y", "z", "w", "h", "d", "order"],
+      "properties": {
+        "itemId": { "type": "string", "minLength": 1 },
+        "x": { "type": "number", "minimum": 0 },
+        "y": { "type": "number", "minimum": 0 },
+        "z": { "type": "number", "minimum": 0 },
+        "w": { "type": "number", "exclusiveMinimum": 0 },
+        "h": { "type": "number", "exclusiveMinimum": 0 },
+        "d": { "type": "number", "exclusiveMinimum": 0 },
+        "order": { "type": "integer", "minimum": 0 },
+        "compartment": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fillPct", "kg", "comHeightPct"],
+      "properties": {
+        "fillPct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "kg": { "type": "number", "minimum": 0 },
+        "comHeightPct": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    }
+  }
+}

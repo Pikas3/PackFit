@@ -1,0 +1,391 @@
+[
+  {
+    "id": "sfo-del",
+    "from": "SFO",
+    "to": "DEL",
+    "airline": "AI",
+    "nights": 21,
+    "activities": [
+      "family visit",
+      "wedding"
+    ],
+    "carryOn": {
+      "id": "backpack-30",
+      "name": "Backpack 30x48x20",
+      "type": "backpack",
+      "outer": [
+        30,
+        48,
+        20
+      ],
+      "compartments": [
+        {
+          "name": "main",
+          "dims": [
+            28,
+            44,
+            12
+          ],
+          "compressibility": 0.15
+        },
+        {
+          "name": "front",
+          "dims": [
+            26,
+            28,
+            5
+          ],
+          "compressibility": 0.1
+        },
+        {
+          "name": "laptop",
+          "dims": [
+            29,
+            40,
+            3
+          ],
+          "compressibility": 0
+        }
+      ],
+      "weightLimitKg": 7,
+      "measurement": {
+        "method": "manual",
+        "confidence": 0.9,
+        "deviceHasLidar": false
+      }
+    },
+    "checked": {
+      "id": "checked-75",
+      "name": "Checked suitcase 75x50x30",
+      "type": "suitcase",
+      "outer": [
+        75,
+        30,
+        50
+      ],
+      "compartments": [
+        {
+          "name": "main",
+          "dims": [
+            72,
+            27,
+            47
+          ],
+          "compressibility": 0.05
+        }
+      ],
+      "weightLimitKg": 23,
+      "wheelsSide": "back",
+      "measurement": {
+        "method": "manual",
+        "confidence": 0.9,
+        "deviceHasLidar": false
+      }
+    },
+    "departDate": "2026-12-15"
+  },
+  {
+    "id": "sfo-lax",
+    "from": "SFO",
+    "to": "LAX",
+    "airline": "UA",
+    "nights": 2,
+    "activities": [
+      "conference"
+    ],
+    "carryOn": {
+      "id": "backpack-30",
+      "name": "Backpack 30x48x20",
+      "type": "backpack",
+      "outer": [
+        30,
+        48,
+        20
+      ],
+      "compartments": [
+        {
+          "name": "main",
+          "dims": [
+            28,
+            44,
+            12
+          ],
+          "compressibility": 0.15
+        },
+        {
+          "name": "front",
+          "dims": [
+            26,
+            28,
+            5
+          ],
+          "compressibility": 0.1
+        },
+        {
+          "name": "laptop",
+          "dims": [
+            29,
+            40,
+            3
+          ],
+          "compressibility": 0
+        }
+      ],
+      "weightLimitKg": 7,
+      "measurement": {
+        "method": "manual",
+        "confidence": 0.9,
+        "deviceHasLidar": false
+      }
+    },
+    "checked": {
+      "id": "carryon-55",
+      "name": "Carry-on suitcase 55x40x23",
+      "type": "suitcase",
+      "outer": [
+        55,
+        23,
+        40
+      ],
+      "compartments": [
+        {
+          "name": "main",
+          "dims": [
+            52,
+            20,
+            37
+          ],
+          "compressibility": 0.05
+        }
+      ],
+      "weightLimitKg": 7,
+      "wheelsSide": "back",
+      "measurement": {
+        "method": "manual",
+        "confidence": 0.9,
+        "deviceHasLidar": false
+      }
+    },
+    "departDate": "2026-11-06"
+  },
+  {
+    "id": "sea-kef",
+    "from": "SEA",
+    "to": "KEF",
+    "airline": "FI",
+    "nights": 6,
+    "activities": [
+      "northern lights",
+      "hiking"
+    ],
+    "carryOn": {
+      "id": "backpack-30",
+      "name": "Backpack 30x48x20",
+      "type": "backpack",
+      "outer": [
+        30,
+        48,
+        20
+      ],
+      "compartments": [
+        {
+          "name": "main",
+          "dims": [
+            28,
+            44,
+            12
+          ],
+          "compressibility": 0.15
+        },
+        {
+          "name": "front",
+          "dims": [
+            26,
+            28,
+            5
+          ],
+          "compressibility": 0.1
+        },
+        {
+          "name": "laptop",
+          "dims": [
+            29,
+            40,
+            3
+          ],
+          "compressibility": 0
+        }
+      ],
+      "weightLimitKg": 7,
+      "measurement": {
+        "method": "manual",
+        "confidence": 0.9,
+        "deviceHasLidar": false
+      }
+    },
+    "checked": {
+      "id": "checked-75",
+      "name": "Checked suitcase 75x50x30",
+      "type": "suitcase",
+      "outer": [
+        75,
+        30,
+        50
+      ],
+      "compartments": [
+        {
+          "name": "main",
+          "dims": [
+            72,
+            27,
+            47
+          ],
+          "compressibility": 0.05
+        }
+      ],
+      "weightLimitKg": 23,
+      "wheelsSide": "back",
+      "measurement": {
+        "method": "manual",
+        "confidence": 0.9,
+        "deviceHasLidar": false
+      }
+    },
+    "departDate": "2027-01-12"
+  },
+  {
+    "id": "lax-icn",
+    "from": "LAX",
+    "to": "ICN",
+    "airline": "KE",
+    "nights": 120,
+    "activities": [
+      "semester abroad"
+    ],
+    "carryOn": {
+      "id": "carryon-55",
+      "name": "Carry-on suitcase 55x40x23",
+      "type": "suitcase",
+      "outer": [
+        55,
+        23,
+        40
+      ],
+      "compartments": [
+        {
+          "name": "main",
+          "dims": [
+            52,
+            20,
+            37
+          ],
+          "compressibility": 0.05
+        }
+      ],
+      "weightLimitKg": 7,
+      "wheelsSide": "back",
+      "measurement": {
+        "method": "manual",
+        "confidence": 0.9,
+        "deviceHasLidar": false
+      }
+    },
+    "checked": {
+      "id": "checked-75",
+      "name": "Checked suitcase 75x50x30",
+      "type": "suitcase",
+      "outer": [
+        75,
+        30,
+        50
+      ],
+      "compartments": [
+        {
+          "name": "main",
+          "dims": [
+            72,
+            27,
+            47
+          ],
+          "compressibility": 0.05
+        }
+      ],
+      "weightLimitKg": 23,
+      "wheelsSide": "back",
+      "measurement": {
+        "method": "manual",
+        "confidence": 0.9,
+        "deviceHasLidar": false
+      }
+    },
+    "departDate": "2027-02-20"
+  },
+  {
+    "id": "jfk-lhr",
+    "from": "JFK",
+    "to": "LHR",
+    "airline": "BA",
+    "nights": 5,
+    "activities": [
+      "sightseeing",
+      "business meeting"
+    ],
+    "carryOn": {
+      "id": "carryon-55",
+      "name": "Carry-on suitcase 55x40x23",
+      "type": "suitcase",
+      "outer": [
+        55,
+        23,
+        40
+      ],
+      "compartments": [
+        {
+          "name": "main",
+          "dims": [
+            52,
+            20,
+            37
+          ],
+          "compressibility": 0.05
+        }
+      ],
+      "weightLimitKg": 7,
+      "wheelsSide": "back",
+      "measurement": {
+        "method": "manual",
+        "confidence": 0.9,
+        "deviceHasLidar": false
+      }
+    },
+    "checked": {
+      "id": "checked-75",
+      "name": "Checked suitcase 75x50x30",
+      "type": "suitcase",
+      "outer": [
+        75,
+        30,
+        50
+      ],
+      "compartments": [
+        {
+          "name": "main",
+          "dims": [
+            72,
+            27,
+            47
+          ],
+          "compressibility": 0.05
+        }
+      ],
+      "weightLimitKg": 23,
+      "wheelsSide": "back",
+      "measurement": {
+        "method": "manual",
+        "confidence": 0.9,
+        "deviceHasLidar": false
+      }
+    },
+    "departDate": "2026-11-20"
+  }
+]
