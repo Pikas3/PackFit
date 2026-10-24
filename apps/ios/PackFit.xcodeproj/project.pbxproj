@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C0FFEE0000000000000B0003 /* ObjectScanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000A0003 /* ObjectScanTests.swift */; };
+		C0FFEE0000000000000B0002 /* Scan/Measurement/Segmenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000A0002 /* Scan/Measurement/Segmenter.swift */; };
+		C0FFEE0000000000000B0001 /* Scan/Measurement/ObjectScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000A0001 /* Scan/Measurement/ObjectScan.swift */; };
 		004FA21739B1B90F8A2658FE /* Scan/Measurement/FitStabilizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59B11F6E2AE098928CA5F9E8 /* Scan/Measurement/FitStabilizer.swift */; };
 		043A044D40058B4FD93034A2 /* Scan/Measurement/RectFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51101A24C29803BD819ACA7 /* Scan/Measurement/RectFit.swift */; };
 		0C970C06CB51ED08C26AED24 /* Guided/GuidedARView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672E033FC3C0BB05772F27AA /* Guided/GuidedARView.swift */; };
@@ -78,6 +81,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C0FFEE0000000000000A0003 /* ObjectScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectScanTests.swift; sourceTree = "<group>"; };
+		C0FFEE0000000000000A0002 /* Scan/Measurement/Segmenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/Segmenter.swift; sourceTree = "<group>"; };
+		C0FFEE0000000000000A0001 /* Scan/Measurement/ObjectScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/ObjectScan.swift; sourceTree = "<group>"; };
 		03A3523DF5FBF2CC57EE8249 /* PackFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PackFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		08F3A3360D4792AB0E26C18F /* API/APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API/APIModels.swift; sourceTree = "<group>"; };
 		090FFBE868FA2262A05105D6 /* App/PackFitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/PackFitApp.swift; sourceTree = "<group>"; };
@@ -168,6 +174,8 @@
 				32D873DCD704B727D1968A02 /* Scan/Measurement/DepthSnapshot.swift */,
 				59B11F6E2AE098928CA5F9E8 /* Scan/Measurement/FitStabilizer.swift */,
 				9126468D97F786A32DA5873D /* Scan/Measurement/CavityFitter.swift */,
+				C0FFEE0000000000000A0002 /* Scan/Measurement/Segmenter.swift */,
+				C0FFEE0000000000000A0001 /* Scan/Measurement/ObjectScan.swift */,
 				6DF769D9F6593836DC624115 /* Scan/Measurement/BoxFitter.swift */,
 				604D7496338569D36C744497 /* Scan/Measurement/HeightMap.swift */,
 				B51101A24C29803BD819ACA7 /* Scan/Measurement/RectFit.swift */,
@@ -237,6 +245,7 @@
 			children = (
 				21859376838BF23B0332273D /* TapMeasureTests.swift */,
 				B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
+				C0FFEE0000000000000A0003 /* ObjectScanTests.swift */,
 				7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */,
 			);
 			path = PackFitTests;
@@ -351,6 +360,7 @@
 			files = (
 				61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */,
 				23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
+				C0FFEE0000000000000B0003 /* ObjectScanTests.swift in Sources */,
 				F4BA7A26C39806719BC98BA7 /* MeasurementMathTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -371,6 +381,8 @@
 				DBB9A09DC7E5E24052A96F0C /* Scan/Measurement/DepthSnapshot.swift in Sources */,
 				004FA21739B1B90F8A2658FE /* Scan/Measurement/FitStabilizer.swift in Sources */,
 				D989AFDB4FCBBA5CB60E2331 /* Scan/Measurement/CavityFitter.swift in Sources */,
+				C0FFEE0000000000000B0002 /* Scan/Measurement/Segmenter.swift in Sources */,
+				C0FFEE0000000000000B0001 /* Scan/Measurement/ObjectScan.swift in Sources */,
 				681FB817A8CCCE365BC0EEBE /* Scan/Measurement/BoxFitter.swift in Sources */,
 				4D4002BD7214C36FD4391DF8 /* Scan/Measurement/HeightMap.swift in Sources */,
 				043A044D40058B4FD93034A2 /* Scan/Measurement/RectFit.swift in Sources */,

@@ -80,7 +80,13 @@ final class GuidedSession {
     private let worker = ScanWorker()
     private let client: any APIClient
     private var loop: Task<Void, Never>?
-    private var bagPhaseStart = Date()
+    /// Floor (x, z) the user tapped inside the open bag.
+    private var bagSeed: SIMD2<Float>?
+    private var bagTapTime: Date?
+    /// Tapped items the worker is still refining.
+    private(set) var measuring: Set<Int> = []
+    private var removedIDs: Set<Int> = []
+    private var labeledIDs: Set<Int> = []
     private var cavityBox: WireBox?
     private var itemBoxes: [Int: WireBox] = [:]
     private var numbers: [Int: Int] = [:]
@@ -145,25 +151,37 @@ final class GuidedSession {
         }
 
         guard !isCornerMode, !isTapMeasuring, let snapshot = DepthSnapshot(frame: frame) else { return }
-        let mode: ScanWorker.Mode = phase == .items ? .items(bag: lockedCavity) : .bag
-        let result = await worker.process(snapshot, mode: mode, planeFloorY: planeFloorY)
+        let mode: ScanWorker.Mode = phase == .items ? .items : .bag(seed: bagSeed)
+        // Segmenting costs ~50 ms, so only while a tapped item is still being measured.
+        let image = phase == .items && !measuring.isEmpty ? uprightImage(frame) : nil
+        let result = await worker.process(snapshot, image: image, mode: mode, planeFloorY: planeFloorY)
         if floorY == nil { floorY = result.floorY }
 
         switch phase {
         case .findFloor:
-            if result.floorY != nil {
-                phase = .bag
-                bagPhaseStart = Date()
-            }
+            if result.floorY != nil { phase = .bag }
         case .bag:
+            guard let tapped = bagTapTime else { break }
             liveCavity = result.cavity
             updateCavityWire()
-            if (result.cavity?.stable ?? false) == false, Date().timeIntervalSince(bagPhaseStart) > 8 {
+            let elapsed = Date().timeIntervalSince(tapped)
+            if result.cavity != nil {
+                errorText = nil
+            } else if let failure = result.cavityFailure, elapsed > 2 {
+                errorText = Copy.Guided.bagFailure(failure)
+            }
+            if (result.cavity?.stable ?? false) == false, elapsed > 6 {
                 showCornerFallback = true
             }
         case .items:
-            lastItemStates = result.items
-            updateTracked(result.items)
+            let states = result.items.filter { !removedIDs.contains($0.id) }
+            lastItemStates = states
+            for s in states where s.stable { measuring.remove(s.id) }
+            if !result.failedItems.isEmpty {
+                result.failedItems.forEach { measuring.remove($0) }
+                errorText = Copy.Guided.itemNotFound
+            }
+            updateTracked(states)
             updateCrops(frame)
         default:
             break
@@ -203,6 +221,7 @@ final class GuidedSession {
     }
 
     var canLockBag: Bool { liveCavity?.stable ?? false }
+    var hasBagSeed: Bool { bagSeed != nil }
 
     /// Locks the scanned cavity as the bag and moves on to the items.
     func lockBag() {
@@ -249,7 +268,7 @@ final class GuidedSession {
         }
         isCornerMode = false
         cornerTaps = []
-        bagPhaseStart = Date()
+        bagTapTime = bagSeed == nil ? nil : Date()
     }
 
     /// Three inside corners of the open shell: back-left, back-right, then a front corner.
@@ -290,12 +309,74 @@ final class GuidedSession {
             if let p = Self.hit(view, point, floorFirst: false) { handleCornerTap(p) }
             return
         }
-        guard phase == .items else { return }
-        if isTapMeasuring {
-            handleItemTap(at: point, in: view)
-        } else if let entity = view.entity(at: point) {
-            dropItem(entityName: entity.name)
+        switch phase {
+        case .bag where hasDepth:
+            seedBag(at: point, in: view)
+        case .items:
+            if isTapMeasuring {
+                handleItemTap(at: point, in: view)
+            } else {
+                measureItem(at: point, in: view)
+            }
+        default:
+            break
         }
+    }
+
+    /// One tap inside the open shell: the cavity is grown from there.
+    private func seedBag(at point: CGPoint, in view: ARView) {
+        guard let p = worldPoint(at: point, in: view) else {
+            errorText = Copy.Guided.tapNoDepth
+            return
+        }
+        bagSeed = [p.x, p.z]
+        bagTapTime = Date()
+        errorText = nil
+        liveCavity = nil
+        showCornerFallback = false
+        cavityBox?.entity.isEnabled = false
+        Task { await worker.resetCavity() }
+    }
+
+    /// One tap on an item: the worker finds its outline and measures it over a few frames.
+    /// Tapping an item that already has a box measures it again.
+    private func measureItem(at point: CGPoint, in view: ARView) {
+        guard let p = worldPoint(at: point, in: view) else {
+            errorText = Copy.Guided.tapNoDepth
+            return
+        }
+        errorText = nil
+        let hit = SIMD2(p.x, p.z)
+        for t in tracked where t.fit.rect.contains(hit, margin: 0.01) { removeItem(id: t.id) }
+        let id = nextTapID
+        nextTapID += 1
+        measuring.insert(id)
+        Task { await worker.addTarget(id: id, seed: p) }
+    }
+
+    /// The world point under a screen tap, read straight from the depth map so a thin item's
+    /// top isn't mistaken for the floor. Falls back to ARKit's raycast.
+    private func worldPoint(at point: CGPoint, in view: ARView) -> SIMD3<Float>? {
+        if let frame = session.currentFrame, let snapshot = DepthSnapshot(frame: frame) {
+            let size = view.bounds.size
+            let toImage = frame.displayTransform(for: .portrait, viewportSize: size).inverted()
+            let n = CGPoint(x: point.x / size.width, y: point.y / size.height).applying(toImage)
+            if let p = snapshot.worldPoint(atNormalized: [Float(n.x), Float(n.y)]) { return p }
+        }
+        if let r = view.raycast(from: point, allowing: .estimatedPlane, alignment: .any).first {
+            let c = r.worldTransform.columns.3
+            return [c.x, c.y, c.z]
+        }
+        return nil
+    }
+
+    /// The camera image turned upright and scaled to 720 px wide, for segmentation.
+    private func uprightImage(_ frame: ARFrame) -> UprightImage? {
+        let image = CIImage(cvPixelBuffer: frame.capturedImage).oriented(.right)
+        let scale = 720 / image.extent.width
+        let scaled = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        guard let cg = ciContext.createCGImage(scaled, from: scaled.extent) else { return nil }
+        return UprightImage(cgImage: cg)
     }
 
     /// A horizontal hit. Item corners sit on the floor, so they prefer the floor plane;
@@ -432,6 +513,8 @@ final class GuidedSession {
         lastItemStates = []
         numbers = [:]
         crops = [:]
+        measuring = []
+        labeledIDs = []
         isTapMeasuring = !hasDepth
         resetDraft()
         Task { await worker.resetItems() }
@@ -441,11 +524,11 @@ final class GuidedSession {
         var next: [TrackedItem] = []
         for s in states {
             if s.stable, numbers[s.id] == nil { numbers[s.id] = numbers.count + 1 }
-            guard let number = numbers[s.id] else { continue }
-            next.append(TrackedItem(id: s.id, number: number, fit: s.fit, floorY: s.floorY, stable: s.stable, confidence: s.confidence))
+            // Number 0 while still measuring; it gets a number once it settles.
+            next.append(TrackedItem(id: s.id, number: numbers[s.id] ?? 0, fit: s.fit, floorY: s.floorY, stable: s.stable, confidence: s.confidence))
         }
         next.append(contentsOf: tapTracked)
-        tracked = next.sorted { $0.number < $1.number }
+        tracked = next.sorted { ($0.number == 0 ? Int.max : $0.number, $0.id) < ($1.number == 0 ? Int.max : $1.number, $1.id) }
 
         let live = Set(tracked.map(\.id))
         for (id, box) in itemBoxes where !live.contains(id) {
@@ -455,11 +538,11 @@ final class GuidedSession {
         for t in tracked {
             let box = itemBoxes[t.id] ?? {
                 let b = WireBox(name: "track-\(t.id)")
-                b.setLabel("\(t.number)")
                 worldRoot.addChild(b.entity)
                 itemBoxes[t.id] = b
                 return b
             }()
+            if t.stable, labeledIDs.insert(t.id).inserted { box.setLabel("\(t.number)") }
             box.update(
                 size: [t.fit.rect.long, t.fit.height, t.fit.rect.short],
                 transform: WireBox.transform(for: t.fit, floorY: t.floorY),
@@ -468,15 +551,18 @@ final class GuidedSession {
         }
     }
 
-    /// Drops a false positive the user tapped.
-    func dropItem(entityName: String) {
-        guard entityName.hasPrefix("track-"), let id = Int(entityName.dropFirst(6)) else { return }
+    /// Removes a measured item, or one still being measured.
+    func removeItem(id: Int) {
         itemBoxes[id]?.entity.removeFromParent()
         itemBoxes[id] = nil
         tracked.removeAll { $0.id == id }
         tapTracked.removeAll { $0.id == id }
+        lastItemStates.removeAll { $0.id == id }
         crops[id] = nil
-        Task { await worker.suppressItem(id: id) }
+        measuring.remove(id)
+        labeledIDs.remove(id)
+        removedIDs.insert(id)
+        Task { await worker.removeTarget(id: id) }
     }
 
     /// Keeps the best photo of each item: fully in frame, largest on screen.
@@ -627,6 +713,10 @@ final class GuidedSession {
         itemBoxes = [:]
         cavityBox?.entity.removeFromParent()
         cavityBox = nil
+        bagSeed = nil
+        bagTapTime = nil
+        measuring = []
+        labeledIDs = []
         liveCavity = nil
         lockedCavity = nil
         bagTransform = nil

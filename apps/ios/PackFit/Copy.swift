@@ -75,8 +75,20 @@ enum Copy {
     enum Guided {
         static let title = "Scan & pack"
         static let findFloor = "Point at the floor and move the phone slowly."
-        static let bag = "Open your suitcase on the floor. Aim the dot at the bottom of the empty shell."
+        static let bag = "Open your suitcase on the floor, then tap the bottom of the empty shell."
+        static let bagMeasuring = "Measuring the bag… hold the phone above it."
         static let bagStable = "Got it. Tap “Use this bag”."
+        static let tapNoDepth = "Couldn’t see that spot. Move a little closer and tap again."
+        static let itemNotFound = "Couldn’t find an item there. Tap the middle of it from a little closer."
+
+        static func bagFailure(_ failure: CavityFitter.Failure) -> String {
+            switch failure {
+            case .seedUnseen: return "Hold the phone above the bag so it can see inside."
+            case .leaked: return "That spot isn’t inside the bag. Tap the bottom of the open shell."
+            case .tooSmall: return "That space is too small for a suitcase. Tap the bottom of the main shell."
+            case .noWalls: return "Couldn’t find the bag’s walls. Move the phone slowly around the bag."
+            }
+        }
         static let useBag = "Use this bag"
         static let tapCorners = "Measure by tapping corners"
         static let tapCornerLeft = "Open the bag on the floor. Tap the inside back-left corner."
@@ -85,8 +97,8 @@ enum Copy {
         static let cornersTooClose = "Those corners are too close. Try again."
         static let tapMissed = "Couldn’t find the floor there. Move the phone a little and tap again."
         static let heightMissed = "Couldn’t read the height. Tap the top edge of the side facing you."
-        static let measureByTapping = "Measure by tapping"
-        static let backToSweep = "Back to scanning"
+        static let measureByTapping = "Measure by corners instead"
+        static let backToSweep = "Back to one-tap"
         static let tapItemCorner1 = "Tap a bottom corner of an item."
         static let tapItemCorner2 = "Tap the next bottom corner along one side."
         static let tapItemCorner3 = "Tap a bottom corner on the opposite side."
@@ -97,8 +109,10 @@ enum Copy {
         static let lengthCm = "Length"
         static let widthCm = "Width"
         static let heightCm = "Height"
-        static let items = "Spread your items a hand apart on the floor, then pan slowly over all of them."
-        static let itemsHint = "Tap a box to remove it."
+        static let items = "Tap an item to measure it. Keep it in view until its box turns green."
+        static let itemsMeasuring = "Measuring… keep the item in view."
+        static let itemsHint = "Tap an item again to re-measure it."
+        static let removeItem = "Remove item"
         static let itemsFound = "items found"
         static let done = "Done"
         static let identifying = "Identifying your items…"

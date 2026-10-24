@@ -194,3 +194,35 @@ Measured:
 Known limits:
 - Bag depth is not measured without LiDAR.
 - Plain, shiny or dark surfaces make ARKit's floor and the surface hits less reliable.
+
+## 2026-10-24 section-2 one-tap LiDAR measuring (branch `arjun99ab/lidar-ar`)
+Built:
+- **Bag in one tap:** tap the bottom of the open shell. `CavityFitter` raises a water level from the
+  tap until it spills over the walls, takes the basin at half that level (so handle channels and seams
+  on the floor stay inside), then pushes each side out to its wall across floor hidden behind the near rim.
+- **Items in one tap each:** tap an item; its box goes yellow, refines over ~1 s, then turns green and numbered.
+  - Vision's foreground instance mask (`Segmenter`) picks the object under the tap in the camera image.
+  - Only LiDAR points inside that mask, shrunk 2 depth pixels from the outline, build the box (`ObjectCloud`).
+  - The ground is the median of a ring of points just outside the mask, so boxes sit on the real
+    surface (floor or table) instead of ARKit's floor plane.
+  - No mask under the tap: `SeedFitter` grows the object from the tapped cell in the height map,
+    with a cut halfway up the object, measured from the surrounding surface.
+  - Tap a boxed item again to re-measure it; the × on its chip removes it.
+- **Depth fixes behind the "box floats above the item" bug:**
+  - Raw `sceneDepth` instead of temporally smoothed depth.
+  - Pixels on depth discontinuities are dropped. They used to smear each item back and up, away from the camera.
+- The automatic sweep is no longer used in the flow (`BoxFitter` stays, with its tests).
+  Corner taps stay available ("Measure by corners instead") and remain the only path without LiDAR.
+Run: same as before. Tests: `xcodebuild -scheme PackFit -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test`
+Measured:
+- 41/41 unit tests pass (13 new).
+- Synthetic results:
+  - A 30×20×10 box on a table: within ±1 cm footprint and ±6 mm height, with mask spill onto the table.
+  - A 6 mm passport: within ±1 cm footprint and ±4 mm height.
+  - A 1.2 cm item with the floor plane 8 mm wrong: found, height within ±4 mm.
+  - Cavity with 3 cm handle ridges, or with an 8 cm strip hidden behind the near wall: within ±1.5 cm.
+- Device build compiles.
+- **Not yet run on a device.** Item MAE against a tape is still to measure.
+Known limits:
+- Vision may group touching items into one instance. Leave a small gap between items.
+- Segmentation runs only while an item is measuring, at about 50 ms per frame.

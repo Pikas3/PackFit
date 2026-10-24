@@ -22,13 +22,6 @@ struct GuidedScanView: View {
                 ZStack {
                     GuidedARView(session: session)
                         .ignoresSafeArea()
-                    if showsReticle {
-                        Circle()
-                            .stroke(.white, lineWidth: 2)
-                            .frame(width: 18, height: 18)
-                            .shadow(radius: 2)
-                            .allowsHitTesting(false)
-                    }
                     VStack(spacing: 0) {
                         banner
                         Spacer()
@@ -62,12 +55,6 @@ struct GuidedScanView: View {
         .sheet(isPresented: reviewBinding) { reviewSheet }
     }
 
-    /// The LiDAR bag scan aims with the reticle; taps aim with the finger, so the reticle
-    /// marks the screen centre as a hint only when nothing else is drawn.
-    private var showsReticle: Bool {
-        session.phase == .bag && !session.isCornerMode
-    }
-
     // MARK: Banner
 
     private var banner: some View {
@@ -91,9 +78,12 @@ struct GuidedScanView: View {
                 default: return Copy.Guided.tapCornerFront
                 }
             }
-            return session.canLockBag ? Copy.Guided.bagStable : Copy.Guided.bag
+            if session.canLockBag { return Copy.Guided.bagStable }
+            return session.hasBagSeed ? Copy.Guided.bagMeasuring : Copy.Guided.bag
         case .items:
-            guard session.isTapMeasuring else { return Copy.Guided.items }
+            guard session.isTapMeasuring else {
+                return session.measuring.isEmpty ? Copy.Guided.items : Copy.Guided.itemsMeasuring
+            }
             switch session.tapStep {
             case .corner(1): return Copy.Guided.tapItemCorner1
             case .corner(2): return Copy.Guided.tapItemCorner2
@@ -191,8 +181,22 @@ struct GuidedScanView: View {
                         ForEach(session.tracked) { t in
                             let cm = t.fit.dimsCm
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("\(t.number)").font(Tokens.TypeScale.callout.bold())
-                                Text(String(format: "%.0f×%.0f×%.0f", cm.w, cm.d, cm.h))
+                                HStack(spacing: Tokens.Spacing.xs) {
+                                    if t.stable {
+                                        Text("\(t.number)").font(Tokens.TypeScale.callout.bold())
+                                    } else {
+                                        ProgressView().controlSize(.mini)
+                                    }
+                                    Spacer(minLength: 0)
+                                    Button {
+                                        session.removeItem(id: t.id)
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .accessibilityLabel(Copy.Guided.removeItem)
+                                }
+                                Text(String(format: cm.h < 3 ? "%.0f×%.0f×%.1f" : "%.0f×%.0f×%.0f", cm.w, cm.d, cm.h))
                                     .font(Tokens.TypeScale.caption)
                             }
                             .padding(Tokens.Spacing.sm)
