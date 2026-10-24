@@ -76,3 +76,20 @@ describe("prompts include tool schemas", () => {
     expect(suggest.tools[0]?.input_schema).toBeTruthy();
   });
 });
+
+describe("scan cross-check", () => {
+  it("asks for the model's own size only when the measurement is unsure", () => {
+    const unsure = buildScanItemPrompt({ measured: { w: 30, h: 2, d: 21, method: "ar", confidence: 0.6 } });
+    const sure = buildScanItemPrompt({ measured: { w: 30, h: 2, d: 21, method: "lidar", confidence: 0.95 } });
+    const text = (p: typeof unsure) => JSON.stringify(p.messages);
+    expect(text(unsure)).toContain("estimatedDims");
+    expect(text(unsure)).toContain("without a depth sensor");
+    expect(text(sure)).not.toContain("estimatedDims");
+  });
+
+  it("compares sizes whatever their order", async () => {
+    const { dimsDisagree } = await import("../src/services/scan.js");
+    expect(dimsDisagree({ w: 30, h: 2, d: 21 }, { w: 21, h: 31, d: 2.2 })).toBe(false);
+    expect(dimsDisagree({ w: 30, h: 2, d: 21 }, { w: 45, h: 2, d: 21 })).toBe(true);
+  });
+});

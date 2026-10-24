@@ -38,11 +38,18 @@ enum APIError: Error, LocalizedError {
 }
 
 enum APIClientFactory {
+    /// `MOCK_API=YES` means no backend: fixtures in the simulator, which has no camera,
+    /// and on-device identification on a phone. Otherwise the backend, falling back to
+    /// the device whenever a call fails.
     @MainActor
     static func make(config: AppConfig = .shared) -> any APIClient {
         if config.mockAPI {
+            #if targetEnvironment(simulator)
             return MockAPIClient()
+            #else
+            return OnDeviceAPIClient()
+            #endif
         }
-        return LiveAPIClient(config: config)
+        return FallbackAPIClient(primary: LiveAPIClient(config: config), fallback: OnDeviceAPIClient())
     }
 }

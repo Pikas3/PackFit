@@ -14,15 +14,16 @@ enum BoxSilhouetteFit {
 
     /// Coordinate descent over each box's centre, yaw, long, short and height. All boxes
     /// are drawn together, so two halves of an open suitcase fit one merged outline.
-    static func refine(_ initial: [BoxFit], floorY: Float, views: [HullView], pixelStride: Int = 2, minHeight: Float = 0.004) -> Result {
+    /// `warm`: `initial` is already close (the previous fit), so the coarsest steps are skipped.
+    static func refine(_ initial: [BoxFit], floorY: Float, views: [HullView], pixelStride: Int = 2, minHeight: Float = 0.004, warm: Bool = false) -> Result {
         let prepared = views.map(PreparedView.init)
         guard !initial.isEmpty, !prepared.isEmpty else { return Result(boxes: initial, score: 0) }
         var boxes = initial
         var best = score(boxes, floorY: floorY, views: prepared, stride: pixelStride)
 
         // (centre m, yaw rad, size m, height m), halved twice.
-        var steps: (c: Float, yaw: Float, s: Float, h: Float) = (0.01, 0.05, 0.01, 0.005)
-        for _ in 0..<3 {
+        var steps: (c: Float, yaw: Float, s: Float, h: Float) = warm ? (0.005, 0.025, 0.005, 0.0025) : (0.01, 0.05, 0.01, 0.005)
+        for _ in 0..<(warm ? 2 : 3) {
             var improved = true
             var rounds = 0
             while improved, rounds < 12 {

@@ -110,6 +110,18 @@ final class GuidedSession {
     private var draftBox: WireBox?
     private var nextTapID = 100_000
     private var tapMeasuredItemIDs: Set<String> = []
+    enum RulesState: Equatable { case idle, checking, done, failed }
+
+    /// Travel-rule flags for the reviewed list, checked once it's complete and before packing.
+    private(set) var ruleFlags: [RuleFlag] = []
+    private(set) var rulesSummary = ""
+    private(set) var rulesStale = false
+    private(set) var rulesState: RulesState = .idle
+    /// Flags the user chose to keep anyway, as "itemId|ruleId".
+    var keptFlags: Set<String> = []
+
+    /// Other names the identifier offered for each item, by item id.
+    private(set) var alternatives: [String: [ItemAlternative]] = [:]
 
     init(client: any APIClient) {
         self.client = client
@@ -752,6 +764,9 @@ final class GuidedSession {
         guard !found.isEmpty else { return }
         phase = .identifying
         identifyProgress = 0
+        rulesState = .idle
+        ruleFlags = []
+        keptFlags = []
         itemBoxes.values.forEach { $0.entity.isEnabled = false }
 
         struct Job: Sendable {
@@ -771,8 +786,8 @@ final class GuidedSession {
         }
 
         let client = self.client
-        var results: [Int: Item] = [:]
-        await withTaskGroup(of: (Int, Item?).self) { group in
+        var results: [Int: ScanItemResponse] = [:]
+        await withTaskGroup(of: (Int, ScanItemResponse?).self) { group in
             var next = 0
             func add() {
                 guard next < jobs.count else { return }
@@ -780,20 +795,22 @@ final class GuidedSession {
                 next += 1
                 group.addTask {
                     let response = try? await client.scanItem(imageBase64: job.image, measured: job.dims, reference: nil, hint: nil)
-                    return (job.index, response?.item)
+                    return (job.index, response)
                 }
             }
             for _ in 0..<min(4, jobs.count) { add() }
-            for await (index, item) in group {
-                results[index] = item
+            for await (index, response) in group {
+                results[index] = response
                 identifyProgress += 1
                 add()
             }
         }
 
         tapMeasuredItemIDs = []
+        alternatives = [:]
         items = jobs.map { job in
-            var item = results[job.index] ?? Item(
+            let response = results[job.index]
+            var item = response?.item ?? Item(
                 id: UUID().uuidString,
                 name: "\(Copy.Guided.unknownItem) \(job.index + 1)",
                 w: job.dims.w, h: job.dims.h, d: job.dims.d,
@@ -807,11 +824,55 @@ final class GuidedSession {
             item.h = job.dims.h
             item.d = job.dims.d
             item.source = .scan
-            item.measurement = Measurement(method: job.dims.method, confidence: job.dims.confidence, deviceHasLidar: hasDepth)
+            // The size stays the device's, but when the photo says it looks wrong, ask.
+            let doubted = response?.warnings.contains { $0 == "dims_implausible_for_item" || $0 == "dims_disagree" } ?? false
+            let sizeConfidence = doubted ? min(job.dims.confidence, 0.6) : job.dims.confidence
+            item.measurement = Measurement(method: job.dims.method, confidence: sizeConfidence, deviceHasLidar: hasDepth)
+            if let alternatives = response?.alternatives, !alternatives.isEmpty { self.alternatives[item.id] = alternatives }
             if job.tapped { tapMeasuredItemIDs.insert(item.id) }
             return item
         }
         phase = .review
+    }
+
+    // MARK: Rules
+
+    /// Checks the whole list against TSA, airline and destination rules for `bag`
+    /// ("carryOn" or "checked"). The backend when it can be reached, else the bundled rules.
+    func checkRules(trip: Trip?, bag: String) async {
+        guard let trip, !items.isEmpty else {
+            ruleFlags = []
+            rulesState = .done
+            return
+        }
+        rulesState = .checking
+        do {
+            let response = try await client.checkRules(items: items, trip: trip, bag: bag)
+            ruleFlags = response.flags
+            rulesSummary = response.summary
+            rulesStale = response.stale || response.flags.contains { RuleFreshness.isStale($0.lastVerified) }
+            rulesState = .done
+        } catch {
+            ruleFlags = []
+            rulesSummary = Copy.Errors.network
+            rulesState = .failed
+        }
+    }
+
+    func flags(for itemID: String) -> [RuleFlag] { ruleFlags.filter { $0.itemId == itemID } }
+
+    static func flagKey(_ f: RuleFlag) -> String { f.ruleKey }
+
+    /// Banned flags the user hasn't decided on yet.
+    var openBans: [RuleFlag] {
+        ruleFlags.filter { flag in
+            flag.severity == .banned && !keptFlags.contains(Self.flagKey(flag)) && items.contains { $0.id == flag.itemId }
+        }
+    }
+
+    func removeItem(itemID: String) {
+        items.removeAll { $0.id == itemID }
+        ruleFlags.removeAll { $0.itemId == itemID }
     }
 
     /// Back from the 3D viewer: the list stays editable for another try.
@@ -829,7 +890,9 @@ final class GuidedSession {
     // MARK: Pack and overlay
 
     func pack(itemsStore: ItemsStore, tripStore: TripStore, planStore: PlanStore) async {
-        guard let container, let bagTransform else { return }
+        guard var container, let bagTransform else { return }
+        // The scan gives the size; the airline's limit for this bag comes from the trip.
+        if let limit = presetBag?.weightLimitKg { container.weightLimitKg = limit }
         phase = .packing
         itemsStore.items = items
         itemsStore.tapMeasuredIDs = tapMeasuredItemIDs.intersection(items.map(\.id))
@@ -893,4 +956,9 @@ final class GuidedSession {
             await hullWorker.reset()
         }
     }
+}
+
+extension RuleFlag {
+    /// Item and rule together: one flag per rule per item.
+    var ruleKey: String { "\(itemId)|\(ruleId ?? text)" }
 }

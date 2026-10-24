@@ -1,0 +1,1347 @@
+{
+ "_source": "Hand-written typical travel items for on-device identification. Weights and sizes are typical retail values, not measurements.",
+ "items": [
+  {
+   "id": "laptop",
+   "name": "Laptop",
+   "category": "electronics",
+   "kg": 1.4,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.9,
+   "upright": false,
+   "neededAtSecurity": true,
+   "dims": [
+    32,
+    22,
+    1.8
+   ],
+   "synonyms": [
+    "laptop",
+    "notebook computer",
+    "computer",
+    "macbook",
+    "notebook"
+   ]
+  },
+  {
+   "id": "tablet",
+   "name": "Tablet",
+   "category": "electronics",
+   "kg": 0.5,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.85,
+   "upright": false,
+   "neededAtSecurity": true,
+   "dims": [
+    25,
+    17,
+    0.8
+   ],
+   "synonyms": [
+    "tablet",
+    "ipad",
+    "e-reader",
+    "kindle"
+   ]
+  },
+  {
+   "id": "phone",
+   "name": "Phone",
+   "category": "electronics",
+   "kg": 0.2,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.85,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    15,
+    7.5,
+    0.9
+   ],
+   "synonyms": [
+    "phone",
+    "smartphone",
+    "cellphone",
+    "mobile phone",
+    "iphone"
+   ]
+  },
+  {
+   "id": "headphones",
+   "name": "Headphones",
+   "category": "electronics",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.6,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    20,
+    17,
+    8
+   ],
+   "synonyms": [
+    "headphones",
+    "headphone",
+    "headset",
+    "earphones",
+    "earbuds"
+   ]
+  },
+  {
+   "id": "camera",
+   "name": "Camera",
+   "category": "electronics",
+   "kg": 0.7,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.85,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    13,
+    10,
+    8
+   ],
+   "synonyms": [
+    "camera",
+    "dslr",
+    "lens",
+    "camcorder"
+   ]
+  },
+  {
+   "id": "charger",
+   "name": "Charger and cables",
+   "category": "electronics",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.6,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    15,
+    10,
+    5
+   ],
+   "synonyms": [
+    "charger",
+    "cable",
+    "adapter",
+    "plug",
+    "power adapter",
+    "usb"
+   ]
+  },
+  {
+   "id": "powerbank",
+   "name": "Power bank",
+   "category": "electronics",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.9,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    14,
+    7,
+    2.5
+   ],
+   "synonyms": [
+    "power bank",
+    "powerbank",
+    "battery",
+    "portable charger",
+    "battery pack"
+   ]
+  },
+  {
+   "id": "gaming",
+   "name": "Game console",
+   "category": "electronics",
+   "kg": 0.6,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.85,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    24,
+    10,
+    6
+   ],
+   "synonyms": [
+    "game console",
+    "nintendo",
+    "controller",
+    "gamepad",
+    "joystick"
+   ]
+  },
+  {
+   "id": "passport",
+   "name": "Passport",
+   "category": "documents",
+   "kg": 0.04,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.5,
+   "upright": false,
+   "neededAtSecurity": true,
+   "dims": [
+    12.5,
+    8.8,
+    0.5
+   ],
+   "synonyms": [
+    "passport",
+    "booklet",
+    "id card",
+    "card"
+   ]
+  },
+  {
+   "id": "folder",
+   "name": "Document folder",
+   "category": "documents",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.5,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    33,
+    24,
+    2
+   ],
+   "synonyms": [
+    "folder",
+    "document",
+    "paper",
+    "envelope",
+    "binder",
+    "file"
+   ]
+  },
+  {
+   "id": "book",
+   "name": "Book",
+   "category": "documents",
+   "kg": 0.5,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.8,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    23,
+    15,
+    3
+   ],
+   "synonyms": [
+    "book",
+    "novel",
+    "notebook",
+    "journal",
+    "diary",
+    "textbook"
+   ]
+  },
+  {
+   "id": "wallet",
+   "name": "Wallet",
+   "category": "documents",
+   "kg": 0.1,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.4,
+   "upright": false,
+   "neededAtSecurity": true,
+   "dims": [
+    11,
+    9,
+    2
+   ],
+   "synonyms": [
+    "wallet",
+    "purse",
+    "billfold"
+   ]
+  },
+  {
+   "id": "tshirt",
+   "name": "T-shirts",
+   "category": "clothing",
+   "kg": 0.2,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.1,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    28,
+    22,
+    3
+   ],
+   "synonyms": [
+    "t-shirt",
+    "tshirt",
+    "shirt",
+    "top",
+    "tee",
+    "clothing",
+    "garment",
+    "apparel"
+   ]
+  },
+  {
+   "id": "jeans",
+   "name": "Jeans",
+   "category": "clothing",
+   "kg": 0.6,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.15,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    35,
+    28,
+    5
+   ],
+   "synonyms": [
+    "jeans",
+    "denim",
+    "trousers",
+    "pants",
+    "slacks",
+    "shorts",
+    "skirt"
+   ]
+  },
+  {
+   "id": "sweater",
+   "name": "Sweater",
+   "category": "clothing",
+   "kg": 0.5,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.1,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    33,
+    28,
+    7
+   ],
+   "synonyms": [
+    "sweater",
+    "jumper",
+    "hoodie",
+    "sweatshirt",
+    "cardigan",
+    "fleece",
+    "knitwear"
+   ]
+  },
+  {
+   "id": "jacket",
+   "name": "Jacket",
+   "category": "clothing",
+   "kg": 0.9,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.15,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    40,
+    32,
+    10
+   ],
+   "synonyms": [
+    "jacket",
+    "coat",
+    "parka",
+    "blazer",
+    "outerwear",
+    "windbreaker"
+   ]
+  },
+  {
+   "id": "dress",
+   "name": "Dress",
+   "category": "clothing",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.1,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    35,
+    28,
+    4
+   ],
+   "synonyms": [
+    "dress",
+    "gown",
+    "suit"
+   ]
+  },
+  {
+   "id": "underwear",
+   "name": "Underwear and socks",
+   "category": "clothing",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.05,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    20,
+    15,
+    8
+   ],
+   "synonyms": [
+    "underwear",
+    "socks",
+    "sock",
+    "boxers",
+    "bra",
+    "lingerie"
+   ]
+  },
+  {
+   "id": "pajamas",
+   "name": "Pyjamas",
+   "category": "clothing",
+   "kg": 0.4,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.05,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    30,
+    25,
+    6
+   ],
+   "synonyms": [
+    "pajamas",
+    "pyjamas",
+    "nightwear",
+    "sleepwear"
+   ]
+  },
+  {
+   "id": "scarf",
+   "name": "Scarf and hat",
+   "category": "clothing",
+   "kg": 0.2,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.05,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    25,
+    20,
+    6
+   ],
+   "synonyms": [
+    "scarf",
+    "hat",
+    "beanie",
+    "cap",
+    "gloves",
+    "mittens",
+    "glove"
+   ]
+  },
+  {
+   "id": "swimwear",
+   "name": "Swimwear",
+   "category": "clothing",
+   "kg": 0.15,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.05,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    20,
+    15,
+    3
+   ],
+   "synonyms": [
+    "swimsuit",
+    "swimwear",
+    "bikini",
+    "swim trunks"
+   ]
+  },
+  {
+   "id": "towel",
+   "name": "Towel",
+   "category": "clothing",
+   "kg": 0.5,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.05,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    30,
+    25,
+    8
+   ],
+   "synonyms": [
+    "towel",
+    "blanket",
+    "cloth"
+   ]
+  },
+  {
+   "id": "sneakers",
+   "name": "Sneakers",
+   "category": "shoes",
+   "kg": 0.9,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.5,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    30,
+    12,
+    11
+   ],
+   "synonyms": [
+    "sneaker",
+    "sneakers",
+    "shoe",
+    "shoes",
+    "footwear",
+    "trainers",
+    "running shoe"
+   ]
+  },
+  {
+   "id": "boots",
+   "name": "Boots",
+   "category": "shoes",
+   "kg": 1.4,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.6,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    32,
+    14,
+    25
+   ],
+   "synonyms": [
+    "boot",
+    "boots",
+    "hiking boot"
+   ]
+  },
+  {
+   "id": "sandals",
+   "name": "Sandals",
+   "category": "shoes",
+   "kg": 0.5,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.4,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    28,
+    11,
+    4
+   ],
+   "synonyms": [
+    "sandal",
+    "sandals",
+    "flip flop",
+    "flip-flop",
+    "slipper",
+    "slippers"
+   ]
+  },
+  {
+   "id": "dressshoes",
+   "name": "Dress shoes",
+   "category": "shoes",
+   "kg": 1.0,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.6,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    30,
+    11,
+    12
+   ],
+   "synonyms": [
+    "loafer",
+    "oxford",
+    "heels",
+    "high heel",
+    "dress shoe",
+    "pump"
+   ]
+  },
+  {
+   "id": "toiletrybag",
+   "name": "Toiletry bag",
+   "category": "toiletries",
+   "kg": 0.8,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.4,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    24,
+    12,
+    12
+   ],
+   "synonyms": [
+    "toiletry bag",
+    "wash bag",
+    "cosmetic bag",
+    "makeup bag",
+    "pouch",
+    "bag"
+   ]
+  },
+  {
+   "id": "toothbrush",
+   "name": "Toothbrush and toothpaste",
+   "category": "toiletries",
+   "kg": 0.15,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.6,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    20,
+    4,
+    3
+   ],
+   "synonyms": [
+    "toothbrush",
+    "toothpaste",
+    "dental"
+   ]
+  },
+  {
+   "id": "razor",
+   "name": "Razor",
+   "category": "toiletries",
+   "kg": 0.1,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.8,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    15,
+    5,
+    3
+   ],
+   "synonyms": [
+    "razor",
+    "shaver",
+    "trimmer"
+   ]
+  },
+  {
+   "id": "hairdryer",
+   "name": "Hair dryer",
+   "category": "electronics",
+   "kg": 0.6,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.8,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    25,
+    22,
+    9
+   ],
+   "synonyms": [
+    "hair dryer",
+    "hairdryer",
+    "blow dryer",
+    "curling iron",
+    "straightener",
+    "flat iron"
+   ]
+  },
+  {
+   "id": "deodorant",
+   "name": "Deodorant",
+   "category": "toiletries",
+   "kg": 0.15,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.8,
+   "upright": true,
+   "neededAtSecurity": false,
+   "dims": [
+    15,
+    5,
+    4
+   ],
+   "synonyms": [
+    "deodorant",
+    "antiperspirant"
+   ]
+  },
+  {
+   "id": "makeup",
+   "name": "Makeup",
+   "category": "toiletries",
+   "kg": 0.3,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.6,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    15,
+    10,
+    5
+   ],
+   "synonyms": [
+    "makeup",
+    "cosmetics",
+    "lipstick",
+    "mascara",
+    "compact",
+    "palette"
+   ]
+  },
+  {
+   "id": "quartbag",
+   "name": "Quart bag of liquids",
+   "category": "liquids",
+   "kg": 0.6,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.3,
+   "upright": false,
+   "neededAtSecurity": true,
+   "dims": [
+    20,
+    15,
+    6
+   ],
+   "synonyms": [
+    "ziploc",
+    "zip bag",
+    "plastic bag",
+    "quart bag",
+    "travel bottles"
+   ]
+  },
+  {
+   "id": "shampoo",
+   "name": "Shampoo",
+   "category": "liquids",
+   "kg": 0.45,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.5,
+   "upright": true,
+   "neededAtSecurity": false,
+   "dims": [
+    7,
+    5,
+    20
+   ],
+   "synonyms": [
+    "shampoo",
+    "conditioner",
+    "body wash",
+    "shower gel",
+    "soap",
+    "lotion",
+    "cream"
+   ]
+  },
+  {
+   "id": "sunscreen",
+   "name": "Sunscreen",
+   "category": "liquids",
+   "kg": 0.2,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.5,
+   "upright": true,
+   "neededAtSecurity": false,
+   "dims": [
+    5,
+    4,
+    15
+   ],
+   "synonyms": [
+    "sunscreen",
+    "sunblock",
+    "sun cream"
+   ]
+  },
+  {
+   "id": "perfume",
+   "name": "Perfume",
+   "category": "liquids",
+   "kg": 0.3,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.9,
+   "upright": true,
+   "neededAtSecurity": false,
+   "dims": [
+    8,
+    5,
+    12
+   ],
+   "synonyms": [
+    "perfume",
+    "cologne",
+    "fragrance",
+    "eau de toilette"
+   ]
+  },
+  {
+   "id": "waterbottle",
+   "name": "Water bottle",
+   "category": "liquids",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.8,
+   "upright": true,
+   "neededAtSecurity": false,
+   "dims": [
+    7.5,
+    7.5,
+    25
+   ],
+   "synonyms": [
+    "water bottle",
+    "bottle",
+    "flask",
+    "thermos",
+    "tumbler",
+    "drink"
+   ]
+  },
+  {
+   "id": "aerosol",
+   "name": "Aerosol can",
+   "category": "liquids",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.8,
+   "upright": true,
+   "neededAtSecurity": false,
+   "dims": [
+    6,
+    6,
+    20
+   ],
+   "synonyms": [
+    "aerosol",
+    "spray",
+    "hairspray",
+    "spray can"
+   ]
+  },
+  {
+   "id": "wine",
+   "name": "Bottle of wine",
+   "category": "liquids",
+   "kg": 1.3,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.9,
+   "upright": true,
+   "neededAtSecurity": false,
+   "dims": [
+    8,
+    8,
+    32
+   ],
+   "synonyms": [
+    "wine",
+    "liquor",
+    "alcohol",
+    "spirits",
+    "whiskey",
+    "beer",
+    "champagne"
+   ]
+  },
+  {
+   "id": "medicine",
+   "name": "Medicine",
+   "category": "medical",
+   "kg": 0.2,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.5,
+   "upright": false,
+   "neededAtSecurity": true,
+   "dims": [
+    12,
+    8,
+    6
+   ],
+   "synonyms": [
+    "medicine",
+    "medication",
+    "pill",
+    "pills",
+    "tablets",
+    "prescription",
+    "vitamin",
+    "first aid",
+    "bandage"
+   ]
+  },
+  {
+   "id": "glasses",
+   "name": "Glasses case",
+   "category": "medical",
+   "kg": 0.1,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.7,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    16,
+    7,
+    4
+   ],
+   "synonyms": [
+    "glasses",
+    "eyeglasses",
+    "spectacles",
+    "sunglasses",
+    "glasses case",
+    "contact lens"
+   ]
+  },
+  {
+   "id": "snacks",
+   "name": "Snacks",
+   "category": "food",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.3,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    20,
+    15,
+    6
+   ],
+   "synonyms": [
+    "snack",
+    "chips",
+    "crisps",
+    "cookie",
+    "biscuit",
+    "candy",
+    "chocolate",
+    "granola"
+   ]
+  },
+  {
+   "id": "peanutbutter",
+   "name": "Peanut butter jar",
+   "category": "food",
+   "kg": 0.5,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.9,
+   "upright": true,
+   "neededAtSecurity": false,
+   "dims": [
+    9,
+    9,
+    11.5
+   ],
+   "synonyms": [
+    "peanut butter",
+    "jar",
+    "jam",
+    "spread",
+    "honey",
+    "nutella"
+   ]
+  },
+  {
+   "id": "spices",
+   "name": "Spices",
+   "category": "food",
+   "kg": 0.2,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.5,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    10,
+    8,
+    8
+   ],
+   "synonyms": [
+    "spice",
+    "spices",
+    "masala",
+    "tea",
+    "coffee"
+   ]
+  },
+  {
+   "id": "sweets",
+   "name": "Sweets box",
+   "category": "food",
+   "kg": 0.5,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.3,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    20,
+    15,
+    6
+   ],
+   "synonyms": [
+    "sweets",
+    "mithai",
+    "dessert",
+    "cake",
+    "pastry",
+    "box of sweets"
+   ]
+  },
+  {
+   "id": "fruit",
+   "name": "Fruit",
+   "category": "food",
+   "kg": 0.4,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.3,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    15,
+    12,
+    8
+   ],
+   "synonyms": [
+    "fruit",
+    "apple",
+    "orange",
+    "banana",
+    "mango",
+    "vegetable"
+   ]
+  },
+  {
+   "id": "knife",
+   "name": "Pocket knife",
+   "category": "sharp",
+   "kg": 0.1,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.95,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    10,
+    3,
+    2
+   ],
+   "synonyms": [
+    "knife",
+    "pocket knife",
+    "swiss army",
+    "blade",
+    "multitool",
+    "multi-tool"
+   ]
+  },
+  {
+   "id": "scissors",
+   "name": "Scissors",
+   "category": "sharp",
+   "kg": 0.1,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.95,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    18,
+    8,
+    1
+   ],
+   "synonyms": [
+    "scissors",
+    "shears"
+   ]
+  },
+  {
+   "id": "tools",
+   "name": "Tools",
+   "category": "sharp",
+   "kg": 0.5,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.95,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    20,
+    6,
+    4
+   ],
+   "synonyms": [
+    "tool",
+    "screwdriver",
+    "wrench",
+    "pliers",
+    "hammer"
+   ]
+  },
+  {
+   "id": "umbrella",
+   "name": "Umbrella",
+   "category": "other",
+   "kg": 0.4,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.7,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    28,
+    6,
+    6
+   ],
+   "synonyms": [
+    "umbrella"
+   ]
+  },
+  {
+   "id": "pillow",
+   "name": "Travel pillow",
+   "category": "other",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.05,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    30,
+    28,
+    10
+   ],
+   "synonyms": [
+    "pillow",
+    "neck pillow",
+    "cushion"
+   ]
+  },
+  {
+   "id": "lighter",
+   "name": "Lighter",
+   "category": "other",
+   "kg": 0.02,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.8,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    8,
+    2.5,
+    1.2
+   ],
+   "synonyms": [
+    "lighter",
+    "matches",
+    "matchbox"
+   ]
+  },
+  {
+   "id": "toy",
+   "name": "Toy",
+   "category": "other",
+   "kg": 0.3,
+   "fragile": false,
+   "soft": false,
+   "hardness": 0.5,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    20,
+    15,
+    10
+   ],
+   "synonyms": [
+    "toy",
+    "teddy",
+    "stuffed animal",
+    "plush",
+    "doll",
+    "lego",
+    "game"
+   ]
+  },
+  {
+   "id": "gift",
+   "name": "Gift box",
+   "category": "other",
+   "kg": 0.6,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.4,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    25,
+    20,
+    10
+   ],
+   "synonyms": [
+    "gift",
+    "present",
+    "box",
+    "package",
+    "carton"
+   ]
+  },
+  {
+   "id": "jewelry",
+   "name": "Jewellery box",
+   "category": "other",
+   "kg": 0.2,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.6,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    12,
+    8,
+    5
+   ],
+   "synonyms": [
+    "jewelry",
+    "jewellery",
+    "necklace",
+    "ring",
+    "bracelet",
+    "watch",
+    "earring"
+   ]
+  },
+  {
+   "id": "belt",
+   "name": "Belt",
+   "category": "clothing",
+   "kg": 0.2,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.3,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    20,
+    15,
+    4
+   ],
+   "synonyms": [
+    "belt",
+    "tie",
+    "bow tie"
+   ]
+  },
+  {
+   "id": "bagpack",
+   "name": "Small bag",
+   "category": "other",
+   "kg": 0.4,
+   "fragile": false,
+   "soft": true,
+   "hardness": 0.2,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    30,
+    20,
+    10
+   ],
+   "synonyms": [
+    "backpack",
+    "handbag",
+    "tote",
+    "shopping bag",
+    "daypack",
+    "bag"
+   ]
+  },
+  {
+   "id": "souvenir",
+   "name": "Souvenir",
+   "category": "other",
+   "kg": 0.4,
+   "fragile": true,
+   "soft": false,
+   "hardness": 0.6,
+   "upright": false,
+   "neededAtSecurity": false,
+   "dims": [
+    15,
+    10,
+    10
+   ],
+   "synonyms": [
+    "souvenir",
+    "figurine",
+    "statue",
+    "ornament",
+    "mug",
+    "cup",
+    "vase"
+   ]
+  }
+ ]
+}

@@ -97,6 +97,19 @@ function mockScan(input: ScanInput) {
   };
 }
 
+/** True when any sorted side differs by more than 30%. Orientation-free: w/h/d may be swapped. */
+export function dimsDisagree(
+  a: { w: number; h: number; d: number },
+  b: { w: number; h: number; d: number },
+): boolean {
+  const sa = [a.w, a.h, a.d].sort((x, y) => x - y);
+  const sb = [b.w, b.h, b.d].sort((x, y) => x - y);
+  return sa.some((v, i) => {
+    const r = v / Math.max(sb[i]!, 0.1);
+    return r > 1.3 || r < 1 / 1.3;
+  });
+}
+
 export async function scanItem(input: ScanInput): Promise<ScanResult> {
   const warnings: string[] = [];
   const basePrompt = buildScanItemPrompt({
@@ -115,6 +128,7 @@ export async function scanItem(input: ScanInput): Promise<ScanResult> {
       mock: () => mockScan(input) as z.infer<typeof ScanMeasuredToolSchema>,
     });
     if (!data.dimsPlausible) warnings.push("dims_implausible_for_item");
+    if (data.estimatedDims && dimsDisagree(input.measured, data.estimatedDims)) warnings.push("dims_disagree");
     const category = data.category;
     const cat = catalogFor(category);
     const item: Item = {

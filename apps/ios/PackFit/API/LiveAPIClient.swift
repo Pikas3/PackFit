@@ -68,7 +68,9 @@ struct LiveAPIClient: APIClient, Sendable {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(config.appToken, forHTTPHeaderField: "x-packfit-token")
         request.httpBody = try encoder.encode(body)
-        request.timeoutInterval = 25
+        // Short enough that an unreachable server falls back to the device quickly; Claude
+        // vision answers in 3-8 s.
+        request.timeoutInterval = 15
 
         let data: Data
         let response: URLResponse

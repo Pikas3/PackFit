@@ -246,7 +246,7 @@ enum HullFitter {
         var box = initial
         var score: Float = 0
         if !views.isEmpty {
-            let refined = BoxSilhouetteFit.refine([initial], floorY: hull.floorY, views: views, minHeight: minHeight)
+            let refined = BoxSilhouetteFit.refine([initial], floorY: hull.floorY, views: views, minHeight: minHeight, warm: start != nil)
             box = refined.boxes[0]
             score = refined.score
         }

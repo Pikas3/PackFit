@@ -142,6 +142,12 @@ enum Copy {
         static let hintAround = "Walk a little way around it."
         static let itemsOutline = "Tap an item, then move slowly around it until its box turns green."
         static let bagMeasured = "Got it. Check the size, then tap “Use this bag”."
+        static let whichBag = "Which bag is this?"
+        static let carryOn = "Carry-on"
+        static let checked = "Checked"
+        static let checkingRules = "Checking TSA, airline and destination rules…"
+        static let decideBans = "Some items aren’t allowed in this bag. Remove them or keep them anyway to pack."
+        static let keepAnyway = "Keep anyway"
     }
 
     enum Viewer {

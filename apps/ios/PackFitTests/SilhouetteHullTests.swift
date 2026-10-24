@@ -173,6 +173,21 @@ struct SilhouetteHullTests {
         #expect(abs(lidFit.height - 0.09) <= 0.025, "lid h \(lidFit.height)")
     }
 
+    /// As the worker runs it: views arrive one by one and each fit starts from the last.
+    @Test func incrementalWarmStartConverges() throws {
+        let box = SyntheticBox(center: [0.03, 0.02], yaw: 0.7, size: [0.26, 0.08, 0.18])
+        let views = orbit([box], target: [0, 0.04, 0], count: 10)
+        var hull = VoxelHull(seed: [0.03, 0.1, 0.02], floorY: 0, options: .init(size: 0.6, maxHeight: 0.4))
+        var last: HullFitter.Fit?
+        for (i, v) in views.enumerated() {
+            hull.carve(v)
+            guard i >= 3 else { continue }
+            last = HullFitter.fit(hull, views: Array(views[...i]), start: last?.box) ?? last
+        }
+        let cm = try #require(last).box.dimsCm
+        #expect(abs(cm.w - 26) <= 1.5 && abs(cm.d - 18) <= 1.5 && abs(cm.h - 8) <= 2, "\(cm)")
+    }
+
     @Test func coverageCountsBins() {
         let center = SIMD3<Float>(0, 0, 0)
         let cams = (0..<7).map { i -> SIMD3<Float> in

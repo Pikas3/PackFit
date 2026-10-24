@@ -6,6 +6,7 @@ struct GuidedScanView: View {
     @Environment(ItemsStore.self) private var itemsStore
     @Environment(PlanStore.self) private var planStore
     @Environment(DeviceCapabilities.self) private var caps
+    @Environment(RulesStore.self) private var rulesStore
     @Binding var path: [Route]
 
     @State private var session: GuidedSession
@@ -340,6 +341,59 @@ struct GuidedScanView: View {
 
     // MARK: Review
 
+    @ViewBuilder
+    private var rulesStatus: some View {
+        switch session.rulesState {
+        case .idle, .checking:
+            HStack {
+                ProgressView()
+                Text(Copy.Guided.checkingRules).font(Tokens.TypeScale.caption)
+            }
+        case .done, .failed:
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                Text(session.rulesSummary.isEmpty ? Copy.Rules.empty : session.rulesSummary)
+                    .font(Tokens.TypeScale.caption)
+                if session.rulesStale {
+                    Text(Copy.Rules.stale).font(Tokens.TypeScale.caption).foregroundStyle(Tokens.Color.restricted)
+                }
+                if !session.openBans.isEmpty {
+                    Text(Copy.Guided.decideBans).font(Tokens.TypeScale.caption).foregroundStyle(Tokens.Color.banned)
+                }
+            }
+        }
+    }
+
+    private func flagRow(_ flag: RuleFlag) -> some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            HStack(spacing: Tokens.Spacing.xs) {
+                Text(flag.severity.rawValue.uppercased())
+                    .font(Tokens.TypeScale.caption.bold())
+                    .foregroundStyle(flag.severity == .banned ? Tokens.Color.banned : flag.severity == .restricted ? Tokens.Color.restricted : Tokens.Color.check)
+                Text(flag.scope.rawValue.uppercased())
+                    .font(Tokens.TypeScale.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Text(flag.text)
+                .font(Tokens.TypeScale.caption)
+                .foregroundStyle(.primary)
+            HStack {
+                if let url = URL(string: flag.sourceUrl) {
+                    Link("\(Copy.Rules.verifiedPrefix) \(RuleFreshness.daysSinceVerified(flag.lastVerified)) \(Copy.Rules.daysAgo)", destination: url)
+                        .font(Tokens.TypeScale.caption)
+                }
+                Spacer()
+                if flag.severity == .banned, !session.keptFlags.contains(GuidedSession.flagKey(flag)) {
+                    Button(Copy.Guided.removeItem, role: .destructive) { session.removeItem(itemID: flag.itemId) }
+                        .buttonStyle(.borderless)
+                    Button(Copy.Guided.keepAnyway) { session.keptFlags.insert(GuidedSession.flagKey(flag)) }
+                        .buttonStyle(.borderless)
+                }
+            }
+            .font(Tokens.TypeScale.caption)
+        }
+        .padding(.top, Tokens.Spacing.xs)
+    }
+
     private var reviewBinding: Binding<Bool> {
         Binding(
             get: { session.phase == .review },
@@ -349,9 +403,31 @@ struct GuidedScanView: View {
         )
     }
 
+    private var bagName: String { tripStore.useChecked ? "checked" : "carryOn" }
+
+    private func runRuleCheck() {
+        Task {
+            await session.checkRules(trip: tripStore.trip, bag: bagName)
+            rulesStore.flags = session.ruleFlags
+            rulesStore.summary = session.rulesSummary
+            rulesStore.stale = session.rulesStale
+        }
+    }
+
     private var reviewSheet: some View {
         NavigationStack {
             List {
+                Section {
+                    Picker(Copy.Guided.whichBag, selection: Binding(
+                        get: { tripStore.useChecked },
+                        set: { tripStore.useChecked = $0; runRuleCheck() }
+                    )) {
+                        Text(Copy.Guided.carryOn).tag(false)
+                        Text(Copy.Guided.checked).tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    rulesStatus
+                }
                 ForEach(session.items) { item in
                     Button { editing = item } label: {
                         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
@@ -365,10 +441,15 @@ struct GuidedScanView: View {
                                 MeasurementMethodBadge(method: item.measurement?.method, tapMeasured: itemsStore.tapMeasuredIDs.contains(item.id) || session.isTapMeasured(item.id))
                                 ConfidenceBadge(confidence: item.measurement?.confidence ?? item.confidence)
                             }
+                            ForEach(session.flags(for: item.id), id: \.ruleKey) { flag in
+                                flagRow(flag)
+                            }
                         }
                     }
                 }
-                .onDelete { session.items.remove(atOffsets: $0) }
+                .onDelete { offsets in
+                    offsets.map { session.items[$0].id }.forEach(session.removeItem(itemID:))
+                }
             }
             .navigationTitle(Copy.Guided.review)
             .navigationBarTitleDisplayMode(.inline)
@@ -380,16 +461,25 @@ struct GuidedScanView: View {
                     Button(Copy.Guided.packIt) {
                         Task { await session.pack(itemsStore: itemsStore, tripStore: tripStore, planStore: planStore) }
                     }
-                    .disabled(session.items.isEmpty)
+                    // Rules first: the list is checked once, before anything is packed.
+                    .disabled(session.items.isEmpty || session.rulesState == .checking || session.rulesState == .idle || !session.openBans.isEmpty)
                 }
             }
+            .onAppear { if session.rulesState == .idle { runRuleCheck() } }
             .sheet(item: $editing) { item in
-                ItemDetailView(item: item, flags: []) { updated in
-                    if let i = session.items.firstIndex(where: { $0.id == updated.id }) {
-                        session.items[i] = updated
-                    }
-                    editing = nil
-                }
+                ReviewCardView(
+                    item: item,
+                    alternatives: session.alternatives[item.id] ?? [],
+                    onSave: { updated in
+                        if let i = session.items.firstIndex(where: { $0.id == updated.id }) {
+                            session.items[i] = updated
+                        }
+                        editing = nil
+                        // A new name can change which rules apply.
+                        runRuleCheck()
+                    },
+                    onCancel: { editing = nil }
+                )
             }
         }
         .presentationDetents([.medium, .large])

@@ -14,6 +14,10 @@ const MeasuredModelSchema = z.object({
   confidence: z.number().min(0).max(1),
   neededAtSecurity: z.boolean().optional(),
   dimsPlausible: z.boolean(),
+  /** Only when asked: the model's own size estimate, a cross-check for camera-measured dims. */
+  estimatedDims: z
+    .object({ w: z.number().positive(), h: z.number().positive(), d: z.number().positive() })
+    .optional(),
   alternatives: z.array(z.object({ name: z.string(), category: CategorySchema })).min(1).max(3),
 });
 
@@ -21,7 +25,10 @@ const EstimateModelSchema = MeasuredModelSchema.extend({
   w: z.number().positive(),
   h: z.number().positive(),
   d: z.number().positive(),
-}).omit({ dimsPlausible: true });
+}).omit({ dimsPlausible: true, estimatedDims: true });
+
+/** Below this measured confidence the model also estimates the size, as a cross-check. */
+export const CROSS_CHECK_BELOW = 0.7;
 
 export const ScanMeasuredToolSchema = MeasuredModelSchema;
 export const ScanEstimateToolSchema = EstimateModelSchema;
@@ -52,6 +59,8 @@ export function buildScanItemPrompt(input: {
     ? `You identify a single travel item in a photo and estimate weight and packing attributes.
 The item's dimensions were already measured by the device and are given — do NOT re-estimate w/h/d.
 Set dimsPlausible to false if the measured size is implausible for the item you identify.
+If asked for estimatedDims, give your own estimate of the item's size in cm from the photo; it is only a cross-check.
+The photo is a crop around one item; ignore the floor and anything cut off at the edges.
 Output only via the report_item tool. Provide 2-3 alternatives (name + category).`
     : `You identify a single travel item in a photo and estimate its dimensions (cm), weight, and packing attributes.
 Use the reference object for scale when provided. Output only via the report_item tool.
@@ -63,6 +72,12 @@ Provide 2-3 alternatives (name + category).`;
     parts.push(
       `Measured dimensions (cm): w=${input.measured.w}, h=${input.measured.h}, d=${input.measured.d} (method=${input.measured.method}, confidence=${input.measured.confidence}).`,
     );
+    if (input.measured.method === "ar") {
+      parts.push("These were measured from the camera without a depth sensor, so they may be off by a few cm.");
+    }
+    if (input.measured.confidence < CROSS_CHECK_BELOW) {
+      parts.push("Also give estimatedDims: your own size estimate in cm.");
+    }
   } else if (input.reference) {
     parts.push(`Scale reference in the photo: ${input.reference.replace("_", " ")}.`);
   } else {

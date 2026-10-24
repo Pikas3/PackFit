@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		368A7D935CBECA1A5B69E099 /* OnDeviceIdentifyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9D17518F015D190A5C96E94 /* OnDeviceIdentifyTests.swift */; };
+		C4C072E5612FB15C238A70F1 /* Resources/airport_countries.json in Resources */ = {isa = PBXBuildFile; fileRef = D26B1BD97A7DE0292212773F /* Resources/airport_countries.json */; };
+		84B785774509E86B05666681 /* Resources/rules.json in Resources */ = {isa = PBXBuildFile; fileRef = 2CE7F3B274BCE94F32AA0094 /* Resources/rules.json */; };
+		170B58A4326DD3F228EBB14A /* Resources/travel_catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 5815110A6FF9B90B74C5D97D /* Resources/travel_catalog.json */; };
+		BC9B36994F4BB038E98A1A3A /* API/OnDeviceAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F4BFEF48F4EBA2FADBF8AB /* API/OnDeviceAPIClient.swift */; };
+		E22235749E8A4831E54E9255 /* API/LocalRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4493839BCD3D05909FFD8D29 /* API/LocalRules.swift */; };
+		67764F0C0310EFF661EF1678 /* API/TravelCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98639429FDAE8FB3C8E6657B /* API/TravelCatalog.swift */; };
 		53660A18E30DE8B31F51F8E7 /* Scan/Measurement/HullWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 963F7DDE26898785AC2CE5B0 /* Scan/Measurement/HullWorker.swift */; };
 		14D362E7300058DC2002BB7C /* Scan/Measurement/BoxSilhouetteFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426AC6A2C11E837CD4344C87 /* Scan/Measurement/BoxSilhouetteFit.swift */; };
 		5D7642F133FA3A0F33AAB9D9 /* SilhouetteHullTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1B97761300850253A11D90 /* SilhouetteHullTests.swift */; };
@@ -85,6 +92,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D9D17518F015D190A5C96E94 /* OnDeviceIdentifyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnDeviceIdentifyTests.swift; sourceTree = "<group>"; };
+		D26B1BD97A7DE0292212773F /* Resources/airport_countries.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Resources/airport_countries.json; sourceTree = "<group>"; };
+		2CE7F3B274BCE94F32AA0094 /* Resources/rules.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Resources/rules.json; sourceTree = "<group>"; };
+		5815110A6FF9B90B74C5D97D /* Resources/travel_catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Resources/travel_catalog.json; sourceTree = "<group>"; };
+		47F4BFEF48F4EBA2FADBF8AB /* API/OnDeviceAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API/OnDeviceAPIClient.swift; sourceTree = "<group>"; };
+		4493839BCD3D05909FFD8D29 /* API/LocalRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API/LocalRules.swift; sourceTree = "<group>"; };
+		98639429FDAE8FB3C8E6657B /* API/TravelCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API/TravelCatalog.swift; sourceTree = "<group>"; };
 		963F7DDE26898785AC2CE5B0 /* Scan/Measurement/HullWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/HullWorker.swift; sourceTree = "<group>"; };
 		426AC6A2C11E837CD4344C87 /* Scan/Measurement/BoxSilhouetteFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/BoxSilhouetteFit.swift; sourceTree = "<group>"; };
 		AB1B97761300850253A11D90 /* SilhouetteHullTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SilhouetteHullTests.swift; sourceTree = "<group>"; };
@@ -170,6 +184,12 @@
 		1098403B55AF3C1CDA92BD33 /* PackFit */ = {
 			isa = PBXGroup;
 			children = (
+				D26B1BD97A7DE0292212773F /* Resources/airport_countries.json */,
+				2CE7F3B274BCE94F32AA0094 /* Resources/rules.json */,
+				5815110A6FF9B90B74C5D97D /* Resources/travel_catalog.json */,
+				47F4BFEF48F4EBA2FADBF8AB /* API/OnDeviceAPIClient.swift */,
+				4493839BCD3D05909FFD8D29 /* API/LocalRules.swift */,
+				98639429FDAE8FB3C8E6657B /* API/TravelCatalog.swift */,
 				963F7DDE26898785AC2CE5B0 /* Scan/Measurement/HullWorker.swift */,
 				426AC6A2C11E837CD4344C87 /* Scan/Measurement/BoxSilhouetteFit.swift */,
 				0913F935A2B14B9368AE808A /* Scan/Measurement/SilhouetteHull.swift */,
@@ -254,6 +274,7 @@
 		A155AA44B1D1618D2F5AF75E /* PackFitTests */ = {
 			isa = PBXGroup;
 			children = (
+				D9D17518F015D190A5C96E94 /* OnDeviceIdentifyTests.swift */,
 				AB1B97761300850253A11D90 /* SilhouetteHullTests.swift */,
 				21859376838BF23B0332273D /* TapMeasureTests.swift */,
 				B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
@@ -359,6 +380,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C4C072E5612FB15C238A70F1 /* Resources/airport_countries.json in Resources */,
+				84B785774509E86B05666681 /* Resources/rules.json in Resources */,
+				170B58A4326DD3F228EBB14A /* Resources/travel_catalog.json in Resources */,
 				8D54DC65EEEAC96AD8ECDE15 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -370,6 +394,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				368A7D935CBECA1A5B69E099 /* OnDeviceIdentifyTests.swift in Sources */,
 				5D7642F133FA3A0F33AAB9D9 /* SilhouetteHullTests.swift in Sources */,
 				61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */,
 				23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
@@ -382,6 +407,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BC9B36994F4BB038E98A1A3A /* API/OnDeviceAPIClient.swift in Sources */,
+				E22235749E8A4831E54E9255 /* API/LocalRules.swift in Sources */,
+				67764F0C0310EFF661EF1678 /* API/TravelCatalog.swift in Sources */,
 				53660A18E30DE8B31F51F8E7 /* Scan/Measurement/HullWorker.swift in Sources */,
 				14D362E7300058DC2002BB7C /* Scan/Measurement/BoxSilhouetteFit.swift in Sources */,
 				CFED991E875F2E6DAB3BA45B /* Scan/Measurement/SilhouetteHull.swift in Sources */,
