@@ -49,9 +49,13 @@ struct GuidedScanView: View {
         }
         .onAppear {
             session.presetBag = tripStore.bag
+            session.returnedFromViewer()
             if caps.supportsAR { session.start() }
         }
         .onDisappear { session.stop() }
+        .onChange(of: session.phase) { _, phase in
+            if phase == .packed { path.append(.planViewer) }
+        }
         .sheet(isPresented: reviewBinding) { reviewSheet }
     }
 
@@ -78,10 +82,19 @@ struct GuidedScanView: View {
                 default: return Copy.Guided.tapCornerFront
                 }
             }
+            guard session.hasDepth else {
+                if session.canLockBag { return Copy.Guided.bagMeasured }
+                if session.hasBagSeed, let hint = session.hullHint { return hintText(hint) }
+                return Copy.Guided.bagOutline
+            }
             if session.canLockBag { return Copy.Guided.bagStable }
             return session.hasBagSeed ? Copy.Guided.bagMeasuring : Copy.Guided.bag
         case .items:
             guard session.isTapMeasuring else {
+                if !session.hasDepth {
+                    if !session.measuring.isEmpty, let hint = session.hullHint { return hintText(hint) }
+                    return Copy.Guided.itemsOutline
+                }
                 return session.measuring.isEmpty ? Copy.Guided.items : Copy.Guided.itemsMeasuring
             }
             switch session.tapStep {
@@ -94,12 +107,22 @@ struct GuidedScanView: View {
         case .identifying: return Copy.Guided.identifying
         case .review: return Copy.Guided.review
         case .packing: return Copy.Guided.packing
+        case .packed: return Copy.Guided.packing
         case .overlay:
             if let placement = session.stepper.currentPlacement, let depth = session.shellDepthCm,
                placement.y + placement.h > depth + 0.5 {
                 return Copy.Guided.underLid
             }
             return Copy.Guided.overlay
+        }
+    }
+
+    private func hintText(_ hint: HullWorker.Hint) -> String {
+        switch hint {
+        case .keepInView: return Copy.Guided.hintKeepInView
+        case .lookFromAbove: return Copy.Guided.hintAbove
+        case .lookFromLow: return Copy.Guided.hintLow
+        case .moveAround: return Copy.Guided.hintAround
         }
     }
 
@@ -126,7 +149,7 @@ struct GuidedScanView: View {
             case .review:
                 Text(Copy.Guided.review)
                     .font(Tokens.TypeScale.callout)
-            case .packing:
+            case .packing, .packed:
                 ProgressView()
                     .frame(maxWidth: .infinity)
             case .overlay:
@@ -139,6 +162,20 @@ struct GuidedScanView: View {
 
     private var bagPanel: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
+            if !session.isCornerMode {
+                bagKindPicker
+            }
+            if let bag = session.liveBag, !session.isCornerMode {
+                let base = bag.fit
+                Text(String(format: "%.0f × %.0f cm, %.0f cm deep", base.rect.long * 100, base.rect.short * 100, base.height * 100))
+                    .font(Tokens.TypeScale.title)
+                if let lid = bag.shells?.lid {
+                    Text(String(format: "Lid %.0f cm deep", lid.height * 100))
+                        .font(Tokens.TypeScale.caption)
+                        .foregroundStyle(.secondary)
+                }
+                ConfidenceBadge(confidence: bag.confidence)
+            }
             if let cavity = session.liveCavity, !session.isCornerMode {
                 let box = cavity.fit.box
                 Text(String(format: "%.0f × %.0f cm, %.0f cm deep", box.rect.long * 100, box.rect.short * 100, box.height * 100))
@@ -149,7 +186,7 @@ struct GuidedScanView: View {
                 if session.isCornerMode {
                     Button(session.hasDepth ? "Cancel" : Copy.Guided.redo) { session.cancelCornerTaps() }
                         .disabled(!session.hasDepth && session.cornerTaps.isEmpty)
-                } else if session.showCornerFallback {
+                } else if session.showCornerFallback || !session.hasDepth {
                     Button(Copy.Guided.tapCorners) { session.beginCornerTaps() }
                         .font(Tokens.TypeScale.caption)
                 }
@@ -164,11 +201,30 @@ struct GuidedScanView: View {
         }
     }
 
+    /// Sets how the lid and walls are counted. Backpacks go to the compartment presets.
+    private var bagKindPicker: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            Text(Copy.Guided.bagKindPrompt)
+                .font(Tokens.TypeScale.caption)
+                .foregroundStyle(.secondary)
+            HStack {
+                Picker(Copy.Guided.bagKindPrompt, selection: $session.bagKind) {
+                    ForEach(ContainerFactory.BagKind.allCases) { kind in
+                        Text(kind.label).tag(kind)
+                    }
+                }
+                .pickerStyle(.segmented)
+                Button(Copy.Guided.bagBackpack) { path.append(.bagSetup) }
+                    .font(Tokens.TypeScale.caption)
+            }
+        }
+    }
+
     private var itemsPanel: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
             if session.isTapMeasuring {
                 tapPanel
-            } else if session.hasDepth {
+            } else {
                 Button(Copy.Guided.measureByTapping) { session.startTapMeasuring() }
                     .font(Tokens.TypeScale.caption)
             }
@@ -235,9 +291,7 @@ struct GuidedScanView: View {
             }
         }
         HStack {
-            if session.hasDepth {
-                Button(Copy.Guided.backToSweep) { session.stopTapMeasuring() }
-            }
+            Button(Copy.Guided.backToSweep) { session.stopTapMeasuring() }
             Spacer()
             Button(Copy.Guided.redo) { session.resetDraft() }
                 .disabled(session.itemTaps.isEmpty)

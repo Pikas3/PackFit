@@ -18,6 +18,8 @@ final class GuidedSession {
         case review
         case packing
         case overlay
+        /// Packed on a phone without LiDAR: the plan opens in the 3D viewer.
+        case packed
     }
 
     struct TrackedItem: Identifiable, Equatable {
@@ -47,6 +49,12 @@ final class GuidedSession {
     private(set) var errorText: String?
     /// The trip's bag; tap-measured bags take their depth from it.
     var presetBag: Container?
+    /// What kind of bag is being scanned; sets the lid depth and the wall allowance.
+    var bagKind: ContainerFactory.BagKind = .hardShell
+    /// Without LiDAR: the open bag measured from outlines, live until locked.
+    private(set) var liveBag: HullWorker.State?
+    /// Without LiDAR: what the user should do to finish the views.
+    private(set) var hullHint: HullWorker.Hint?
 
     /// Item being measured by taps: three base corners, then the top edge.
     struct TapDraft: Equatable {
@@ -78,6 +86,10 @@ final class GuidedSession {
     let worldRoot = AnchorEntity(world: matrix_identity_float4x4)
 
     private let worker = ScanWorker()
+    private let hullWorker = HullWorker()
+    /// Targets the hull worker is still measuring; frames are only segmented while true.
+    private var hullActive = false
+    private let bagHullID = 1
     private let client: any APIClient
     private var loop: Task<Void, Never>?
     /// Floor (x, z) the user tapped inside the open bag.
@@ -141,12 +153,10 @@ final class GuidedSession {
         let planeFloorY = Self.floorY(frame)
         if let planeFloorY { floorY = planeFloorY }
 
-        // Without LiDAR: wait for ARKit's floor plane, then measure by tapping.
+        // Without LiDAR: wait for ARKit's floor plane, then measure from outlines.
         guard hasDepth else {
-            if phase == .findFloor, planeFloorY != nil {
-                phase = .bag
-                beginCornerTaps()
-            }
+            if phase == .findFloor, planeFloorY != nil { phase = .bag }
+            if hullActive, !isCornerMode, !isTapMeasuring { await tickHull(frame) }
             return
         }
 
@@ -196,6 +206,114 @@ final class GuidedSession {
         return pool.map { $0.transform.columns.3.y }.min()
     }
 
+    // MARK: Without LiDAR
+
+    private func tickHull(_ frame: ARFrame) async {
+        guard let image = uprightImage(frame) else { return }
+        let result = await hullWorker.process(HullFrame(frame: frame, image: image))
+        hullActive = await hullWorker.isMeasuring
+        hullHint = result.hint
+        switch phase {
+        case .bag:
+            liveBag = result.states.first { $0.id == bagHullID }
+            if result.failed.contains(bagHullID) { errorText = Copy.Guided.bagNotFound }
+            updateBagHullWire()
+        case .items:
+            let states = result.states.filter { $0.kind == .item && !removedIDs.contains($0.id) }
+                .map { ScanWorker.ItemState(id: $0.id, fit: $0.fit, floorY: $0.floorY, stable: $0.stable, confidence: $0.confidence) }
+            lastItemStates = states
+            for s in states where s.stable { measuring.remove(s.id) }
+            if !result.failed.isEmpty {
+                result.failed.forEach { measuring.remove($0) }
+                errorText = Copy.Guided.itemNotFound
+            }
+            updateTracked(states)
+            updateCrops(frame)
+        default:
+            break
+        }
+    }
+
+    /// Normalized sensor coordinates under a screen point.
+    private func sensorPoint(_ point: CGPoint, in view: ARView, frame: ARFrame) -> SIMD2<Float> {
+        let size = view.bounds.size
+        let toImage = frame.displayTransform(for: .portrait, viewportSize: size).inverted()
+        let n = CGPoint(x: point.x / size.width, y: point.y / size.height).applying(toImage)
+        return [Float(n.x), Float(n.y)]
+    }
+
+    /// One tap on an item or inside the open bag starts measuring it from its outline.
+    private func startHull(at point: CGPoint, in view: ARView, kind: HullWorker.Kind, id: Int) -> Bool {
+        guard let frame = session.currentFrame, let floor = floorY else {
+            errorText = Copy.Guided.findFloor
+            return false
+        }
+        guard let hit = Self.hit(view, point, floorFirst: true) else {
+            errorText = Copy.Guided.tapMissed
+            return false
+        }
+        let sensor = sensorPoint(point, in: view, frame: frame)
+        errorText = nil
+        hullActive = true
+        Task { await hullWorker.add(id: id, kind: kind, tapSensor: sensor, tapFloor: [hit.x, floor, hit.z], floorY: floor) }
+        return true
+    }
+
+    private func seedBagHull(at point: CGPoint, in view: ARView) {
+        liveBag = nil
+        cavityBox?.entity.isEnabled = false
+        Task { await hullWorker.remove(id: bagHullID) }
+        _ = startHull(at: point, in: view, kind: .bag(expectTwo: bagKind == .hardShell), id: bagHullID)
+    }
+
+    private func updateBagHullWire() {
+        guard let state = liveBag else {
+            cavityBox?.entity.isEnabled = false
+            return
+        }
+        let box = cavityBox ?? {
+            let b = WireBox(name: "cavity")
+            worldRoot.addChild(b.entity)
+            cavityBox = b
+            return b
+        }()
+        box.entity.isEnabled = true
+        let fit = state.fit
+        box.update(
+            size: [fit.rect.long, fit.height, fit.rect.short],
+            transform: WireBox.transform(for: fit, floorY: state.floorY),
+            color: state.stable ? .systemGreen : .systemYellow
+        )
+    }
+
+    /// Locks the outline-measured bag: the tapped half is the base, the other the lid.
+    private func lockHullBag() {
+        guard let state = liveBag, state.stable, let frame = session.currentFrame else { return }
+        let shells = state.shells ?? ShellSplitter.Shells(base: state.fit, lid: nil)
+        let container = ContainerFactory.fromShells(
+            outerLongCm: Double(shells.base.rect.long * 100),
+            outerShortCm: Double(shells.base.rect.short * 100),
+            baseDepthCm: Double(shells.base.height * 100),
+            lidDepthCm: shells.lid.map { Double($0.height * 100) },
+            kind: bagKind,
+            confidence: state.confidence
+        )
+        self.container = container
+        // The plan's frame sits on the inside of the base shell.
+        let inner = container.compartments[0].dims
+        var rect = shells.base.rect
+        rect.long = Float(inner[0] / 100)
+        rect.short = Float(inner[2] / 100)
+        let fit = CavityFit(box: BoxFit(rect: rect, height: shells.base.height, cellCount: 0, fillRatio: 1), floorY: state.floorY)
+        lockedCavity = fit
+        let camera = frame.camera.transform.columns.3
+        bagTransform = fit.transform(cameraXZ: [camera.x, camera.z])
+        showLockedCavity(fit)
+        enterItems()
+    }
+
+    var hullBagReady: Bool { liveBag?.stable ?? false }
+
     // MARK: Bag
 
     private func updateCavityWire() {
@@ -220,11 +338,12 @@ final class GuidedSession {
         )
     }
 
-    var canLockBag: Bool { liveCavity?.stable ?? false }
-    var hasBagSeed: Bool { bagSeed != nil }
+    var canLockBag: Bool { hasDepth ? (liveCavity?.stable ?? false) : hullBagReady }
+    var hasBagSeed: Bool { hasDepth ? bagSeed != nil : liveBag != nil || hullActive }
 
     /// Locks the scanned cavity as the bag and moves on to the items.
     func lockBag() {
+        guard hasDepth else { return lockHullBag() }
         guard let state = liveCavity, let frame = session.currentFrame else { return }
         let camera = frame.camera.transform.columns.3
         let fit = state.fit
@@ -234,7 +353,8 @@ final class GuidedSession {
             innerLongCm: Double(fit.box.rect.long * 100),
             innerShortCm: Double(fit.box.rect.short * 100),
             shellDepthCm: Double(fit.shellDepth * 100),
-            confidence: state.confidence
+            confidence: state.confidence,
+            lidFraction: bagKind.lidFraction
         )
         showLockedCavity(fit)
         enterItems()
@@ -262,10 +382,6 @@ final class GuidedSession {
     }
 
     func cancelCornerTaps() {
-        guard hasDepth else {
-            cornerTaps = []
-            return
-        }
         isCornerMode = false
         cornerTaps = []
         bagTapTime = bagSeed == nil ? nil : Date()
@@ -293,7 +409,8 @@ final class GuidedSession {
             innerShortCm: Double(rect.short * 100),
             shellDepthCm: inner[1] / 2,
             confidence: 0.7,
-            method: .manual
+            method: .manual,
+            lidFraction: bagKind.lidFraction
         )
         isCornerMode = false
         cornerTaps = []
@@ -312,6 +429,8 @@ final class GuidedSession {
         switch phase {
         case .bag where hasDepth:
             seedBag(at: point, in: view)
+        case .bag:
+            seedBagHull(at: point, in: view)
         case .items:
             if isTapMeasuring {
                 handleItemTap(at: point, in: view)
@@ -341,6 +460,7 @@ final class GuidedSession {
     /// One tap on an item: the worker finds its outline and measures it over a few frames.
     /// Tapping an item that already has a box measures it again.
     private func measureItem(at point: CGPoint, in view: ARView) {
+        guard hasDepth else { return measureItemHull(at: point, in: view) }
         guard let p = worldPoint(at: point, in: view) else {
             errorText = Copy.Guided.tapNoDepth
             return
@@ -352,6 +472,19 @@ final class GuidedSession {
         nextTapID += 1
         measuring.insert(id)
         Task { await worker.addTarget(id: id, seed: p) }
+    }
+
+    /// Without LiDAR: one tap starts measuring the item from its outline while the user
+    /// moves around it. Tapping a measured item measures it again.
+    private func measureItemHull(at point: CGPoint, in view: ARView) {
+        if let hit = Self.hit(view, point, floorFirst: true) {
+            for t in tracked where t.fit.rect.contains(SIMD2(hit.x, hit.z), margin: 0.01) { removeItem(id: t.id) }
+        }
+        let id = nextTapID
+        if startHull(at: point, in: view, kind: .item, id: id) {
+            nextTapID += 1
+            measuring.insert(id)
+        }
     }
 
     /// The world point under a screen tap, read straight from the depth map so a thin item's
@@ -402,10 +535,10 @@ final class GuidedSession {
         resetDraft()
     }
 
-    /// Back to the LiDAR sweep. Without LiDAR, tapping is the only way to measure.
+    /// Back to one-tap measuring.
     func stopTapMeasuring() {
         resetDraft()
-        if hasDepth { isTapMeasuring = false }
+        isTapMeasuring = false
     }
 
     func resetDraft() {
@@ -515,9 +648,14 @@ final class GuidedSession {
         crops = [:]
         measuring = []
         labeledIDs = []
-        isTapMeasuring = !hasDepth
+        isTapMeasuring = false
         resetDraft()
-        Task { await worker.resetItems() }
+        hullActive = false
+        hullHint = nil
+        Task {
+            await worker.resetItems()
+            await hullWorker.reset()
+        }
     }
 
     private func updateTracked(_ states: [ScanWorker.ItemState]) {
@@ -562,7 +700,10 @@ final class GuidedSession {
         measuring.remove(id)
         labeledIDs.remove(id)
         removedIDs.insert(id)
-        Task { await worker.removeTarget(id: id) }
+        Task {
+            await worker.removeTarget(id: id)
+            await hullWorker.remove(id: id)
+        }
     }
 
     /// Keeps the best photo of each item: fully in frame, largest on screen.
@@ -671,6 +812,11 @@ final class GuidedSession {
         phase = .review
     }
 
+    /// Back from the 3D viewer: the list stays editable for another try.
+    func returnedFromViewer() {
+        if phase == .packed { phase = .review }
+    }
+
     func backToItems() {
         itemBoxes.values.forEach { $0.entity.isEnabled = true }
         phase = .items
@@ -687,6 +833,11 @@ final class GuidedSession {
         await planStore.computePlan(items: items, into: container)
         guard let plan = planStore.plan else {
             phase = .review
+            return
+        }
+        // Without LiDAR the overlay can't be anchored tightly enough; show the 3D viewer.
+        guard hasDepth else {
+            phase = .packed
             return
         }
         worldRoot.isEnabled = false
@@ -729,7 +880,13 @@ final class GuidedSession {
         isTapMeasuring = false
         showCornerFallback = false
         isCornerMode = false
+        liveBag = nil
+        hullActive = false
+        hullHint = nil
         phase = .findFloor
-        Task { await worker.reset() }
+        Task {
+            await worker.reset()
+            await hullWorker.reset()
+        }
     }
 }

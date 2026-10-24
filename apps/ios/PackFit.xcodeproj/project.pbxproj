@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		53660A18E30DE8B31F51F8E7 /* Scan/Measurement/HullWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 963F7DDE26898785AC2CE5B0 /* Scan/Measurement/HullWorker.swift */; };
+		14D362E7300058DC2002BB7C /* Scan/Measurement/BoxSilhouetteFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426AC6A2C11E837CD4344C87 /* Scan/Measurement/BoxSilhouetteFit.swift */; };
+		5D7642F133FA3A0F33AAB9D9 /* SilhouetteHullTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1B97761300850253A11D90 /* SilhouetteHullTests.swift */; };
+		CFED991E875F2E6DAB3BA45B /* Scan/Measurement/SilhouetteHull.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0913F935A2B14B9368AE808A /* Scan/Measurement/SilhouetteHull.swift */; };
 		C0FFEE0000000000000B0003 /* ObjectScanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000A0003 /* ObjectScanTests.swift */; };
 		C0FFEE0000000000000B0002 /* Scan/Measurement/Segmenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000A0002 /* Scan/Measurement/Segmenter.swift */; };
 		C0FFEE0000000000000B0001 /* Scan/Measurement/ObjectScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000A0001 /* Scan/Measurement/ObjectScan.swift */; };
@@ -81,6 +85,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		963F7DDE26898785AC2CE5B0 /* Scan/Measurement/HullWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/HullWorker.swift; sourceTree = "<group>"; };
+		426AC6A2C11E837CD4344C87 /* Scan/Measurement/BoxSilhouetteFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/BoxSilhouetteFit.swift; sourceTree = "<group>"; };
+		AB1B97761300850253A11D90 /* SilhouetteHullTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SilhouetteHullTests.swift; sourceTree = "<group>"; };
+		0913F935A2B14B9368AE808A /* Scan/Measurement/SilhouetteHull.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/SilhouetteHull.swift; sourceTree = "<group>"; };
 		C0FFEE0000000000000A0003 /* ObjectScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectScanTests.swift; sourceTree = "<group>"; };
 		C0FFEE0000000000000A0002 /* Scan/Measurement/Segmenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/Segmenter.swift; sourceTree = "<group>"; };
 		C0FFEE0000000000000A0001 /* Scan/Measurement/ObjectScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/ObjectScan.swift; sourceTree = "<group>"; };
@@ -162,6 +170,9 @@
 		1098403B55AF3C1CDA92BD33 /* PackFit */ = {
 			isa = PBXGroup;
 			children = (
+				963F7DDE26898785AC2CE5B0 /* Scan/Measurement/HullWorker.swift */,
+				426AC6A2C11E837CD4344C87 /* Scan/Measurement/BoxSilhouetteFit.swift */,
+				0913F935A2B14B9368AE808A /* Scan/Measurement/SilhouetteHull.swift */,
 				0913B27655C80F6857600E1C /* Scan/Measurement/TapMeasure.swift */,
 				4A1F4ADDD97AABA1893CE03F /* Guided/GuidedScanView.swift */,
 				672E033FC3C0BB05772F27AA /* Guided/GuidedARView.swift */,
@@ -243,6 +254,7 @@
 		A155AA44B1D1618D2F5AF75E /* PackFitTests */ = {
 			isa = PBXGroup;
 			children = (
+				AB1B97761300850253A11D90 /* SilhouetteHullTests.swift */,
 				21859376838BF23B0332273D /* TapMeasureTests.swift */,
 				B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
 				C0FFEE0000000000000A0003 /* ObjectScanTests.swift */,
@@ -358,6 +370,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D7642F133FA3A0F33AAB9D9 /* SilhouetteHullTests.swift in Sources */,
 				61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */,
 				23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
 				C0FFEE0000000000000B0003 /* ObjectScanTests.swift in Sources */,
@@ -369,6 +382,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53660A18E30DE8B31F51F8E7 /* Scan/Measurement/HullWorker.swift in Sources */,
+				14D362E7300058DC2002BB7C /* Scan/Measurement/BoxSilhouetteFit.swift in Sources */,
+				CFED991E875F2E6DAB3BA45B /* Scan/Measurement/SilhouetteHull.swift in Sources */,
 				1A2506A12F72FC9F102B8860 /* Scan/Measurement/TapMeasure.swift in Sources */,
 				6DE82B905DC99550B43DA85E /* Guided/GuidedScanView.swift in Sources */,
 				0C970C06CB51ED08C26AED24 /* Guided/GuidedARView.swift in Sources */,

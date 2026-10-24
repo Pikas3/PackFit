@@ -129,6 +129,18 @@ enum Copy {
         static let itemsLink = "Items"
         static let restart = "Start over"
         static let noAR = "This device can’t run AR. Choose a bag preset instead."
+        static let bagKindPrompt = "What kind of bag?"
+        static let bagHardShell = "Hard shell"
+        static let bagSoftShell = "Soft / zip lid"
+        static let bagBackpack = "Backpack"
+        static let bagOutline = "Open your suitcase flat on the floor, then tap inside the bottom half."
+        static let bagNotFound = "Couldn’t find the bag there. Step back so the whole bag is in view and tap inside it."
+        static let hintKeepInView = "Keep it in view."
+        static let hintAbove = "Hold the phone above it, looking down."
+        static let hintLow = "Now lower the phone and look from the side."
+        static let hintAround = "Walk a little way around it."
+        static let itemsOutline = "Tap an item, then move slowly around it until its box turns green."
+        static let bagMeasured = "Got it. Check the size, then tap “Use this bag”."
     }
 
     enum Viewer {
