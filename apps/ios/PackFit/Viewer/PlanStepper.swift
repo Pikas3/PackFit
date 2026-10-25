@@ -28,20 +28,21 @@ final class PlanStepper: PlanViewerControlling {
     /// Name tag over the current item, rebuilt on each step.
     private let label = Entity()
     private(set) var placements: [Placement] = []
+    /// Open-layout bounds [w, h, d] in cm (two-sided bags span both cavities + hinge).
     private(set) var innerDims: [Double] = []
     private var itemsById: [String: Item] = [:]
     private var plan: Plan?
     private var container: Container?
     private var playTask: Task<Void, Never>?
 
-    /// Origin at the compartment's inner bottom-left-back corner, metres.
+    /// Origin at the base/main compartment's inner bottom-left-back corner, metres.
     let root = Entity()
 
     init(pastOpacity: CGFloat = 0.85) {
         self.pastOpacity = pastOpacity
     }
 
-    /// Loads the first compartment's placements. Other compartments are not drawn.
+    /// Loads every compartment's placements. Zipper suitcases draw base and lid open flat.
     func load(
         plan: Plan, items: [Item], container: Container, style: ContainerStyle,
         shapes: [String: ObjectShape] = [:]
@@ -50,10 +51,13 @@ final class PlanStepper: PlanViewerControlling {
         root.children.forEach { $0.removeFromParent() }
         itemEntities.removeAll()
         baseScales.removeAll()
-        let main = container.compartments.first
-        innerDims = main?.dims ?? container.outer
+        innerDims = ContainerFactory.openBoundsCm(of: container)
+        let known = Set(container.compartments.map(\.name))
         placements = plan.placed
-            .filter { $0.compartment == nil || $0.compartment == main?.name }
+            .filter { placement in
+                guard let name = placement.compartment else { return true }
+                return known.contains(name)
+            }
             .sorted { $0.order < $1.order }
         itemsById = Dictionary(items.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         self.plan = plan
@@ -61,13 +65,32 @@ final class PlanStepper: PlanViewerControlling {
 
         switch style {
         case .volume:
-            root.addChild(SceneBuilder.buildContainer(outer: innerDims, type: container.type))
+            if container.type == .suitcase, container.compartments.count >= 2 {
+                root.addChild(SceneBuilder.buildOpenSuitcase(compartments: container.compartments))
+            } else {
+                let dims = container.compartments.first?.dims ?? container.outer
+                root.addChild(SceneBuilder.buildContainer(outer: dims, type: container.type))
+            }
         case .wireframe:
-            let size = SIMD3<Float>(innerDims.map { Float($0) * SceneBuilder.cmToMeters })
             let frame = Entity()
             frame.name = "container"
-            for edge in SceneBuilder.edgeEntities(size: size, color: UIColor.white.withAlphaComponent(0.9), thickness: 0.004) {
-                frame.addChild(edge)
+            if container.compartments.count >= 2 {
+                var zCm = 0.0
+                for comp in container.compartments where comp.dims.count == 3 {
+                    let size = SIMD3<Float>(comp.dims.map { Float($0) * SceneBuilder.cmToMeters })
+                    let shell = Entity()
+                    shell.position = [0, 0, Float(zCm) * SceneBuilder.cmToMeters]
+                    for edge in SceneBuilder.edgeEntities(size: size, color: UIColor.white.withAlphaComponent(0.9), thickness: 0.004) {
+                        shell.addChild(edge)
+                    }
+                    frame.addChild(shell)
+                    zCm += comp.dims[2] + ContainerFactory.openHingeCm
+                }
+            } else {
+                let size = SIMD3<Float>(innerDims.map { Float($0) * SceneBuilder.cmToMeters })
+                for edge in SceneBuilder.edgeEntities(size: size, color: UIColor.white.withAlphaComponent(0.9), thickness: 0.004) {
+                    frame.addChild(edge)
+                }
             }
             root.addChild(frame)
         }
@@ -75,6 +98,12 @@ final class PlanStepper: PlanViewerControlling {
         for placement in placements {
             guard let item = itemsById[placement.itemId] else { continue }
             let entity = SceneBuilder.buildItemEntity(placement: placement, item: item, shape: shapes[placement.itemId])
+            let offset = ContainerFactory.openOffsetCm(for: placement.compartment, in: container)
+            entity.position += SIMD3<Float>(
+                Float(offset.x) * SceneBuilder.cmToMeters,
+                Float(offset.y) * SceneBuilder.cmToMeters,
+                Float(offset.z) * SceneBuilder.cmToMeters
+            )
             root.addChild(entity)
             itemEntities[placement.itemId] = entity
             baseScales[placement.itemId] = entity.scale
@@ -167,16 +196,30 @@ final class PlanStepper: PlanViewerControlling {
 
     private func updateLabel() {
         label.children.forEach { $0.removeFromParent() }
-        guard let placement = currentPlacement, let item = currentItem,
+        guard let placement = currentPlacement, let item = currentItem, let container,
               placement.y + placement.h <= peelThreshold else { return }
         let tag = SceneBuilder.buildLabel(item.name)
         label.addChild(tag)
-        // Above the bag's rim as well as the item, so other items and the lid never hide it.
-        let top = max(placement.y + placement.h, innerDims.count == 3 ? innerDims[1] : 0)
+        let offset = ContainerFactory.openOffsetCm(for: placement.compartment, in: container)
+        let top = max(placement.y + placement.h, compartmentHeight(placement.compartment))
         label.position = [
-            Float(placement.x + placement.w / 2) * SceneBuilder.cmToMeters,
-            Float(top) * SceneBuilder.cmToMeters + 0.04,
-            Float(placement.z + placement.d / 2) * SceneBuilder.cmToMeters,
+            Float(placement.x + placement.w / 2 + offset.x) * SceneBuilder.cmToMeters,
+            Float(top + offset.y) * SceneBuilder.cmToMeters + 0.04,
+            Float(placement.z + placement.d / 2 + offset.z) * SceneBuilder.cmToMeters,
         ]
+    }
+
+    private func compartmentHeight(_ name: String?) -> Double {
+        guard let container else { return innerDims.count == 3 ? innerDims[1] : 0 }
+        if let name, let comp = container.compartments.first(where: { $0.name == name }), comp.dims.count == 3 {
+            return comp.dims[1]
+        }
+        return container.compartments.first?.dims[safe: 1] ?? (innerDims.count == 3 ? innerDims[1] : 0)
+    }
+}
+
+private extension Array where Element == Double {
+    subscript(safe index: Int) -> Double? {
+        indices.contains(index) ? self[index] : nil
     }
 }

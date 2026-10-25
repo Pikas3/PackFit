@@ -22,21 +22,8 @@ struct ScanView: View {
     }
 
     var body: some View {
-        ZStack {
-            manualForm
-
-            if isIdentifying {
-                Color.black.opacity(0.35).ignoresSafeArea()
-                VStack(spacing: Tokens.Spacing.sm) {
-                    ProgressView()
-                    Text(Copy.Scan.waiting)
-                        .font(Tokens.TypeScale.callout)
-                        .foregroundStyle(.white)
-                }
-                .padding(Tokens.Spacing.lg)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Tokens.Radius.md))
-            }
-        }
+        manualForm
+        .loadingModal(isPresented: isIdentifying, title: Copy.Loading.identifyingTitle, message: Copy.Loading.scanWait)
         .navigationTitle(Copy.Scan.title)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showReview) {

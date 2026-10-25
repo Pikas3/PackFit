@@ -208,6 +208,35 @@ import Testing
         #expect(validatePlan(p, items: items, container: backpack) == [])
     }
 
+    @Test func zipperSuitcasePacksBaseThenLid() {
+        // Shallow halves: one bulky item fills the base; the rest spills into the lid.
+        let bag = Container(
+            id: "zip", name: "Zip", type: .suitcase, outer: [60, 24, 40],
+            compartments: [
+                Compartment(name: "base", dims: [58, 10, 38], compressibility: 0.1),
+                Compartment(name: "lid", dims: [58, 10, 38], compressibility: 0.1),
+            ],
+            weightLimitKg: 23, wheelsSide: .back
+        )
+        let items = [
+            item("duffel-block", 50, 9, 30, kg: 4),
+            item("shirt-a", 28, 4, 22, kg: 0.3, soft: true, category: .clothing),
+            item("shirt-b", 28, 4, 22, kg: 0.3, soft: true, category: .clothing),
+        ]
+        let p = pack(items, into: bag)
+        #expect(p.unplaced.isEmpty)
+        let where_ = Dictionary(uniqueKeysWithValues: p.placed.map { ($0.itemId, $0.compartment ?? "main") })
+        #expect(where_["duffel-block"] == "base")
+        #expect(Set(where_.values) == Set(["base", "lid"]))
+        // Container order: every base step before every lid step.
+        let baseOrders = p.placed.filter { $0.compartment == "base" || $0.compartment == nil }.map(\.order)
+        let lidOrders = p.placed.filter { $0.compartment == "lid" }.map(\.order)
+        #expect(baseOrders.max()! < lidOrders.min()!)
+        #expect(validatePlan(p, items: items, container: bag) == [])
+        let lidStep = describeStep(p, items: items, order: lidOrders.min()!, container: bag)
+        #expect(lidStep?.notes.contains("goes in the lid side") == true)
+    }
+
     // MARK: Rule 10, never drop an item
 
     @Test func unplaceableItemsAreReported() {

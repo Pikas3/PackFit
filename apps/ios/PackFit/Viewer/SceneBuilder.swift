@@ -7,12 +7,48 @@ enum SceneBuilder {
 
     @MainActor
     static func buildContainer(outer: [Double], type: ContainerType) -> Entity {
+        buildCompartmentShell(dims: outer, type: type, name: "container", lidColor: .systemTeal)
+    }
+
+    /// Open zipper suitcase: base and lid cavities side by side along +z with a hinge gap.
+    @MainActor
+    static func buildOpenSuitcase(compartments: [Compartment]) -> Entity {
         let root = Entity()
         root.name = "container"
+        guard !compartments.isEmpty else { return root }
+        if compartments.count == 1 {
+            root.addChild(buildCompartmentShell(dims: compartments[0].dims, type: .suitcase, name: compartments[0].name, lidColor: .systemTeal))
+            return root
+        }
+        var zCm = 0.0
+        for (index, comp) in compartments.enumerated() {
+            let shell = buildCompartmentShell(
+                dims: comp.dims,
+                type: .suitcase,
+                name: comp.name,
+                lidColor: index == 0 ? .systemTeal : .systemIndigo
+            )
+            shell.position = [0, 0, Float(zCm) * cmToMeters]
+            root.addChild(shell)
+            zCm += comp.dims[2] + ContainerFactory.openHingeCm
+        }
+        return root
+    }
 
-        let w = Float(outer[0]) * cmToMeters
-        let h = Float(outer[1]) * cmToMeters
-        let d = Float(outer[2]) * cmToMeters
+    @MainActor
+    private static func buildCompartmentShell(
+        dims: [Double],
+        type: ContainerType,
+        name: String,
+        lidColor: UIColor
+    ) -> Entity {
+        let root = Entity()
+        root.name = name
+        guard dims.count == 3 else { return root }
+
+        let w = Float(dims[0]) * cmToMeters
+        let h = Float(dims[1]) * cmToMeters
+        let d = Float(dims[2]) * cmToMeters
 
         // Both see-through surfaces share a sort group so the lid always draws after the
         // volume; otherwise the renderer flips their order as the camera orbits.
@@ -30,13 +66,13 @@ enum SceneBuilder {
 
         let lid = ModelEntity(
             mesh: .generatePlane(width: w * 0.98, depth: d * 0.98),
-            materials: [translucent(.systemTeal, opacity: 0.15)]
+            materials: [translucent(lidColor, opacity: 0.15)]
         )
         // generatePlane(width:depth:) already lies flat in XZ. Lifted 2 mm off the volume's
         // top face so the two never share a depth.
         lid.position = [w / 2, h + 0.002, d / 2]
         lid.components.set(ModelSortGroupComponent(group: sortGroup, order: 1))
-        lid.name = type == .backpack ? "opening-top" : "opening-lid"
+        lid.name = type == .backpack ? "opening-top" : "opening-\(name)"
         root.addChild(lid)
 
         return root

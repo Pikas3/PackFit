@@ -80,7 +80,13 @@ func touching(_ a: Placement, _ b: Placement) -> Bool {
 
 private func notes(_ item: Item, placement p: Placement) -> [String] {
     var out: [String] = []
-    if let name = p.compartment, name != mainCompartment { out.append("goes in the \(name) compartment") }
+    if let name = p.compartment, name != mainCompartment {
+        switch name {
+        case "base": out.append("goes in the base (wheels) side")
+        case "lid": out.append("goes in the lid side")
+        default: out.append("goes in the \(name) compartment")
+        }
+    }
     if item.fragile { out.append("fragile, only soft clothes on top") }
     if item.upright {
         let standing = abs(p.h - item.h) <= eps

@@ -57,6 +57,7 @@ struct TapMeasureTests {
         let bag = ContainerFactory.fromCavity(innerLongCm: 70, innerShortCm: 45, shellDepthCm: 12, confidence: 0.7, method: .manual)
         #expect(bag.measurement?.method == .manual)
         #expect(bag.measurement?.deviceHasLidar == false)
-        #expect(bag.compartments.first?.dims == [70, 24, 45])
+        #expect(bag.compartments.map(\.name) == ["base", "lid"])
+        #expect(bag.compartments.first?.dims == [70, 12, 45])
     }
 }

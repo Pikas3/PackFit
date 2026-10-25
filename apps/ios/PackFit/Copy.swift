@@ -39,13 +39,27 @@ enum Copy {
         static let routeRulesHeader = "What you can / can’t bring"
         static func internationalRoute(_ from: String, _ to: String) -> String { "International: \(from) → \(to). Destination customs apply." }
         static let nightsField = "Nights"
-        static let departField = "Depart (YYYY-MM-DD)"
         static let bagField = "Bag for this trip"
         static let checkedBag = "Checked"
         static let carryOnBag = "Carry-on"
         static let activitiesHeader = "Activities"
         static let activityOther = "Other activity"
-        static let invalidDate = "Use depart date as YYYY-MM-DD, or leave it blank."
+        static let datesField = "Flight dates"
+        static let addDates = "Add depart and return dates"
+        static let departLabel = "Depart"
+        static let returnLabel = "Return"
+        static let addDate = "Add date"
+        static let pickReturn = "add return"
+        static let pickDepartHint = "Tap your depart day"
+        static let pickReturnHint = "Now tap your return day"
+        static let clearDates = "Clear"
+        static let doneDates = "Done"
+        static let previousMonth = "Previous month"
+        static let nextMonth = "Next month"
+        static let showCalendarHint = "Opens the calendar"
+        static let hideCalendarHint = "Closes the calendar"
+        static let needReturnDate = "Pick a return day too, or clear the dates."
+        static func nights(_ n: Int) -> String { n == 1 ? "1 night" : "\(n) nights" }
         static let suggestionsCTA = "Packing suggestions"
         static let beforeYouGoCTA = "Before you go"
         static let suggestionsTitle = "Suggestions"
@@ -75,6 +89,10 @@ enum Copy {
         static let wheelsPrompt = "Where are the wheels?"
         static let wheelsBack = "Back"
         static let wheelsBottom = "Bottom"
+        static let shellPrompt = "How does your suitcase open?"
+        static let shellMessage = "Some bags are one open shell. Others zip into two sides (base and lid)."
+        static let shellSingle = "One main cavity"
+        static let shellTwoSided = "Two sides (zipper)"
         static let continueItems = "Add items"
         static let weightLimit = "Weight limit (kg)"
     }
@@ -356,5 +374,14 @@ enum Copy {
         static let retry = "Try again"
         static let network = "Couldn’t reach the server. Using offline demo data."
         static let serverUnreachable = "Couldn’t reach the server. Check your connection and try again."
+    }
+
+    enum Loading {
+        static let identifyingTitle = "Identifying your items"
+        static let scanWait = "Usually 3–8 seconds."
+        static let inventoryWait = "Usually 5–15 seconds."
+        static func identified(_ done: Int, of total: Int) -> String { "\(done) of \(total) done" }
+        static let packingTitle = "Optimizing your packing"
+        static let packingWait = "Checking the rules and fitting everything into your bag."
     }
 }
