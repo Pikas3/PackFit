@@ -94,6 +94,7 @@
 	1EC31477D0E6CD4C525DD45A /* InventoryCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D007669112ED24127A28E0 /* InventoryCamera.swift */; };
 	EDA8FF2A60C863ABCA0B1D33 /* InventoryScanModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C45C4FD955E92A3D92D042 /* InventoryScanModel.swift */; };
 	A0CB6FDCE60CC2A112FB25B7 /* InventoryScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F31E776A0A393EA1F4A14B /* InventoryScanView.swift */; };
+	C1A7E0D5SUGGESTMATCH0100 /* SuggestionMatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5SUGGESTMATCH0200 /* SuggestionMatchTests.swift */; };
 	2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0813ABE8B81360786939232A /* InventoryMergeTests.swift */; };
 	A7A6636B7F03A01FEEE33FBC /* CardScale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA50B639EE1DBC63ABF1EAE /* CardScale.swift */; };
 	2767A531570093F927E2E96C /* SilhouetteFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BF69994A14EF7C6F4700048 /* SilhouetteFit.swift */; };
@@ -203,6 +204,7 @@
 	C8D007669112ED24127A28E0 /* InventoryCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryCamera.swift"; sourceTree = "<group>"; };
 	58C45C4FD955E92A3D92D042 /* InventoryScanModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryScanModel.swift"; sourceTree = "<group>"; };
 	B8F31E776A0A393EA1F4A14B /* InventoryScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryScanView.swift"; sourceTree = "<group>"; };
+	C1A7E0D5SUGGESTMATCH0200 /* SuggestionMatchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SuggestionMatchTests.swift"; sourceTree = "<group>"; };
 	0813ABE8B81360786939232A /* InventoryMergeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InventoryMergeTests.swift"; sourceTree = "<group>"; };
 	5CA50B639EE1DBC63ABF1EAE /* CardScale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/CardScale.swift"; sourceTree = "<group>"; };
 	8BF69994A14EF7C6F4700048 /* SilhouetteFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/SilhouetteFit.swift"; sourceTree = "<group>"; };
@@ -337,6 +339,7 @@
 			children = (
 			2230361D1F773C6955285FB6 /* CardScaleTests.swift */,
 			0813ABE8B81360786939232A /* InventoryMergeTests.swift */,
+			C1A7E0D5SUGGESTMATCH0200 /* SuggestionMatchTests.swift */,
 				21859376838BF23B0332273D /* TapMeasureTests.swift */,
 				B1DATERANGETEST00000002 /* DateRangeSelectionTests.swift */,
 				B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
@@ -461,6 +464,7 @@
 			files = (
 			4B4B29A7829A65A28AADD4A1 /* CardScaleTests.swift in Sources */,
 			2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */,
+			C1A7E0D5SUGGESTMATCH0100 /* SuggestionMatchTests.swift in Sources */,
 				61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */,
 				B1DATERANGETEST00000001 /* DateRangeSelectionTests.swift in Sources */,
 				23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
