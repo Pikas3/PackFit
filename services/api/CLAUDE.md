@@ -64,7 +64,9 @@ services/apify/
 
 ## WS3 server: `POST /scan/item`
 
-The iOS app measures `w/h/d` with LiDAR on most requests. Those dims are for packing only.
+The iOS app no longer calls this route; it uses `POST /scan/inventory` (one photo of the
+pile, credit card for scale) and measures `w/h/d` on-device. When a caller attaches
+`measured` dims, they are for packing only.
 The model's job is object detection from the photo: name, category, kg, fragile, soft,
 hardness, upright. Two prompt variants in `scanItem.ts`, chosen by whether `measured`
 is present:

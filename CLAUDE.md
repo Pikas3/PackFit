@@ -1,10 +1,10 @@
 # Snugly
 
-Cal Hacks 13.0 travel app (formerly PackFit). Scan your items with LiDAR, then see exactly how to pack your bag
-in 3D, with voice guidance and live travel rules. Target user: international students flying
+Cal Hacks 13.0 travel app (formerly PackFit). Snap one photo of your items, then see exactly how to pack your
+bag in 3D, with voice guidance and live travel rules. Target user: international students flying
 home with a 23 kg checked-bag limit.
 
-**Demo spine (2 min):** messy pile -> LiDAR-scan 3 items -> voice coach walks the 3D plan ->
+**Demo spine (2 min):** messy pile -> one photo with a credit card for scale -> voice coach walks the 3D plan ->
 one rule flag with a source link. If a feature is not on this spine, cut it.
 
 Full brief: `docs/outline.md`. Data contracts: `docs/contracts.md`. HTTP API: `docs/api.md`.
@@ -12,9 +12,9 @@ Full brief: `docs/outline.md`. Data contracts: `docs/contracts.md`. HTTP API: `d
 ## Platform
 
 Native iOS. SwiftUI, Swift 6 toolchain (Xcode 26), iOS 18 minimum. 3D with RealityKit
-(`RealityView`). Measurement with ARKit scene depth and scene reconstruction (LiDAR).
-Demo device is an iPhone Pro with LiDAR; non-LiDAR devices fall back to a reference-card
-flow and must not crash. No Android, no web. The outline's Expo plan is superseded.
+(`RealityView`). Measurement from a single camera photo: Vision finds a credit card for
+scale and outlines each object. No LiDAR or ARKit; the app runs on any iPhone on iOS 18.
+No Android, no web. The outline's Expo plan is superseded.
 
 The backend stays Node + TypeScript because the Claude, Apify and Cartesia SDKs are there
 and keys must not ship in the app.
@@ -28,7 +28,7 @@ with a local mock.
 | Section | Owns | Workstreams | Doc |
 |---|---|---|---|
 | 1 Core | `schemas/`, `Packages/PackFitSchemas`, `Packages/Packer` | WS1, WS10 | `Packages/Packer/CLAUDE.md` |
-| 2 iOS app | `apps/ios` (except `PackFit/Voice/`) | WS2, WS3 (client + LiDAR), WS4, WS8 | `apps/ios/CLAUDE.md` |
+| 2 iOS app | `apps/ios` (except `PackFit/Voice/`) | WS2, WS3 (client + measurement), WS4, WS8 | `apps/ios/CLAUDE.md` |
 | 3 Backend | `services/api` (except `src/routes/voice.ts`), `services/apify` | WS3 (server), WS5, WS6 | `services/api/CLAUDE.md` |
 | 4 Voice + Submission | `Packages/Voice`, `apps/ios/PackFit/Voice/`, `services/api/src/routes/voice.ts`, `README.md`, `docs/tracks/`, `docs/demo/` | WS7, WS9 | `Packages/Voice/CLAUDE.md` |
 
@@ -51,8 +51,9 @@ with a local mock.
    `lastVerified`. Data older than 30 days is labeled stale in the UI.
 5. **Deterministic solver.** Same input, same `Plan`. No randomness in the packer and no
    reliance on unstable sort order.
-6. **LiDAR first.** Dimensions come from ARKit depth when the device has it; the model
-   estimates only what cannot be measured (name, category, weight, fragility). Show the
+6. **Measure, don't guess.** Dimensions come from the photo, scaled by the credit card; the
+   model names the objects and estimates only what cannot be measured (category, weight,
+   fragility, and sizes when no card is found). Show the
    measurement method and confidence to the user and allow manual override of every field.
 7. Suitcase first. Backpack is a simplified compartment model. Nothing beyond that.
 

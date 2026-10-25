@@ -135,7 +135,7 @@ enum SilhouetteFit {
         }
     }
 
-    /// Confidence for packing, 0.35-0.85. A card photo never beats LiDAR.
+    /// Confidence for packing, 0.35-0.85.
     static func confidence(_ fit: CardBoxFit, mask: ObjectMask, pose: PlanePose) -> Double {
         var c = 0.85
         if fit.iou < 0.75 { c -= 0.1 }

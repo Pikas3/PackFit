@@ -1,6 +1,6 @@
 # Snugly (Cal Hacks 13.0)
 
-Scan items with LiDAR, get a 3D packing plan, and check travel rules with source links.
+Snap one photo of your pile, get a 3D packing plan, and check travel rules with source links.
 Target user: international students flying home under a 23 kg checked-bag limit.
 
 **Guidance only — not legal or airline authority.** Every rule flag and before-you-go tip
@@ -8,16 +8,34 @@ includes a `sourceUrl` and `lastVerified`. Data older than 30 days is labeled st
 
 ## Demo spine
 
-Trip setup → suggestions / before-you-go → LiDAR scan → rule flags → packer → 3D viewer.
+Flight lookup → weather, suggestions and before-you-go tips → pick a bag → photo of the pile
+→ review items → rule flags → packer → 3D viewer and step-by-step packing checklist.
+
+## How it works
+
+- **Trip.** Enter an airline code and flight number. The server looks the flight up (Apify
+  flight-status actor, then AviationStack, then bundled demo flights) and fills origin,
+  destination, weather and route notices.
+- **Bag.** Pick a preset suitcase or backpack, or type in your own bag's size. Suitcases can be
+  single-shell or two-sided; backpacks use a simple compartment model.
+- **Items.** Lay a credit card flat next to your things and take a photo at about 45°. Claude
+  names every object in the photo. The app finds the card on-device and uses it as the scale
+  reference to measure each object's width and depth (and height when the angle allows).
+  Without a card, sizes are Claude's estimates and are marked with `~`. You can edit every
+  field on every item.
+- **Plan.** `Packages/Packer` runs on the phone and is deterministic: the same items and bag
+  always give the same plan. The Results tab shows the plan in 3D (RealityKit), and the Plan
+  tab lists the steps layer by layer.
+- **Rules.** `POST /rules/check` flags only items that break a TSA, airline or customs rule.
+  Each flag links to its source and is labeled stale after 30 days.
 
 ## Run
 
 ### What you need
 
 - A Mac with **Xcode 26** (free on the Mac App Store).
-- An **iPhone on iOS 18 or later**. LiDAR scanning needs a Pro model (iPhone 12 Pro or newer).
-  Other iPhones get the credit-card reference flow instead, and the simulator gets a manual
-  size form.
+- An **iPhone on iOS 18 or later**. Any model works: scanning uses the regular camera and a
+  credit card for scale. The simulator has no camera, so it uses sample items instead.
 - An **Apple ID**. A free one works. You don't need a paid developer account.
 - For the backend only: **Node 24** and **pnpm**. Run `corepack enable` once and the repo's
   pinned pnpm version is used.
@@ -60,19 +78,21 @@ again.
 
 ### 3. (Optional) Connect a backend
 
-Live scanning, rules and suggestions go through `services/api`. The app never holds API keys.
+Live scanning, flight lookup, rules and suggestions go through `services/api`. The app never holds API keys.
 
 **Run the server on your Mac:**
 
 ```bash
 pnpm install
-cp services/api/.env.example services/api/.env   # optional: ANTHROPIC_API_KEY, APIFY_TOKEN
+cp services/api/.env.example services/api/.env   # optional: ANTHROPIC_API_KEY, APIFY_TOKEN, AVIATIONSTACK_API_KEY
 pnpm --filter api dev                            # http://localhost:8787
 pnpm --filter api test
 ```
 
-With no Anthropic key (or `MOCK_CLAUDE=1`), the server returns deterministic stubs, so it still
-works offline.
+With no Anthropic key (or `MOCK_CLAUDE=1`, the default in `.env.example`), the server returns
+deterministic stubs, so it still works offline. Set `MOCK_CLAUDE=0` and add a key for real
+photo scans. Without an Apify token, flight lookup only knows the demo flights (UA 88, BA 178,
+AS 204, DL 188, AA 100).
 
 Your phone can't reach `localhost` on the Mac. Point the app at the Mac's Wi-Fi address and
 keep both devices on the same network:
@@ -99,8 +119,8 @@ to the token its operator gives you. Never commit that token.
 
 ### Simulator
 
-Choose any iPhone simulator as the destination. It needs no team ID. It has no camera or LiDAR,
-so scanning falls back to a manual size form, and `MOCK_API = YES` is the simplest setup.
+Choose any iPhone simulator as the destination. It needs no team ID. It has no camera, so
+**Take photo** loads sample items, and `MOCK_API = YES` is the simplest setup.
 
 ### Troubleshooting
 
@@ -120,7 +140,8 @@ Used only on the server (`services/api`), never in the iOS binary.
 
 | Where | What |
 |---|---|
-| `src/claude/prompts/scanItem.ts` + `services/scan.ts` | Object-detection style item ID from a photo; device dims attached for packing only |
+| `src/claude/prompts/scanInventory.ts` + `services/scan.ts` | Names every object in a pile photo, with a box per object and the credit card's location (`POST /scan/inventory`) |
+| `src/claude/prompts/scanItem.ts` + `services/scan.ts` | Single-item ID from a photo (`POST /scan/item`) |
 | `src/claude/prompts/mapRules.ts` + `services/rules.ts` | Choose among retrieved TSA/airline/country candidates; write one-sentence flag text |
 | `src/claude/prompts/askRule.ts` | Free-text “is this allowed?” answers grounded in candidate rules |
 | `src/claude/prompts/suggestItems.ts` + `services/trip.ts` | Destination packing suggestions as strict JSON (`Suggestion`) |
@@ -128,6 +149,9 @@ Used only on the server (`services/api`), never in the iOS binary.
 Keys: `ANTHROPIC_API_KEY`, optional `ANTHROPIC_MODEL` / `ANTHROPIC_MODEL_FAST` in `services/api/.env`.
 
 ### Apify
+
+`POST /trip/lookup` calls a flight-status actor (`APIFY_FLIGHT_ACTOR`, default
+`apt_marble~flight-status-tracker`) and caches results per flight number.
 
 Actors under `services/apify/` scrape and normalize travel rules. Downstream sync fills
 `services/api/data/rules/{tsa,airline,country}.json`. The app and API always fall back to the

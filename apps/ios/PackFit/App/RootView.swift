@@ -4,7 +4,6 @@ struct RootView: View {
     @Environment(TripStore.self) private var tripStore
     @Environment(ItemsStore.self) private var itemsStore
     @Environment(PlanStore.self) private var planStore
-    @Environment(DeviceCapabilities.self) private var caps
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var navigator = AppNavigator()
     @State private var homePath: [Route] = []
@@ -60,16 +59,12 @@ struct RootView: View {
             BagSetupView(path: path)
         case .itemList:
             ItemListView(path: path)
-        case .scan:
-            ScanView(client: client)
         case .planViewer:
             PlanViewerView(path: path)
         case .rules:
             RulesView()
         case .inventoryScan:
             InventoryScanView(path: path, client: client)
-        case .arOverlay, .guidedScan:
-            GuidedScanView(path: path, client: client)
         case .suggestions:
             SuggestionsView(path: path)
         case .beforeYouGo:

@@ -53,7 +53,7 @@ struct ItemListView: View {
                                         .font(Tokens.TypeScale.caption)
                                         .foregroundStyle(.secondary)
                                     HStack {
-                                        MeasurementMethodBadge(method: item.measurement?.method, tapMeasured: itemsStore.tapMeasuredIDs.contains(item.id))
+                                        MeasurementMethodBadge(method: item.measurement?.method)
                                         ConfidenceBadge(confidence: item.measurement?.confidence ?? item.confidence)
                                     }
                                     let flags = rulesStore.flags(for: item.id)

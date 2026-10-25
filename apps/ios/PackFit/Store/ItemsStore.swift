@@ -4,8 +4,6 @@ import Foundation
 @MainActor
 final class ItemsStore {
     var items: [Item] = []
-    /// Items sized by AR taps rather than LiDAR. App-only: the schema records them as `.manual`.
-    var tapMeasuredIDs: Set<String> = []
     /// Solids from the photo scan (box, standing or lying cylinder), used to pick each
     /// item's 3D model. App-only: not in the schema, never sent to the server or the packer.
     var shapes: [String: ObjectShape] = [:]

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct BagSetupView: View {
     @Environment(TripStore.self) private var tripStore
-    @Environment(DeviceCapabilities.self) private var caps
     @Binding var path: [Route]
 
     @State private var showManual = false
@@ -48,11 +47,6 @@ struct BagSetupView: View {
                 }
             }
             Section(Copy.Bag.custom) {
-                if caps.supportsGuidedScan {
-                    Button { path.append(.guidedScan) } label: {
-                        Label(Copy.Bag.measureLidar, systemImage: "camera.metering.matrix")
-                    }
-                }
                 Button { showManual = true } label: {
                     Label(Copy.Bag.measureManual, systemImage: "ruler")
                 }

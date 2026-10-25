@@ -7,7 +7,6 @@ struct PackFitApp: App {
     @State private var itemsStore = ItemsStore()
     @State private var planStore = PlanStore()
     @State private var rulesStore = RulesStore()
-    @State private var capabilities = DeviceCapabilities()
 
     init() {
         Self.applyBarFonts()
@@ -38,7 +37,6 @@ struct PackFitApp: App {
                 .environment(itemsStore)
                 .environment(planStore)
                 .environment(rulesStore)
-                .environment(capabilities)
         }
     }
 }
