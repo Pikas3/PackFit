@@ -39,6 +39,15 @@
 	<string>PackFit uses the camera and LiDAR to measure items and bags so packing dimensions stay accurate.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>PackFit talks to the PackFit server on your local network during development.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Fredoka-Medium.ttf</string>
+		<string>Fredoka-SemiBold.ttf</string>
+		<string>Nunito-Regular.ttf</string>
+		<string>Nunito-SemiBold.ttf</string>
+		<string>Nunito-Bold.ttf</string>
+		<string>Nunito-ExtraBold.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
