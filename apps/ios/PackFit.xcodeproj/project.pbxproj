@@ -76,6 +76,7 @@
 	C1A7E0D5DESTWEATHER0300 /* DestinationWeatherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5DESTWEATHER0400 /* DestinationWeatherTests.swift */; };
 	C1A7E0D5SUGGESTMATCH0100 /* SuggestionMatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5SUGGESTMATCH0200 /* SuggestionMatchTests.swift */; };
 	2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0813ABE8B81360786939232A /* InventoryMergeTests.swift */; };
+	5A0C1E0F5A0C1E0F5A0C1E03 /* RulesSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A0C1E0F5A0C1E0F5A0C1E04 /* RulesSyncTests.swift */; };
 	A7A6636B7F03A01FEEE33FBC /* CardScale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA50B639EE1DBC63ABF1EAE /* CardScale.swift */; };
 	2767A531570093F927E2E96C /* SilhouetteFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BF69994A14EF7C6F4700048 /* SilhouetteFit.swift */; };
 	4B4B29A7829A65A28AADD4A1 /* CardScaleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2230361D1F773C6955285FB6 /* CardScaleTests.swift */; };
@@ -166,6 +167,7 @@
 	C1A7E0D5DESTWEATHER0400 /* DestinationWeatherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DestinationWeatherTests.swift"; sourceTree = "<group>"; };
 	C1A7E0D5SUGGESTMATCH0200 /* SuggestionMatchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SuggestionMatchTests.swift"; sourceTree = "<group>"; };
 	0813ABE8B81360786939232A /* InventoryMergeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InventoryMergeTests.swift"; sourceTree = "<group>"; };
+	5A0C1E0F5A0C1E0F5A0C1E04 /* RulesSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RulesSyncTests.swift"; sourceTree = "<group>"; };
 	5CA50B639EE1DBC63ABF1EAE /* CardScale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/CardScale.swift"; sourceTree = "<group>"; };
 	8BF69994A14EF7C6F4700048 /* SilhouetteFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/SilhouetteFit.swift"; sourceTree = "<group>"; };
 	2230361D1F773C6955285FB6 /* CardScaleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CardScaleTests.swift"; sourceTree = "<group>"; };
@@ -282,6 +284,7 @@
 			children = (
 			2230361D1F773C6955285FB6 /* CardScaleTests.swift */,
 			0813ABE8B81360786939232A /* InventoryMergeTests.swift */,
+			5A0C1E0F5A0C1E0F5A0C1E04 /* RulesSyncTests.swift */,
 			C1A7E0D5SUGGESTMATCH0200 /* SuggestionMatchTests.swift */,
 			C1A7E0D5DESTWEATHER0400 /* DestinationWeatherTests.swift */,
 				B1DATERANGETEST00000002 /* DateRangeSelectionTests.swift */,
@@ -404,6 +407,7 @@
 			files = (
 			4B4B29A7829A65A28AADD4A1 /* CardScaleTests.swift in Sources */,
 			2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */,
+			5A0C1E0F5A0C1E0F5A0C1E03 /* RulesSyncTests.swift in Sources */,
 			C1A7E0D5SUGGESTMATCH0100 /* SuggestionMatchTests.swift in Sources */,
 			C1A7E0D5DESTWEATHER0300 /* DestinationWeatherTests.swift in Sources */,
 				B1DATERANGETEST00000001 /* DateRangeSelectionTests.swift in Sources */,

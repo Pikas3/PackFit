@@ -4,6 +4,7 @@ struct RootView: View {
     @Environment(TripStore.self) private var tripStore
     @Environment(ItemsStore.self) private var itemsStore
     @Environment(PlanStore.self) private var planStore
+    @Environment(RulesStore.self) private var rulesStore
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var navigator = AppNavigator()
     @State private var homePath: [Route] = []
@@ -39,6 +40,16 @@ struct RootView: View {
         .tint(Tokens.Palette.pink700)
         .font(Tokens.TypeScale.base)
         .task { openPreviewPlanIfAsked() }
+        // However an item is added (scan, suggestion, edit), check it against the travel
+        // rules and add its flags, without re-checking everything already on the list.
+        .task(id: RulesInput(items: itemsStore.items, trip: tripStore.trip, useChecked: tripStore.useChecked)) {
+            try? await Task.sleep(for: .milliseconds(400))
+            guard !Task.isCancelled, let trip = tripStore.trip else { return }
+            await rulesStore.sync(
+                items: itemsStore.items, trip: trip,
+                bag: tripStore.useChecked ? "checked" : "carryOn", client: client
+            )
+        }
     }
 
     private func stack<Content: View>(path: Binding<[Route]>, @ViewBuilder root: () -> Content) -> some View {
@@ -101,4 +112,11 @@ struct RootView: View {
         }
         #endif
     }
+}
+
+/// What the rule flags depend on; any change re-runs the incremental check.
+private struct RulesInput: Equatable {
+    let items: [Item]
+    let trip: Trip?
+    let useChecked: Bool
 }
