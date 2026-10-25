@@ -111,6 +111,12 @@ enum Copy {
     enum Items {
         static let title = "Items"
         static let scan = "Scan item"
+        static let scanMore = "Scan more items"
+        static let needFlight = "Add your flight to pack"
+        static let needBag = "Choose your bag to pack"
+        static func summary(_ count: Int, kg: Double) -> String {
+            String(format: "%d item%@ · %.1f kg", count, count == 1 ? "" : "s", kg)
+        }
         static let pack = "Pack bag"
         static let empty = "No items yet. Scan three things from the pile."
         static let emptyAction = "Scan an item"

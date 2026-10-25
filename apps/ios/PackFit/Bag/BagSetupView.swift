@@ -24,7 +24,7 @@ struct BagSetupView: View {
                             showShell = true
                         } else {
                             tripStore.setBag(bag)
-                            path.append(.itemList)
+                            continueToItems()
                         }
                     } label: {
                         HStack(spacing: 12) {
@@ -82,7 +82,7 @@ struct BagSetupView: View {
                 BackpackEditorView(bag: bag) { edited in
                     tripStore.setBag(edited)
                     showBackpackEditor = false
-                    path.append(.itemList)
+                    continueToItems()
                 }
             }
         }
@@ -96,7 +96,7 @@ struct BagSetupView: View {
             showShell = true
         } else {
             tripStore.setBag(bag)
-            path.append(.itemList)
+            continueToItems()
         }
     }
 
@@ -104,10 +104,19 @@ struct BagSetupView: View {
         guard let bag = pendingBag else { return }
         tripStore.setBag(ContainerFactory.applying(shell, to: bag))
         pendingBag = nil
-        path.append(.itemList)
+        continueToItems()
     }
 
     private func dimsLabel(_ outer: [Double]) -> String {
         String(format: "%.0f×%.0f×%.0f cm", outer[0], outer[1], outer[2])
+    }
+
+    /// Back to the item list when we came from it (Optimize asked for a bag), else on to it.
+    private func continueToItems() {
+        if path.dropLast().last == .itemList {
+            path.removeLast()
+        } else {
+            path.append(.itemList)
+        }
     }
 }

@@ -21,6 +21,7 @@ struct ItemListView: View {
                 }
             } else {
                 List {
+                    actions
                     if !rulesStore.flags.isEmpty || rulesStore.stale {
                         Section {
                             Text(rulesStore.summary.isEmpty ? Copy.Items.flagsHint : rulesStore.summary)
@@ -78,27 +79,20 @@ struct ItemListView: View {
                 }
             }
         }
-        .navigationTitle(Copy.Items.title)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button(Copy.Trip.suggestionsTitle) { path.append(.suggestions) }
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(Copy.Items.scan) { path.append(.inventoryScan) }
+            ToolbarItem(placement: .principal) {
+                NavTitle(title: Copy.Items.title, subtitle: itemsStore.items.isEmpty ? nil : Copy.Items.summary(
+                    itemsStore.items.count, kg: itemsStore.items.reduce(0) { $0 + $1.kg }
+                ))
             }
         }
         .packFitCanvas()
         .safeAreaInset(edge: .bottom) {
             if !itemsStore.items.isEmpty {
-                Button {
-                    Task { await packAndContinue() }
-                } label: {
-                    Label(Copy.Home.optimize, systemImage: "sparkles")
-                }
-                .buttonStyle(.packFitPrimary)
-                .disabled(tripStore.bag == nil || planStore.isPacking)
-                .padding(.horizontal, Tokens.Spacing.screen)
-                .padding(.bottom, Tokens.Spacing.sm)
+                optimizeButton
+                    .padding(.horizontal, Tokens.Spacing.screen)
+                    .padding(.bottom, Tokens.Spacing.sm)
             }
         }
         .task(id: itemsStore.items.map(\.id)) {
@@ -148,6 +142,56 @@ struct ItemListView: View {
                         }
                     }
             }
+        }
+    }
+
+    /// Scan more and packing ideas, as pills like the ones on Home.
+    private var actions: some View {
+        HStack(spacing: Tokens.Spacing.sm) {
+            Button { path.append(.inventoryScan) } label: {
+                PillLabel(title: Copy.Items.scanMore, systemImage: "camera.viewfinder")
+            }
+            if tripStore.trip != nil {
+                Button { path.append(.suggestions) } label: {
+                    PillLabel(title: Copy.Home.packingIdeas, systemImage: "sparkles")
+                }
+            }
+        }
+        // Without plain styles a List row fires every button in it on any tap.
+        .buttonStyle(.plain)
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .listRowSeparator(.hidden)
+    }
+
+    /// Never a dead grey button: without a flight or a bag it says so and goes to set it up.
+    @ViewBuilder
+    private var optimizeButton: some View {
+        if tripStore.trip == nil {
+            Button { path.removeAll() } label: {
+                Label(Copy.Items.needFlight, systemImage: "airplane")
+            }
+            .buttonStyle(.packFitPrimary)
+        } else if tripStore.bag == nil {
+            Button { path.append(.bagSetup) } label: {
+                Label(Copy.Items.needBag, systemImage: "suitcase")
+            }
+            .buttonStyle(.packFitPrimary)
+        } else {
+            Button {
+                Task { await packAndContinue() }
+            } label: {
+                HStack(spacing: Tokens.Spacing.sm) {
+                    if planStore.isPacking {
+                        ProgressView().tint(Tokens.Palette.pink800)
+                    } else {
+                        Image(systemName: "sparkles")
+                    }
+                    Text(Copy.Home.optimize)
+                }
+            }
+            .buttonStyle(.packFitPrimary)
+            .disabled(planStore.isPacking)
         }
     }
 
