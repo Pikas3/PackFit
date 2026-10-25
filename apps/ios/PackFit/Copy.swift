@@ -116,7 +116,8 @@ enum Copy {
     enum Inventory {
         static let title = "Photo inventory"
         static let entry = "Snap the pile"
-        static let hint = "Put a credit card flat on the floor next to your things. Hold the phone at about 45°, with everything in the frame."
+        static let hint = "Put a credit card flat on the floor next to your things. Hold the phone at about 45°, with everything in the frame. Tap the card if it is hard to lock."
+        static let tapToFocus = "Looking for the card here…"
         static let cardSeen = "Card found. Take the photo."
         static let capture = "Take photo"
         static let identifying = "Finding everything in the photo… usually 5–15 seconds."

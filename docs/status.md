@@ -353,6 +353,19 @@ Figma: https://www.figma.com/design/90r9EPWzi2CDYln8Nwy4m5/PackFit-Cute
 - **How to run:** debug builds take `-previewPlan` plus `-previewTab home|plan` to open a tab with the fixture trip.
 - **Verified:** simulator tests pass, the device build is clean, and light and dark screenshots were checked. Not yet checked on device.
 
+## 2026-10-25 section-2 tap-to-focus credit card (inventory)
+Built:
+- Tap on the inventory camera preview autofocuses/exposes at that point and searches for an
+  ID-1 card in a box around the tap (`InventoryCamera.focusOnCard`).
+- Live detection uses a Vision ROI + looser thresholds while searching, and
+  `PlanePose.bestCard(..., requireHint: true)` so only a card in that region locks.
+- Dashed search box + reticle; copy prompts to tap if the card is hard to lock.
+- Still measurement falls back to the live/tap hint when Claude did not mark the card.
+Cut: none.
+Run: photo inventory on device — tap the card when the green outline will not lock.
+Measured: not yet (needs Pro / packing-floor try).
+Blocked on: device check of 90° POI mapping and ROI lock rate.
+Schema changes: none.
 ## 2026-10-25 section-2 two-sided zipper suitcase
 Built:
 - Bag setup asks “One main cavity” vs “Two sides (zipper)” for suitcases

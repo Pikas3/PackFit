@@ -70,6 +70,15 @@ struct CardScaleTests {
         #expect(pose.card == right)
     }
 
+    @Test func bestCardRequireHintIgnoresCardsOutsideRegion() {
+        let left = camera.cardQuad(at: [-20, 5], yaw: 0)
+        let right = camera.cardQuad(at: [30, 5], yaw: 0.2)
+        let hint = right.bounds
+        #expect(PlanePose.bestCard(among: [left], intrinsics: camera.intrinsics, hint: hint, requireHint: true) == nil)
+        let pose = PlanePose.bestCard(among: [left, right], intrinsics: camera.intrinsics, hint: hint, requireHint: true)
+        #expect(pose?.card == right)
+    }
+
     @Test func boxFitRecoversDimensions() throws {
         let card = camera.cardQuad(at: [0, 0], yaw: 0)
         let pose = try #require(PlanePose.fromCard(card, intrinsics: camera.intrinsics))
