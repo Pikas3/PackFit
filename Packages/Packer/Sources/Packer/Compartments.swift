@@ -34,10 +34,14 @@ func accepts(_ compartment: Compartment, item: Item, container: Container) -> Bo
 
 /// Restricted compartments are filled first (laptop, then front) so they get the items
 /// they exist for; the rest go to the remaining compartments in container order.
+/// Zipper suitcases fill the base (wheels) side before the lid so leftovers land in the lid.
 func packingSequence(_ container: Container) -> [Compartment] {
     let valid = container.compartments.filter { $0.dims.count == 3 }
-    guard container.type == .backpack else { return valid }
-    let rank = ["laptop": 0, "front": 1]
+    let rank: [String: Int]
+    switch container.type {
+    case .backpack: rank = ["laptop": 0, "front": 1]
+    case .suitcase, .duffel: rank = ["base": 0, "main": 0, "lid": 1]
+    }
     return valid.enumerated()
         .sorted { (rank[$0.element.name] ?? 2, $0.offset) < (rank[$1.element.name] ?? 2, $1.offset) }
         .map(\.element)

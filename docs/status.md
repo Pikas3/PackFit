@@ -349,3 +349,18 @@ Figma: https://www.figma.com/design/90r9EPWzi2CDYln8Nwy4m5/PackFit-Cute
 - **Cut:** the Figma Profile tab, since there is no profile feature.
 - **How to run:** debug builds take `-previewPlan` plus `-previewTab home|plan` to open a tab with the fixture trip.
 - **Verified:** simulator tests pass, the device build is clean, and light and dark screenshots were checked. Not yet checked on device.
+
+## 2026-10-25 section-2 two-sided zipper suitcase
+Built:
+- Bag setup asks “One main cavity” vs “Two sides (zipper)” for suitcases
+  (`Copy.Bag.shell*`, `BagSetupView`).
+- `ContainerFactory.SuitcaseShell` / `applying(_:to:)` splits closed inner height into
+  `base` + `lid`. LiDAR/tap cavity scan defaults to two-sided.
+- Packer fills base then lid (`Compartments.packingSequence`); step notes say which side.
+- 3D viewer draws both cavities open flat along +z with a hinge gap; items offset per side
+  (`SceneBuilder.buildOpenSuitcase`, `PlanStepper`).
+Cut: no shared fixture yet for a two-sided preset (converted at select time).
+Run: Bag → pick a suitcase → Two sides (zipper) → pack → Results 3D.
+Measured: packer unit test `zipperSuitcasePacksBaseThenLid`.
+Blocked on: Core review of base/lid naming (see `docs/requests.md`).
+Schema changes: none (additive use of `compartments`).

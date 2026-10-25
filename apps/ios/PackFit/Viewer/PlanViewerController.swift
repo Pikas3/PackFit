@@ -27,6 +27,9 @@ final class PlanViewerController: PlanViewerControlling {
         stepper.load(plan: plan, items: items, container: container, style: .volume, shapes: shapes)
         let dims = stepper.innerDims
         cameraPivot.position = SIMD3<Float>(dims.map { Float($0) * SceneBuilder.cmToMeters / 2 })
+        // Two-sided open bags are longer along z — pull back so both sides stay in frame.
+        let span = dims.map { Float($0) * SceneBuilder.cmToMeters }.max() ?? 0.6
+        distance = max(1.4, span * 2.2)
         camera.name = "orbit-camera"
         if camera.parent == nil {
             cameraPivot.addChild(camera)
