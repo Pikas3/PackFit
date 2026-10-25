@@ -64,7 +64,9 @@ services/apify/
 
 ## WS3 server: `POST /scan/item`
 
-The iOS app measures `w/h/d` with LiDAR on most requests. Those dims are for packing only.
+The iOS app no longer calls this route; it uses `POST /scan/inventory` (one photo of the
+pile, credit card for scale) and measures `w/h/d` on-device. When a caller attaches
+`measured` dims, they are for packing only.
 The model's job is object detection from the photo: name, category, kg, fragile, soft,
 hardness, upright. Two prompt variants in `scanItem.ts`, chosen by whether `measured`
 is present:
@@ -118,7 +120,7 @@ interface RuleRecord {
    record per item with carry-on and checked verdicts and the item page URL. This is the
    actor we publish publicly for the Best Actor award, so it needs a clean `README.md`,
    `INPUT_SCHEMA.json`, actor description, and an example output. Keep it generic: no
-   PackFit-specific fields in the published dataset, we normalize on our side.
+   Snugly-specific fields in the published dataset, we normalize on our side.
 2. `airline-baggage`: input `{ airlines: ['UA', 'AI', 'EK', ...] }`, scrapes each carrier's
    baggage policy page for cabin and checked dims and weight. Start with 5 airlines that
    matter for the target user (UA, AA, AI, EK, QR). Hardcode the policy URL per airline in

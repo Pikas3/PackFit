@@ -36,34 +36,6 @@ enum ContainerFactory {
         )
     }
 
-    /// From a scanned or tapped open shell. Assumes a 50/50 clamshell: each half is
-    /// `shellDepthCm` deep. `shell: .twoSided` keeps both sides; `.single` merges them.
-    static func fromCavity(
-        innerLongCm: Double,
-        innerShortCm: Double,
-        shellDepthCm: Double,
-        confidence: Double,
-        method: MeasureMethod = .lidar,
-        weightLimit: Double = 23,
-        shell: SuitcaseShell = .twoSided
-    ) -> Container {
-        let half = (shellDepthCm * 10).rounded() / 10
-        let long = (innerLongCm * 10).rounded() / 10
-        let short = (innerShortCm * 10).rounded() / 10
-        let closedY = half * 2
-        let inner = [long, closedY, short]
-        let outer = inner.map { $0 + wallInsetCm * 2 }
-        return make(
-            outer: outer,
-            inner: inner,
-            method: method,
-            confidence: confidence,
-            weightLimit: weightLimit,
-            wheelsSide: .back,
-            shell: shell
-        )
-    }
-
     /// Rebuild a suitcase with a different shell split. Backpacks and duffels are unchanged.
     static func applying(_ shell: SuitcaseShell, to bag: Container) -> Container {
         guard bag.type == .suitcase, let primary = bag.compartments.first, primary.dims.count == 3 else {
@@ -121,15 +93,13 @@ enum ContainerFactory {
         let two = shell == .twoSided
         return Container(
             id: UUID().uuidString,
-            name: method == .lidar || wheelsSide == .back
-                ? (two ? "Scanned bag · 2 sides" : "Scanned bag")
-                : (two ? "Custom bag · 2 sides" : "Custom bag"),
+            name: two ? "Custom bag · 2 sides" : "Custom bag",
             type: .suitcase,
             outer: outer,
             compartments: compartments(inner: inner, shell: shell),
             weightLimitKg: weightLimit,
             wheelsSide: wheelsSide,
-            measurement: Measurement(method: method, confidence: confidence, deviceHasLidar: method == .lidar)
+            measurement: Measurement(method: method, confidence: confidence, deviceHasLidar: false)
         )
     }
 

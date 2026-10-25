@@ -33,10 +33,10 @@
   ],
   "warnings": [],
   "weather": {
-    "summary": "Forecast highs around 23°C and lows around 19°C.",
-    "lowC": 19.2,
-    "highC": 23.1,
-    "precipChance": 0.1733333333333333,
+    "summary": "Forecast for 6 Nov–8 Nov: highs around 22°C and lows around 17°C.",
+    "lowC": 17.2,
+    "highC": 22.1,
+    "precipChance": 0.11,
     "sourceUrl": "https://api.open-meteo.com/v1/forecast?latitude=33.9425&longitude=-118.408&daily=temperature_2m_max%2Ctemperature_2m_min%2Cprecipitation_probability_max&timezone=auto&start_date=2026-11-06&end_date=2026-11-08"
   },
   "beforeYouGo": {

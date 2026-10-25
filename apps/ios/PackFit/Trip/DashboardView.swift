@@ -10,6 +10,7 @@ struct DashboardView: View {
     @Binding var path: [Route]
 
     @State private var showTripSheet = false
+    @AppStorage("weatherFahrenheit") private var fahrenheit = true
     private let client = APIClientFactory.make()
 
     private typealias P = Tokens.Palette
@@ -23,13 +24,24 @@ struct DashboardView: View {
                 nextTripCard
                 photosSection
                 itinerarySection
+                if trip != nil {
+                    ideasSection
+                }
                 cta
             }
             .padding(.horizontal, Tokens.Spacing.screen)
             .padding(.vertical, Tokens.Spacing.sm)
         }
-        .packFitCanvas()
+        .snuglyCanvas()
         .toolbar(.hidden, for: .navigationBar)
+        // Refetch the weather whenever the destination or the dates change, and on launch.
+        .task(id: weatherKey) { await tripStore.loadWeather() }
+        // A trip restored at launch has no ideas yet; fetch them so section 3 isn't empty.
+        .task(id: trip?.to) {
+            if trip != nil, tripStore.suggestions.isEmpty {
+                await tripStore.loadDestinationContext(client: client)
+            }
+        }
         .sheet(isPresented: $showTripSheet) {
             TripPickerView { showTripSheet = false }
         }
@@ -45,7 +57,7 @@ struct DashboardView: View {
                     .foregroundStyle(P.pink800)
                     .frame(width: 34, height: 34)
                     .background(P.pink300, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
-                (Text("Pack").foregroundStyle(P.textPrimary) + Text("Fit").foregroundStyle(P.pink700))
+                (Text(Copy.App.wordmarkLead).foregroundStyle(P.textPrimary) + Text(Copy.App.wordmarkTail).foregroundStyle(P.pink700))
                     .font(T.wordmark)
             }
             .accessibilityElement(children: .ignore)
@@ -249,21 +261,105 @@ struct DashboardView: View {
                 }
                 .buttonStyle(.plain)
                 divider
-                timeOfYear
+                weatherSection
             }
             .cardStyle()
+        }
+    }
 
-            if trip != nil {
-                HStack(spacing: Tokens.Spacing.sm) {
-                    Button { path.append(.suggestions) } label: {
-                        PillLabel(title: Copy.Home.packingIdeas, systemImage: "sparkles")
+    // MARK: Packing ideas
+
+    /// Ideas still open for this trip, essentials first, repeats stacked into one row.
+    private var ideaGroups: [SuggestionGroup] {
+        let groups = SuggestionGroup.group(tripStore.openSuggestions(excluding: itemsStore.items))
+        return groups.filter(\.essential) + groups.filter { !$0.essential }
+    }
+
+    /// Section 3: the top ideas inline, so adding them is part of getting ready to pack.
+    private var ideasSection: some View {
+        let groups = ideaGroups
+        let done = !tripStore.isLoadingSuggest && !tripStore.suggestions.isEmpty && groups.isEmpty
+        return VStack(alignment: .leading, spacing: 14) {
+            SectionHeader(
+                number: "3",
+                title: Copy.Home.packingIdeas,
+                caption: Copy.Home.ideasCaption(trip.flatMap { AirportCatalog.name(for: $0.to) }),
+                tone: done ? .green : .pink
+            )
+            VStack(alignment: .leading, spacing: 12) {
+                if tripStore.isLoadingSuggest && groups.isEmpty {
+                    HStack(spacing: Tokens.Spacing.sm) {
+                        ProgressView().tint(P.pink700)
+                        Text(Copy.Trip.loadingSuggestions)
                     }
-                    Button { path.append(.beforeYouGo) } label: {
-                        PillLabel(title: Copy.Trip.beforeYouGoCTA, systemImage: "globe")
+                    .font(T.caption)
+                    .foregroundStyle(P.textSecondary)
+                } else if done {
+                    Label(Copy.Home.ideasDone, systemImage: "checkmark.circle.fill")
+                        .font(T.bodyBold)
+                        .foregroundStyle(P.green700)
+                } else if groups.isEmpty {
+                    Text(tripStore.suggestError ?? Copy.Home.ideasNone)
+                        .font(T.caption)
+                        .foregroundStyle(P.textSecondary)
+                } else {
+                    ForEach(Array(groups.prefix(3).enumerated()), id: \.element.id) { index, group in
+                        if index > 0 { divider }
+                        ideaRow(group)
+                    }
+                    Button { path.append(.suggestions) } label: {
+                        HStack(spacing: Tokens.Spacing.xs) {
+                            Text(groups.count > 3 ? Copy.Home.seeAllIdeas(groups.count) : Copy.Home.pickHowMany)
+                            Image(systemName: "chevron.right").font(.caption2.weight(.bold))
+                        }
+                        .font(T.caption.weight(.bold))
+                        .foregroundStyle(P.pink700)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 2)
+                }
+            }
+            .cardStyle()
+            .animation(.easeOut(duration: Tokens.Motion.standard), value: groups.map(\.id))
+        }
+    }
+
+    private func ideaRow(_ group: SuggestionGroup) -> some View {
+        HStack(spacing: 12) {
+            IconBubble(systemImage: group.category.systemImage, size: 40, iconSize: 18, radius: 14, fill: group.category.swatch)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(group.name)
+                        .font(T.h3)
+                        .foregroundStyle(P.textPrimary)
+                        .lineLimit(1)
+                    if group.count > 1 {
+                        Text("×\(group.count)")
+                            .font(T.caption)
+                            .foregroundStyle(P.pink800)
+                            .padding(.horizontal, 6)
+                            .background(P.pink200, in: Capsule())
                     }
                 }
-                .buttonStyle(.plain)
+                Text(group.members[0].reason)
+                    .font(T.caption)
+                    .foregroundStyle(P.textSecondary)
+                    .lineLimit(1)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Button {
+                withAnimation {
+                    for suggestion in group.members { itemsStore.append(suggestion.asItem()) }
+                }
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(P.pink800)
+                    .frame(width: 40, height: 40)
+                    .background(P.pink300, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Copy.Home.addIdea(group.name, count: group.count))
         }
     }
 
@@ -275,29 +371,140 @@ struct DashboardView: View {
         Rectangle().fill(P.pink100).frame(height: 1)
     }
 
-    private var timeOfYear: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(Copy.Home.timeOfYear).eyebrow()
-            HStack(spacing: Tokens.Spacing.sm) {
-                ForEach(Copy.Home.seasons, id: \.self) { season in
-                    Chip(label: season, state: season == currentSeason ? .selected : .normal)
+    // MARK: Weather
+
+    private var weatherSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(Copy.Home.weatherIn(trip.flatMap { AirportCatalog.name(for: $0.to) })).eyebrow()
+                Spacer()
+                if tripStore.destinationWeather != nil {
+                    unitSwitcher
                 }
             }
-            HStack(alignment: .top, spacing: 6) {
-                Image(systemName: "sparkles").font(.system(size: 12, weight: .semibold))
-                Group {
-                    if tripStore.isLoadingSuggest {
-                        Text(Copy.Trip.loadingDestination)
-                    } else {
-                        Text(tripStore.weather?.summary ?? Copy.Home.noForecast)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .font(T.caption)
-            .foregroundStyle(P.pink700)
+            weatherBody
         }
         .padding(.top, Tokens.Spacing.sm)
+    }
+
+    @ViewBuilder
+    private var weatherBody: some View {
+        if let trip {
+            if let weather = tripStore.destinationWeather {
+                weatherSummary(weather, nights: trip.nights)
+            } else if tripStore.isLoadingWeather {
+                HStack(spacing: Tokens.Spacing.sm) {
+                    ProgressView().tint(P.pink700)
+                    Text(Copy.Home.loadingWeather)
+                }
+                .font(T.caption)
+                .foregroundStyle(P.textSecondary)
+            } else if trip.departDate == nil {
+                weatherNote(Copy.Home.weatherNeedsDates)
+            } else if tripStore.weatherFailed {
+                VStack(alignment: .leading, spacing: 6) {
+                    // The server's summary, when the suggestions call brought one, beats nothing.
+                    weatherNote(tripStore.weather?.summary ?? Copy.Home.weatherFailed)
+                    Button(Copy.Home.retry) { Task { await tripStore.loadWeather() } }
+                        .font(T.caption.weight(.bold))
+                        .foregroundStyle(P.pink700)
+                }
+            }
+        } else {
+            weatherNote(Copy.Home.noForecast)
+        }
+    }
+
+    private func weatherSummary(_ weather: DestinationWeather, nights: Int) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                IconBubble(systemImage: WeatherCode.symbol(weather.typicalCode), size: 48, iconSize: 22, radius: Tokens.Radius.md, fill: P.pink100)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Copy.Home.tempRange(low: degrees(weather.lowC), high: degrees(weather.highC), fahrenheit: fahrenheit))
+                        .font(T.h2)
+                        .foregroundStyle(P.textPrimary)
+                    Text(Copy.Home.wetDays(weather.wetDays, of: weather.days.count))
+                        .font(T.caption)
+                        .foregroundStyle(P.textSecondary)
+                }
+                Spacer(minLength: 0)
+                Chip(
+                    label: weather.source == .forecast ? Copy.Home.forecastTag : Copy.Home.lastYearTag,
+                    state: weather.source == .forecast ? .selected : .normal
+                )
+            }
+            .accessibilityElement(children: .combine)
+            if weather.source == .forecast {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: Tokens.Spacing.sm) {
+                        ForEach(weather.days) { day in
+                            dayColumn(day)
+                        }
+                    }
+                }
+            }
+            if weather.source == .lastYear {
+                weatherNote(Copy.Home.lastYearNote)
+            } else if weather.clamped, let lastDay = weather.days.last {
+                weatherNote(Copy.Home.clampedNote(lastDay.date))
+            }
+        }
+    }
+
+    private func dayColumn(_ day: DestinationWeather.Day) -> some View {
+        VStack(spacing: 4) {
+            VStack(spacing: 0) {
+                Text(day.date.formatted(DestinationWeather.dayStyle.weekday(.abbreviated)))
+                    .font(T.caption)
+                    .foregroundStyle(P.textSecondary)
+                Text(day.date.formatted(DestinationWeather.dayStyle.month(.twoDigits).day(.twoDigits)))
+                    .font(T.caption)
+                    .foregroundStyle(P.textSecondary)
+                    .monospacedDigit()
+            }
+            Image(systemName: WeatherCode.symbol(day.code))
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(P.pink700)
+                .frame(height: 22)
+            Text("\(degrees(day.highC))°")
+                .font(T.bodyBold)
+                .foregroundStyle(P.textPrimary)
+            Text("\(degrees(day.lowC))°")
+                .font(T.caption)
+                .foregroundStyle(P.textSecondary)
+        }
+        .frame(width: 52)
+        .padding(.vertical, 8)
+        .background(P.pink100.opacity(0.6), in: RoundedRectangle(cornerRadius: Tokens.Radius.sm, style: .continuous))
+        .accessibilityElement(children: .combine)
+    }
+
+    /// °F or °C, remembered per device; °F first.
+    private var unitSwitcher: some View {
+        HStack(spacing: Tokens.Spacing.xs) {
+            ForEach([true, false], id: \.self) { isF in
+                Button { fahrenheit = isF } label: {
+                    Chip(label: isF ? "°F" : "°C", state: fahrenheit == isF ? .selected : .plain)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(isF ? Copy.Home.fahrenheit : Copy.Home.celsius)
+                .accessibilityAddTraits(fahrenheit == isF ? .isSelected : [])
+            }
+        }
+        .padding(Tokens.Spacing.xs)
+        .background(P.pink100, in: Capsule())
+    }
+
+    /// A Celsius reading in the chosen unit, rounded.
+    private func degrees(_ celsius: Double) -> Int {
+        Int((fahrenheit ? celsius * 9 / 5 + 32 : celsius).rounded())
+    }
+
+    private func weatherNote(_ text: String) -> some View {
+        Text(text)
+            .font(T.caption)
+            .foregroundStyle(P.pink700)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: CTA
@@ -316,7 +523,7 @@ struct DashboardView: View {
                     Text(Copy.Home.optimize)
                 }
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
             .disabled(!canPack || planStore.isPacking)
 
             Text(canPack ? Copy.Home.optimizeCaption(itemsStore.items.count) : Copy.Home.needTrip)
@@ -366,8 +573,9 @@ struct DashboardView: View {
         return "\(flight) · \(tripStore.useChecked ? Copy.Trip.checkedBag : Copy.Trip.carryOnBag) (\(Int(bag.weightLimitKg)) kg)"
     }
 
-    private var currentSeason: String {
-        TripDates.season(departDate: trip?.departDate, country: tripStore.destinationCountry)
+    private var weatherKey: String {
+        guard let trip else { return "" }
+        return "\(trip.to)|\(trip.departDate ?? "")|\(trip.nights)"
     }
 
     private func optimize() async {
@@ -427,20 +635,5 @@ enum TripDates {
               let end = Calendar.current.date(byAdding: .day, value: nights, to: start) else { return nightsText }
         let style = Date.FormatStyle().month(.abbreviated).day()
         return "\(start.formatted(style)) – \(end.formatted(style)) · \(nightsText)"
-    }
-
-    /// Season at the destination on the departure day (today without a date).
-    static func season(departDate: String?, country: String?) -> String {
-        let month = Calendar.current.component(.month, from: date(departDate) ?? .now)
-        var index: Int
-        switch month {
-        case 3...5: index = 0
-        case 6...8: index = 1
-        case 9...11: index = 2
-        default: index = 3
-        }
-        let southern: Set<String> = ["AU", "NZ", "AR", "CL", "ZA", "BR", "UY"]
-        if let country, southern.contains(country) { index = (index + 2) % 4 }
-        return Copy.Home.seasons[index]
     }
 }

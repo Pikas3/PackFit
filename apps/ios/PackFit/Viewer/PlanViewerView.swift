@@ -38,7 +38,7 @@ struct PlanViewerView: View {
                         Button { navigator.tab = .plan } label: {
                             Label(Copy.Results.seePlan, systemImage: "checklist")
                         }
-                        .buttonStyle(.packFitPrimary)
+                        .buttonStyle(.snuglyPrimary)
                         .disabled(planStore.plan == nil)
                     }
                     .padding(.horizontal, Tokens.Spacing.screen)
@@ -46,7 +46,7 @@ struct PlanViewerView: View {
                 }
             }
         }
-        .packFitCanvas()
+        .snuglyCanvas()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -81,7 +81,7 @@ struct PlanViewerView: View {
             Button { navigator.tab = .home } label: {
                 Label(Copy.Results.goHome, systemImage: "house")
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
         }
         .padding(Tokens.Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

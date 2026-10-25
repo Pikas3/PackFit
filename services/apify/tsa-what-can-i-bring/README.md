@@ -2,7 +2,7 @@
 
 Public Apify actor that crawls [TSA What Can I Bring](https://www.tsa.gov/travel/security-screening/whatcanibring) item pages and emits one record per item with carry-on / checked verdicts and the source URL.
 
-PackFit and other apps can normalize this dataset into their own rule formats. The dataset itself stays generic.
+Snugly and other apps can normalize this dataset into their own rule formats. The dataset itself stays generic.
 
 ## Input
 

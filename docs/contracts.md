@@ -133,7 +133,7 @@ because tuples are not `Codable`; the JSON Schema enforces `minItems: 3, maxItem
   Covers each `Category` at least once, at least 3 fragile, 5 soft, 2 upright, 3
   `neededAtSecurity`, and at least 2 that should trigger a rule flag (a full-size shampoo, a
   power bank over 100 Wh or a pocket knife). These same 25 physical items are what Section 2
-  LiDAR-scans to measure accuracy and what Section 3 photographs for the vision test.
+  photo-scans to measure accuracy and what Section 3 photographs for the vision test.
 - `trips.json`: 5 trip scenarios. Must include SFO->DEL on a 23 kg limit (the target user),
   a short domestic trip, and a cold-weather destination.
 - `plans/`: one pre-computed `Plan` per (container, item set) used in the demo so the viewer

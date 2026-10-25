@@ -11,7 +11,7 @@ mirror `schemas/*.schema.json`.
 
 ## Conventions
 
-- Header `x-packfit-token: <APP_TOKEN>` on every request. A shared static token from `.env`;
+- Header `x-snugly-token: <APP_TOKEN>` on every request (the server still accepts the old `x-packfit-token`). A shared static token from `.env`;
   it stops drive-by use of the deployed API, nothing more.
 - Errors: `{ "error": { "code": string, "message": string } }` with 4xx/5xx. Codes:
   `bad_request`, `unauthorized`, `model_output_invalid`, `upstream_unavailable`,
@@ -54,8 +54,8 @@ so the forecast is for the selected destination.
 ## POST /scan/item  (WS3 server, Section 3)
 
 Claude vision acts as an object-detection model on the photo and returns an `Item`.
-On LiDAR devices the app measures `w/h/d` itself for packing; those dims are attached
-server-side and are not sent into the identification prompt. The model names the item
+When the caller measures `w/h/d` itself, those dims are attached server-side for packing
+and are not sent into the identification prompt. (The iOS app now uses `/scan/inventory`.) The model names the item
 from the image alone and estimates what cannot be measured (category, kg, fragile, soft,
 hardness, upright).
 

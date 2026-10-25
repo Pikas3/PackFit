@@ -9,7 +9,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>PackFit</string>
+	<string>Snugly</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,7 +17,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>Snugly</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -36,9 +36,9 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>PackFit uses the camera and LiDAR to measure items and bags so packing dimensions stay accurate.</string>
+	<string>Snugly uses the camera to identify your items and measure them against a credit card, so packing dimensions stay accurate.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>PackFit talks to the PackFit server on your local network during development.</string>
+	<string>Snugly talks to the Snugly server on your local network during development.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fredoka-Medium.ttf</string>

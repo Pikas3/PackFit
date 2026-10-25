@@ -1,4 +1,4 @@
-# PackFit: Project Outline for Delegation
+# Snugly: Project Outline for Delegation
 
 > Original brief, kept verbatim for reference. Section 3 (Architecture) is superseded by the
 > root `CLAUDE.md`: the client is native Swift/SwiftUI with RealityKit and LiDAR, not Expo,
@@ -138,6 +138,6 @@ flow before judging.
 
 ## 9. Delegation prompt template
 
-> You own WSn of PackFit. Read this outline (sections 3 and 4 for contracts). Deliver:
+> You own WSn of Snugly. Read this outline (sections 3 and 4 for contracts). Deliver:
 > [outputs]. Acceptance: [criteria]. Do not change shared schemas without flagging it. No
 > secrets in the repo. Report what you built, what you cut, and how to run it.

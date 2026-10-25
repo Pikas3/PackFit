@@ -2,12 +2,11 @@ import SwiftUI
 import UIKit
 
 @main
-struct PackFitApp: App {
+struct SnuglyApp: App {
     @State private var tripStore = TripStore()
     @State private var itemsStore = ItemsStore()
     @State private var planStore = PlanStore()
     @State private var rulesStore = RulesStore()
-    @State private var capabilities = DeviceCapabilities()
 
     init() {
         Self.applyBarFonts()
@@ -38,7 +37,6 @@ struct PackFitApp: App {
                 .environment(itemsStore)
                 .environment(planStore)
                 .environment(rulesStore)
-                .environment(capabilities)
         }
     }
 }

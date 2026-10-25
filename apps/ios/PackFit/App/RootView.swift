@@ -4,7 +4,6 @@ struct RootView: View {
     @Environment(TripStore.self) private var tripStore
     @Environment(ItemsStore.self) private var itemsStore
     @Environment(PlanStore.self) private var planStore
-    @Environment(DeviceCapabilities.self) private var caps
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var navigator = AppNavigator()
     @State private var homePath: [Route] = []
@@ -60,16 +59,12 @@ struct RootView: View {
             BagSetupView(path: path)
         case .itemList:
             ItemListView(path: path)
-        case .scan:
-            ScanView(client: client)
         case .planViewer:
             PlanViewerView(path: path)
         case .rules:
             RulesView()
         case .inventoryScan:
             InventoryScanView(path: path, client: client)
-        case .arOverlay, .guidedScan:
-            GuidedScanView(path: path, client: client)
         case .suggestions:
             SuggestionsView(path: path)
         case .beforeYouGo:
@@ -78,17 +73,28 @@ struct RootView: View {
     }
 
     /// Debug builds launched with `-previewPlan` skip to the results with the fixture items in
-    /// the checked bag, for checking the viewer without a trip or a scan. `-previewTab plan`
-    /// or `-previewTab home` opens another tab instead.
+    /// the checked bag, for checking the viewer without a trip or a scan. `-previewTab plan`,
+    /// `home`, `suggestions` or `items` opens another screen instead.
     private func openPreviewPlanIfAsked() {
         #if DEBUG
         let args = ProcessInfo.processInfo.arguments
-        guard args.contains("-previewPlan"), let trip = AppFixtures.trips().first else { return }
+        guard args.contains("-previewPlan"), var trip = AppFixtures.trips().first else { return }
+        // `-previewDepart yyyy-MM-dd` moves the trip, e.g. into the 16-day forecast range.
+        if let depart = UserDefaults.standard.string(forKey: "previewDepart") { trip.departDate = depart }
         hasSeenOnboarding = true
         tripStore.trip = trip
-        tripStore.bag = trip.checked
-        itemsStore.items = AppFixtures.items()
+        // `-previewNoBag` leaves the bag unset, to check the screens that ask for one.
+        tripStore.bag = args.contains("-previewNoBag") ? nil : trip.checked
+        // `-previewNoItems` starts with an empty list, e.g. to see every packing idea on Home.
+        itemsStore.items = args.contains("-previewNoItems") ? [] : AppFixtures.items()
+        tripStore.suggestions = AppFixtures.tripSuggestFallback(for: trip).suggestions
         switch UserDefaults.standard.string(forKey: "previewTab") {
+        case "suggestions":
+            navigator.tab = .home
+            homePath = [.suggestions]
+        case "items":
+            navigator.tab = .home
+            homePath = [.itemList]
         case "plan": navigator.tab = .plan
         case "home": navigator.tab = .home
         default: navigator.tab = .results

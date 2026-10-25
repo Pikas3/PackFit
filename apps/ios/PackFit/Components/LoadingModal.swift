@@ -127,6 +127,6 @@ private struct LoadingModalModifier: ViewModifier {
 
 #Preview {
     Color.clear
-        .packFitCanvas()
+        .snuglyCanvas()
         .loadingModal(isPresented: true, title: "Identifying items", message: "Usually 3–8 seconds.")
 }

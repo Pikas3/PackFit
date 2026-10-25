@@ -120,8 +120,8 @@ README.
 
 ### `README.md` (root)
 
-Sections, in this order: one-paragraph pitch; 30-second GIF or screenshot of the LiDAR
-measure box and the 3D plan; "Try it" (TestFlight link if time allows, otherwise Xcode run
+Sections, in this order: one-paragraph pitch; 30-second GIF or screenshot of the photo
+scan (measured outlines over the pile) and the 3D plan; "Try it" (TestFlight link if time allows, otherwise Xcode run
 instructions; mock mode works offline and in the simulator); architecture diagram (Mermaid,
 four boxes: iOS app, Swift packages, api, apify); sponsor tools table linking to
 `docs/tracks/*.md`; "Where Claude can be wrong" (safe-by-default notes from Section 3's
@@ -132,7 +132,7 @@ status entries); team; licence.
 One file per track. Each: what we used, where in the code (file paths), what it does in the
 demo, limits we hit, and what we would do with more time.
 
-- `anthropic.md`: vision identification with LiDAR-measured dims, attribute estimation,
+- `anthropic.md`: naming every object in one photo (sizes scaled from a credit card), attribute estimation,
   rule mapping with citations, item suggestions. Named community: international students
   with a 23 kg checked-bag limit. Include the safe-by-default notes verbatim.
 - `apify.md`: three actors, the published one with its public URL, schedule, how the dataset
@@ -142,13 +142,13 @@ demo, limits we hit, and what we would do with more time.
 
 ### `docs/demo/`
 
-- `script.md`: 2-minute script with timestamps. Open with the strongest moment: the LiDAR
-  box snapping onto a real item, then the voice coach saying step one while the 3D view
-  places it. If Section 2 ships `AROverlay`, open with that instead. Then the rule flag with
+- `script.md`: 2-minute script with timestamps. Open with the strongest moment: one photo of
+  the pile with every item outlined and measured, then the voice coach saying step one while
+  the 3D view places it. Then the rule flag with
   source link. End on the 23 kg warning for the target user. Every line the presenter speaks
   and every tap, written out.
 - `backup.md`: how to record the backup video (screen recording plus a second phone filming
-  the LiDAR scan), which sample trip is the offline one, and the checklist to run 30
+  the photo scan), which sample trip is the offline one, and the checklist to run 30
   minutes before judging (phone charged, mock toggle, API health, volume, Do Not Disturb).
 - `judges-access.md`: repo link, how to run in 5 minutes, which xcconfig values and env vars
   they need (never real keys; tell them which to request).

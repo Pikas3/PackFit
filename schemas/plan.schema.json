@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://packfit.local/schemas/plan.schema.json",
+  "$id": "https://snugly.local/schemas/plan.schema.json",
   "title": "Plan",
   "description": "Packer output. Placement (x, y, z) is the min corner in the compartment frame: origin inner bottom-left-back, x right, y up, z toward the viewer. cm.",
   "type": "object",

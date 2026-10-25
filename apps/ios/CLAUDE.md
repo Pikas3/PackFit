@@ -1,17 +1,18 @@
-# Section 2: iOS app (RealityKit viewer, LiDAR scanning, container setup, design system)
+# Section 2: iOS app (RealityKit viewer, photo scanning, container setup, design system)
 
 You own `apps/ios` except `PackFit/Voice/`, which belongs to Section 4. Workstreams WS2,
-WS3 (client side, including all LiDAR measurement), WS4, WS8. Read the root `CLAUDE.md`,
+WS3 (client side, including card-scaled measurement), WS4, WS8. Read the root `CLAUDE.md`,
 `docs/contracts.md`, `docs/api.md`.
 
-You are on the critical path for the demo. The LiDAR scan and the viewer are the two things
+You are on the critical path for the demo. The photo scan and the viewer are the two things
 judges will remember; everything else is ordered by how much of the demo spine it unlocks.
 
 ## Stack
 
 - Xcode 26, SwiftUI, Swift 6 toolchain, iOS 18 minimum. Swift 6 language mode on; if strict
-  concurrency slows you down on ARKit delegate callbacks, use `@preconcurrency import ARKit`
-  and `nonisolated(unsafe)` sparingly rather than downgrading the whole target.
+  concurrency slows you down on AVFoundation delegate callbacks, use
+  `@preconcurrency import AVFoundation` and `nonisolated(unsafe)` sparingly rather than
+  downgrading the whole target.
 - Project: `apps/ios/PackFit.xcodeproj`, one app target `PackFit`, local package
   dependencies by path on `../../Packages/PackFitSchemas`, `../../Packages/Packer`,
   `../../Packages/Voice`.
@@ -22,12 +23,11 @@ judges will remember; everything else is ordered by how much of the demo spine i
 - State: `@Observable` stores, one per domain: `TripStore`, `ItemsStore`, `PlanStore`,
   `RulesStore`. Injected with `.environment`.
 - Navigation: `NavigationStack` with a typed `Route` enum.
-- 3D: RealityKit `RealityView` (non-AR for the plan viewer, AR for the optional overlay).
-- Measurement: ARKit `ARSession` with `ARWorldTrackingConfiguration`, `sceneDepth` frame
-  semantics and `.mesh` scene reconstruction. See the LiDAR section.
-- Camera stills: take the photo from the running `ARSession` (`ARFrame.capturedImage`) so
-  the measurement and the photo are from the same moment and pose. Resize to 1024 px long
-  edge, JPEG 0.8, via `CIContext`.
+- 3D: RealityKit `RealityView`, non-AR, for the plan viewer.
+- Camera: AVFoundation back camera (`InventoryCamera`) for stills and a live credit-card
+  check. Works on every iPhone; no LiDAR, no ARKit. Measurement uses Vision on the still.
+  See the scan section.
+- Upload: resize to 1024 px long edge, JPEG 0.8 (`ImageCapture`).
 - Networking: `URLSession` async/await, `JSONDecoder` into `PackFitSchemas` types.
   `APIClient` protocol with `LiveAPIClient` and `MockAPIClient`.
 - Solver: `import Packer`; `pack(_:into:options:)` runs on-device on a background task.
@@ -37,85 +37,51 @@ judges will remember; everything else is ordered by how much of the demo spine i
 | Route | Purpose | Spine? |
 |---|---|---|
 | `TripPicker` | Sample trips from fixtures, or new trip (from, to, airline, nights, date) | yes |
-| `BagSetup` | Presets (carry-on, checked, backpack), LiDAR measure, manual measure; backpack compartment editor | yes |
+| `BagSetup` | Presets (carry-on, checked, backpack), manual measure, one- or two-sided shell; backpack compartment editor | yes |
 | `ItemList` | Items with thumbnails, measurement method and confidence badges, swipe to delete, tap to edit | yes |
-| `Scan` | AR camera, LiDAR measure, capture, review card with editable fields | yes |
+| `InventoryScan` | Photo of the pile with a credit card; Claude names the objects, the card scales them; review and tick which to add | yes |
 | `PlanViewer` | RealityKit viewer with step controls; the hero screen | yes |
 | `ItemDetail` | Sheet: item fields, rule flags with source links and "verified N days ago", notes | yes |
 | `Rules` | All flags for the trip, grouped by severity, stale banner | yes |
-| `AROverlay` | Plan projected onto the real suitcase through the camera | stretch, high value |
 | `Suggestions` | Suggested items from `/trip/suggest`, each toggleable into the list | no (cut first) |
 
-## WS3 client: LiDAR item scan (`PackFit/Scan/`)
+## WS3 client: photo item scan (`PackFit/Scan/`)
 
-This is the differentiator. Rule 6 in the root doc: dimensions come from the device,
-Claude identifies and estimates the rest.
+This is the differentiator. Rule 6 in the root doc: dimensions come from the photo and the
+card, Claude identifies and estimates the rest. There is no LiDAR or ARKit path.
 
-### Capability check
+### Measurement flow (`Scan/Inventory/`, `Scan/Measurement/`)
 
-```swift
-let hasLidar = ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh)
-            && ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth)
-```
-
-Decide once at launch, store in `DeviceCapabilities`, and show it on the scan screen
-("LiDAR measuring" vs "Place a credit card next to the item"). Non-LiDAR devices get the
-reference-card flow and the model estimates dims (`measurement.method = .estimate`). Never
-crash on a non-LiDAR device or in the simulator; the simulator uses `MockAPIClient` and a
-manual dims form.
-
-### Measurement flow (LiDAR)
-
-1. Start `ARSession` with `planeDetection = [.horizontal]`, `frameSemantics =
-   [.sceneDepth, .smoothedSceneDepth]`, `sceneReconstruction = .mesh`. Ask the user to put
-   the item on a table or floor and move until a plane is found.
-2. **Footprint:** user taps two opposite corners of the item's base. Each tap is an
-   `ARRaycastQuery(... allowing: .existingPlaneGeometry, alignment: .horizontal)`. The two
-   hits give `w` and `d` in the plane's local frame (project onto the plane's x and z axes
-   so a rotated item still measures its own edges, not world axes).
-3. **Height:** automatic. Within the footprint rectangle, sample the scene mesh
-   (`ARMeshAnchor` vertices that fall inside the footprint) or, if the mesh is sparse,
-   sample `smoothedSceneDepth` along a grid of pixels covering the footprint, unproject with
-   the camera intrinsics, and take the 98th percentile of height above the plane. Show a
-   third tap as an override: tap the top of the item, raycast against `.estimatedPlane`
-   with `.any` alignment, height = hit.y - plane.y.
-4. **Confidence:** start at 0.95. Subtract 0.1 if the mean `confidenceMap` value over the
-   footprint is below `.medium`, 0.1 if the footprint is under 4 cm on any side (depth noise
-   dominates), 0.15 if the height came from fewer than 20 samples. Floor at 0.5. Put the
-   result in `measurement.confidence`.
-5. Draw the measured box in the AR view as a translucent RealityKit `ModelEntity` anchored
-   to the plane, with the three numbers as labels, before the user confirms. If it looks
-   wrong, they re-tap. This preview is also a demo moment.
-6. Capture the current `ARFrame.capturedImage`, send `imageBase64 + measured` to
-   `POST /scan/item`. Show a skeleton card while waiting (3-8 s; say so on screen).
-7. Review card: every `Item` field editable. `w/h/d` are prefilled from LiDAR and shown with
-   a "Measured with LiDAR" badge; confidence shown as a label: >= 0.8 "Looks right", 0.5-0.8
-   "Check the size", < 0.5 "Please measure". `alternatives` from the API appear as chips to
-   swap name and category. Any API error drops to a manual form with the measured dims kept.
-8. Save appends to `ItemsStore` with `source: .scan`.
+1. The user lays a credit card flat beside the pile and holds the phone at about 45°.
+   `InventoryCamera` looks for the card in the live preview (tap to focus and search that
+   region) and shows when it locks.
+2. Capture a still and send it to `POST /scan/inventory` with `reference: "credit_card"`.
+   Claude returns every object with a box, and where the card is.
+3. `CardMeasurer`: Vision rectangles find the ID-1 card, which gives the floor's pose
+   (`CardScale`, `CardEdges`). Vision foreground instance segmentation outlines each object.
+   `SilhouetteFit` fits the floor-standing box or cylinder whose projection matches the
+   outline. Width and depth come from that fit; height only when the photo is not close to
+   straight down. `measurement.method = .reference`.
+4. No card found: offer "Use rough estimates", which keeps Claude's sizes
+   (`measurement.method = .estimate`, shown with `~`).
+5. Review: tick which objects to add (repeats from earlier photos start unticked), then every
+   `Item` field is editable in `ItemDetail`. Confidence labels: >= 0.8 "Looks right",
+   0.5-0.8 "Check the size", < 0.5 "Please measure".
+6. Saved items go to `ItemsStore` with `source: .scan`.
 
 Measure the 25 fixture items with this flow and record mean absolute error per axis in
-`docs/status.md`. Target: within ~15%; with LiDAR you should beat 10% on items over 5 cm.
-
-### Reference-card fallback (non-LiDAR)
-
-Overlay a card outline, user places a credit card beside the item, capture, send
-`reference: "credit_card"` and no `measured`. The rest of the review card is identical.
+`docs/status.md`. Target: within ~15%.
 
 ## WS4: container setup (`PackFit/Bag/`)
 
 - Presets from `Fixtures.containers()` plus "Custom".
-- **LiDAR measure a suitcase:** same two-corner footprint plus auto height, on the closed
-  suitcase lying flat. Outer dims go to `outer`; inner `main` compartment is outer minus
-  3 cm per side (configurable constant), `compressibility 0.1`. `measurement.method =
-  .lidar`. Then ask "wheels on the back or bottom?" with two pictures.
-- Manual: three fields with a live RealityKit preview of the box, weight limit defaulting
-  to 23.
+- Manual: three fields, weight limit defaulting to 23. Inner `main` compartment is outer
+  minus 3 cm per side (`ContainerFactory`). Then ask "wheels on the back or bottom?" and,
+  for suitcases, one main cavity or two sides.
 - Backpack: compartment list, add compartment, each with name and one or two measurements
   (third dim assumed from the outer size). Tap-to-define is "tap a preset region" (main /
   front / laptop), not AR.
-- Acceptance: a new bag defined in under 30 seconds with LiDAR, under 45 manually. Time it
-  and record both.
+- Acceptance: a new bag defined in under 45 seconds manually. Time it and record it.
 
 ## WS2: 3D viewer (`PackFit/Viewer/`)
 
@@ -155,14 +121,6 @@ Performance budget: 60 fps with 30 items on an iPhone 13 Pro or newer. Rules: on
 churn per frame. Measure with Instruments (RealityKit Trace or Core Animation FPS) and
 record in `docs/status.md`.
 
-### Stretch: `AROverlay`
-
-After the viewer, scan, and bag flows are done. Anchor the plan to the real suitcase: the
-user taps the suitcase's back-left corner on the detected plane, the full plan renders
-inside the real bag through the camera, and the step controls drive it. This reuses the
-viewer entities in an AR `RealityView` with the container anchor at the tapped point. If
-you get here, tell Section 4; it becomes the opening shot of the demo.
-
 ## WS8: design system (`PackFit/Theme/`)
 
 - `Tokens.swift`: colour (asset catalog with light and dark variants), type scale on
@@ -183,19 +141,18 @@ you get here, tell Section 4; it becomes the opening shot of the demo.
   in a temporary `PackFit/Temp/Types.swift`. Delete it the moment the package is on
   `master`.
 - Before `Packer` lands: load `Fixtures.plan(named:)` directly for the viewer.
-- Before `services/api` lands: `MockAPIClient` returns fixture items for `/scan/item`
-  (cycle through them), two fixture flags for `/rules/check`, and the SFO->DEL suggestions.
+- Before `services/api` lands: `MockAPIClient` returns fixture items for `/scan/inventory`,
+  two fixture flags for `/rules/check`, and the SFO->DEL suggestions.
 - The demo must run fully in mock mode. This is also the offline fallback for judging.
-- The simulator has no LiDAR and no camera: `Scan` shows the manual dims form and still
-  calls the (mock) API with a bundled photo so the flow is testable.
+- The simulator has no camera: "Take photo" loads sample items so the flow is testable.
 
 ## Acceptance
 
-- LiDAR measurement of 25 fixture items with recorded error, mean under 15%.
+- Card-scaled measurement of 25 fixture items with recorded error, mean under 15%.
 - 60 fps with 30 items in the viewer on an iPhone 13 Pro or newer, number recorded.
 - Scan to editable card works against the live API and against mock, on device and in the
   simulator.
-- New bag in under 30 seconds with LiDAR.
+- New bag in under 45 seconds manually.
 - Light and dark, contrast checked, reduced motion respected, Dynamic Type up to xxxLarge
   does not clip the plan controls.
 - `xcodebuild build` clean with no warnings in your targets.
@@ -205,7 +162,7 @@ you get here, tell Section 4; it becomes the opening shot of the demo.
 - `PackFit/` layout: `App/` (entry, routes, config), `Scan/`, `Bag/`, `Viewer/`, `Items/`,
   `Rules/`, `API/`, `Store/`, `Theme/`, `Components/`, `Copy.swift`, `Voice/` (not yours).
 - Views are small; logic lives in the stores or in `Scan/Measurement/` (pure functions
-  from raycast hits and depth samples to `(w, h, d, confidence)`, unit tested in
+  from the card pose and object outlines to `(w, h, d, confidence)`, unit tested in
   `PackFitTests`).
 - Never `URLSession` in a view; all network goes through `APIClient`.
 - Decode every API response into `PackFitSchemas` types; on failure show the manual
@@ -216,4 +173,4 @@ you get here, tell Section 4; it becomes the opening shot of the demo.
 ## Report format
 
 Append to `docs/status.md`: what you built, what you cut, how to run (scheme, device,
-xcconfig values, mock vs live), measured fps, measured LiDAR error, measured bag-setup time.
+xcconfig values, mock vs live), measured fps, measured scan error, measured bag-setup time.

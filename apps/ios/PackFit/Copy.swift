@@ -2,7 +2,10 @@ import Foundation
 
 enum Copy {
     enum App {
-        static let name = "PackFit"
+        static let name = "Snugly"
+        /// The wordmark's two colours: "Snug" dark, "ly" pink. Together they spell `name`.
+        static let wordmarkLead = "Snug"
+        static let wordmarkTail = "ly"
         static let tagline = "Scan it. Pack it. Fly home under 23 kg."
     }
 
@@ -11,7 +14,7 @@ enum Copy {
         static let next = "Next"
         static let done = "Get started"
         static let s1Title = "Measure with your phone"
-        static let s1Body = "LiDAR on Pro models sizes each item. Other phones use a credit card for scale."
+        static let s1Body = "Snap one photo of your things with a credit card beside them. The card sets the scale."
         static let s2Title = "See the packing plan in 3D"
         static let s2Body = "Step through exactly where each item goes in your bag."
         static let s3Title = "Rules with sources"
@@ -22,6 +25,7 @@ enum Copy {
         static let title = "Your trip"
         static let continueButton = "Continue to bag / scan"
         static let cancel = "Cancel"
+        static let keyboardDone = "Done"
         static let flightHeader = "Find your flight"
         static let flightIntro = "Enter the airline code and flight number. We’ll fill origin, destination, weather, and packing rules for that route."
         static let airlineField = "Airline (IATA, e.g. UA)"
@@ -61,13 +65,22 @@ enum Copy {
         static let needReturnDate = "Pick a return day too, or clear the dates."
         static func nights(_ n: Int) -> String { n == 1 ? "1 night" : "\(n) nights" }
         static let suggestionsCTA = "Packing suggestions"
-        static let beforeYouGoCTA = "Before you go"
         static let suggestionsTitle = "Suggestions"
         static let suggestionsEmpty = "No new suggestions — you’ve already added these, or none came back."
         static let loadingSuggestions = "Loading suggestions…"
         static let continueScan = "Scan items"
         static let essential = "Essential"
         static let accept = "Add"
+        static func addCount(_ n: Int) -> String { n <= 1 ? "Add" : "Add \(n)" }
+        static func howMany(_ name: String) -> String { "How many \(name) to add" }
+        static func suggestionsCaption(_ n: Int) -> String { n == 1 ? "1 idea for this trip" : "\(n) ideas for this trip" }
+        static func suggestionSize(dims: [Double], kg: Double, count: Int) -> String {
+            let size = dims.count == 3 ? String(format: "%.0f×%.0f×%.0f cm", dims[0], dims[1], dims[2]) : "Size unknown"
+            if count > 1 {
+                return String(format: "%@ · %.2f kg each · %.1f kg total · estimated", size, kg, kg * Double(count))
+            }
+            return String(format: "%@ · %.2f kg · estimated", size, kg)
+        }
         static let beforeYouGoTitle = "Before you go"
         static let beforeYouGoEmpty = "No destination tips yet. Continue offline with the sample list."
         static func destinationCountry(_ code: String) -> String { "Destination country: \(code)" }
@@ -83,7 +96,6 @@ enum Copy {
         static let title = "Your bag"
         static let presets = "Presets"
         static let custom = "Custom"
-        static let measureLidar = "Measure with LiDAR"
         static let measureCamera = "Measure with the camera"
         static let measureManual = "Enter dimensions"
         static let wheelsPrompt = "Where are the wheels?"
@@ -100,6 +112,12 @@ enum Copy {
     enum Items {
         static let title = "Items"
         static let scan = "Scan item"
+        static let scanMore = "Scan more items"
+        static let needFlight = "Add your flight to pack"
+        static let needBag = "Choose your bag to pack"
+        static func summary(_ count: Int, kg: Double) -> String {
+            String(format: "%d item%@ · %.1f kg", count, count == 1 ? "" : "s", kg)
+        }
         static let pack = "Pack bag"
         static let empty = "No items yet. Scan three things from the pile."
         static let emptyAction = "Scan an item"
@@ -143,88 +161,13 @@ enum Copy {
     }
 
     enum Scan {
-        static let title = "Scan"
-        static let lidarMeasuring = "LiDAR measuring"
-        static let referenceCardHint = "Place a credit card next to the item"
-        static let simulatorMode = "Simulator — enter dimensions"
-        static let findPlane = "Point at a table or floor until a plane appears."
-        static let tapCorners = "Tap two opposite corners of the item’s base."
-        static let tapTop = "Optional: tap the top to set height."
-        static let confirmBox = "Does this box look right?"
-        static let retap = "Measure again"
-        static let capture = "Identify item"
-        static let waiting = "Identifying… usually 3–8 seconds."
-        static let save = "Add to list"
-        static let manualFallback = "We kept your measurements. Fill in the rest."
         static let looksRight = "Looks right"
         static let checkSize = "Check the size"
         static let pleaseMeasure = "Please measure"
-        static let measuredLidar = "Measured with LiDAR"
+        static let measuredDepth = "Measured with depth"
         static let measuredManual = "Entered manually"
         static let measuredReference = "Scaled from credit card"
-        static let measuredARTaps = "Measured with AR taps"
         static let estimatedFromPhoto = "Estimated from photo"
-    }
-
-    enum Guided {
-        static let title = "Scan & pack"
-        static let findFloor = "Point at the floor and move the phone slowly."
-        static let bag = "Open your suitcase on the floor, then tap the bottom of the empty shell."
-        static let bagMeasuring = "Measuring the bag… hold the phone above it."
-        static let bagStable = "Got it. Tap “Use this bag”."
-        static let tapNoDepth = "Couldn’t see that spot. Move a little closer and tap again."
-        static let itemNotFound = "Couldn’t find an item there. Tap the middle of it from a little closer."
-
-        static func bagFailure(_ failure: CavityFitter.Failure) -> String {
-            switch failure {
-            case .seedUnseen: return "Hold the phone above the bag so it can see inside."
-            case .leaked: return "That spot isn’t inside the bag. Tap the bottom of the open shell."
-            case .tooSmall: return "That space is too small for a suitcase. Tap the bottom of the main shell."
-            case .noWalls: return "Couldn’t find the bag’s walls. Move the phone slowly around the bag."
-            }
-        }
-        static let useBag = "Use this bag"
-        static let tapCorners = "Measure by tapping corners"
-        static let tapCornerLeft = "Open the bag on the floor. Tap the inside back-left corner."
-        static let tapCornerRight = "Now tap the inside back-right corner."
-        static let tapCornerFront = "Now tap an inside front corner."
-        static let cornersTooClose = "Those corners are too close. Try again."
-        static let tapMissed = "Couldn’t find the floor there. Move the phone a little and tap again."
-        static let heightMissed = "Couldn’t read the height. Tap the top edge of the side facing you."
-        static let measureByTapping = "Measure by corners instead"
-        static let backToSweep = "Back to one-tap"
-        static let tapItemCorner1 = "Tap a bottom corner of an item."
-        static let tapItemCorner2 = "Tap the next bottom corner along one side."
-        static let tapItemCorner3 = "Tap a bottom corner on the opposite side."
-        static let tapItemTop = "Tap the top edge of the side facing you."
-        static let tapItemAdjust = "Check the size, then add the item."
-        static let addItem = "Add item"
-        static let redo = "Redo"
-        static let lengthCm = "Length"
-        static let widthCm = "Width"
-        static let heightCm = "Height"
-        static let items = "Tap an item to measure it. Keep it in view until its box turns green."
-        static let itemsMeasuring = "Measuring… keep the item in view."
-        static let itemsHint = "Tap an item again to re-measure it."
-        static let removeItem = "Remove item"
-        static let itemsFound = "items found"
-        static let done = "Done"
-        static let identifying = "Identifying your items…"
-        static let review = "Check your items"
-        static let packIt = "Pack it"
-        static let rescan = "Scan again"
-        static let packing = "Working out the plan…"
-        static let overlay = "Follow the steps. Each box shows where an item goes."
-        static let underLid = "Above the rim: this goes under the lid."
-        static let unknownItem = "Item"
-        static let usePresets = "Use bag presets instead"
-        static let addManually = "Add one manually"
-        static let view3D = "3D view"
-        static let itemsLink = "Items"
-        static let restart = "Start over"
-        static let noAR = "This device can’t run AR. Choose a bag preset instead."
-        static let noLidar = "This flow needs the built-in LiDAR camera. Choose a bag preset instead."
-        static let lidarStartFailed = "Couldn’t start the LiDAR camera. Check camera permission and try again."
     }
 
     enum Viewer {
@@ -290,10 +233,35 @@ enum Copy {
         static let dates = "Dates"
         static let airlineBag = "Airline & bag"
         static let addFlight = "Add your flight"
-        static let timeOfYear = "Time of year"
-        static let seasons = ["Spring", "Summer", "Fall", "Winter"]
-        static let noForecast = "Add your flight to see the forecast."
+        static let noForecast = "Add your flight to see the weather there."
+        static func weatherIn(_ place: String?) -> String { place.map { "Weather in \($0)" } ?? "Weather at destination" }
+        static let forecastTag = "Forecast"
+        static let lastYearTag = "Last year"
+        static let loadingWeather = "Checking the weather…"
+        static let weatherNeedsDates = "Add your travel dates to see the weather."
+        static let weatherFailed = "Couldn’t load the weather. Pack layers to be safe."
+        static let retry = "Try again"
+        static func tempRange(low: Int, high: Int, fahrenheit: Bool) -> String {
+            "\(low)° – \(high)°\(fahrenheit ? "F" : "C")"
+        }
+        static let fahrenheit = "Fahrenheit"
+        static let celsius = "Celsius"
+        static func wetDays(_ wet: Int, of total: Int) -> String {
+            wet == 0 ? "Dry all \(total) days" : "Rain or snow on \(wet) of \(total) days"
+        }
+        static let lastYearNote = "Too far ahead for a forecast, so this is the same dates last year."
+        static func clampedNote(_ last: Date) -> String {
+            "The forecast only reaches \(last.formatted(DestinationWeather.dayStyle.month(.abbreviated).day())). Check again closer to the trip."
+        }
         static let packingIdeas = "Packing ideas"
+        static func ideasCaption(_ place: String?) -> String {
+            place.map { "Things worth bringing to \($0)" } ?? "Things worth bringing on this trip"
+        }
+        static let ideasDone = "You’ve added everything we’d suggest."
+        static let ideasNone = "No ideas for this trip yet."
+        static func seeAllIdeas(_ n: Int) -> String { "See all \(n) ideas" }
+        static let pickHowMany = "Choose how many to add"
+        static func addIdea(_ name: String, count: Int) -> String { count > 1 ? "Add \(count) \(name)" : "Add \(name)" }
         static let optimize = "Optimize my packing"
         static func optimizeCaption(_ items: Int) -> String {
             "Takes a few seconds · \(items) item\(items == 1 ? "" : "s"), 1 bag"
@@ -354,7 +322,7 @@ enum Copy {
         static let proTip = "Pro tip"
         static let proTipBody = "Rolled soft clothes slip into the gaps between bulky items, so nothing shifts in transit."
         static let allPacked = "I’m all packed!"
-        static let shareTitle = "My PackFit packing plan"
+        static let shareTitle = "My Snugly packing plan"
         static let empty = "No plan yet. Pack your bag from Home first."
     }
 

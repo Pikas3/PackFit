@@ -44,14 +44,14 @@ struct PackingPlanView: View {
                         } label: {
                             Label(Copy.PackingPlan.allPacked, systemImage: "checkmark")
                         }
-                        .buttonStyle(.packFitPrimary)
+                        .buttonStyle(.snuglyPrimary)
                     }
                     .padding(.horizontal, Tokens.Spacing.screen)
                     .padding(.vertical, Tokens.Spacing.sm)
                 }
             }
         }
-        .packFitCanvas()
+        .snuglyCanvas()
         .task {
             if planStore.plan == nil, let bag = tripStore.bag, !itemsStore.items.isEmpty {
                 await planStore.computePlan(items: itemsStore.items, into: bag)
@@ -80,7 +80,7 @@ struct PackingPlanView: View {
             Button { navigator.tab = .home } label: {
                 Label(Copy.Results.goHome, systemImage: "house")
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
         }
         .padding(Tokens.Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

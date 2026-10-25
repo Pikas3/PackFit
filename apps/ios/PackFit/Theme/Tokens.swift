@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Design tokens from the PackFit-Cute Figma file.
+/// Design tokens from the Snugly Figma file.
 enum Tokens {
     enum Spacing {
         static let unit: CGFloat = 4
@@ -135,7 +135,7 @@ private extension UIColor {
 }
 
 extension View {
-    func packFitScreenPadding() -> some View {
+    func snuglyScreenPadding() -> some View {
         padding(Tokens.Spacing.md)
     }
 }

@@ -395,3 +395,11 @@ Schema changes: none (additive use of `compartments`).
   - **iOS offline fallback** (`AppFixtures.sampleFlags`) follows the same rules. Before, it flagged the first item as a liquid when there were no liquids.
 - **Fixture result:** the 25 fixture items on UA SFO→DEL now flag only full-size shampoo, the peanut butter jar and the pocket knife in carry-on, and only the power bank in checked. Nothing else is flagged, and the total weight is under 23 kg.
 - **How to run:** `pnpm --filter api test` (new `test/rules.test.ts`). The iOS tests pass in the simulator.
+
+## 2026-10-25 rename product to Snugly
+Built: user-facing name is Snugly (`Copy.App.name`, Info.plist display/usage strings,
+share title, README/CLAUDE/outline titles). Xcode target / `PackFitSchemas` / API token
+header kept as PackFit for build compatibility.
+Cut: none.
+Run: relaunch the app — home screen label and onboarding brand read Snugly.
+Schema changes: none.

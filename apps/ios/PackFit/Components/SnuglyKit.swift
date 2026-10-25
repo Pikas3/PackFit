@@ -1,6 +1,6 @@
 import SwiftUI
 
-// Components from the "PackFit Components" Figma frame. Colours and type come from `Tokens`.
+// Shared UI components for Snugly. Colours and type come from `Tokens`.
 
 private typealias P = Tokens.Palette
 private typealias T = Tokens.TypeScale
@@ -30,7 +30,7 @@ extension View {
     }
 
     /// Canvas colour with the pink and green blobs behind the content.
-    func packFitCanvas() -> some View {
+    func snuglyCanvas() -> some View {
         self
             .scrollContentBackground(.hidden)
             .background { BlobBackground().ignoresSafeArea() }
@@ -90,7 +90,7 @@ struct PrimaryButtonStyle: ButtonStyle {
 }
 
 extension ButtonStyle where Self == PrimaryButtonStyle {
-    static var packFitPrimary: PrimaryButtonStyle { PrimaryButtonStyle() }
+    static var snuglyPrimary: PrimaryButtonStyle { PrimaryButtonStyle() }
 }
 
 /// Small pink pill action, like "Add photo" on the bag tile.

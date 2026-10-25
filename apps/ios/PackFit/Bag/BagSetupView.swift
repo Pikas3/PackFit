@@ -2,7 +2,6 @@ import SwiftUI
 
 struct BagSetupView: View {
     @Environment(TripStore.self) private var tripStore
-    @Environment(DeviceCapabilities.self) private var caps
     @Binding var path: [Route]
 
     @State private var showManual = false
@@ -24,7 +23,7 @@ struct BagSetupView: View {
                             showShell = true
                         } else {
                             tripStore.setBag(bag)
-                            path.append(.itemList)
+                            continueToItems()
                         }
                     } label: {
                         HStack(spacing: 12) {
@@ -48,17 +47,12 @@ struct BagSetupView: View {
                 }
             }
             Section(Copy.Bag.custom) {
-                if caps.supportsGuidedScan {
-                    Button { path.append(.guidedScan) } label: {
-                        Label(Copy.Bag.measureLidar, systemImage: "camera.metering.matrix")
-                    }
-                }
                 Button { showManual = true } label: {
                     Label(Copy.Bag.measureManual, systemImage: "ruler")
                 }
             }
         }
-        .packFitCanvas()
+        .snuglyCanvas()
         .navigationTitle(Copy.Bag.title)
         .sheet(isPresented: $showManual) {
             ManualBagView { outer, limit in
@@ -82,7 +76,7 @@ struct BagSetupView: View {
                 BackpackEditorView(bag: bag) { edited in
                     tripStore.setBag(edited)
                     showBackpackEditor = false
-                    path.append(.itemList)
+                    continueToItems()
                 }
             }
         }
@@ -96,7 +90,7 @@ struct BagSetupView: View {
             showShell = true
         } else {
             tripStore.setBag(bag)
-            path.append(.itemList)
+            continueToItems()
         }
     }
 
@@ -104,10 +98,19 @@ struct BagSetupView: View {
         guard let bag = pendingBag else { return }
         tripStore.setBag(ContainerFactory.applying(shell, to: bag))
         pendingBag = nil
-        path.append(.itemList)
+        continueToItems()
     }
 
     private func dimsLabel(_ outer: [Double]) -> String {
         String(format: "%.0f×%.0f×%.0f cm", outer[0], outer[1], outer[2])
+    }
+
+    /// Back to the item list when we came from it (Optimize asked for a bag), else on to it.
+    private func continueToItems() {
+        if path.dropLast().last == .itemList {
+            path.removeLast()
+        } else {
+            path.append(.itemList)
+        }
     }
 }

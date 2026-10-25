@@ -61,7 +61,7 @@ struct RulesView: View {
             .padding(.horizontal, Tokens.Spacing.screen)
             .padding(.vertical, Tokens.Spacing.sm)
         }
-        .packFitCanvas()
+        .snuglyCanvas()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {

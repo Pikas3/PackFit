@@ -15,6 +15,9 @@ struct TripPickerView: View {
     @State private var useChecked = true
     @State private var pendingLookup: FlightLookupResponse?
     @State private var formError: String?
+    @FocusState private var focus: Field?
+
+    private enum Field { case airline, flightNumber, activity }
 
     private let client = APIClientFactory.make()
     private let activityOptions = ["home", "school", "work", "beach", "hike", "ski", "cold", "wedding", "conference"]
@@ -34,8 +37,12 @@ struct TripPickerView: View {
                 }
                 .padding(.horizontal, Tokens.Spacing.screen)
                 .padding(.vertical, Tokens.Spacing.sm)
+                // Tapping anywhere that isn't a control puts the keyboard away.
+                .contentShape(Rectangle())
+                .onTapGesture { focus = nil }
             }
-            .packFitCanvas()
+            .scrollDismissesKeyboard(.interactively)
+            .snuglyCanvas()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -43,6 +50,11 @@ struct TripPickerView: View {
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button(Copy.Trip.cancel, action: onDone)
+                }
+                // The number pad has no return key, so give every field a way out.
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button(Copy.Trip.keyboardDone) { focus = nil }
                 }
             }
         }
@@ -69,8 +81,12 @@ struct TripPickerView: View {
                 inputField(Copy.Trip.airlineField, text: $airline)
                     .textInputAutocapitalization(.characters)
                     .autocorrectionDisabled()
+                    .focused($focus, equals: .airline)
+                    .submitLabel(.next)
+                    .onSubmit { focus = .flightNumber }
                 inputField(Copy.Trip.flightNumberField, text: $flightNumber)
                     .keyboardType(.numberPad)
+                    .focused($focus, equals: .flightNumber)
             }
             DateRangeCalendar(selection: $dates, isExpanded: $showCalendar)
                 .padding(Tokens.Spacing.sm)
@@ -98,6 +114,7 @@ struct TripPickerView: View {
                 }
             }
             Button {
+                focus = nil
                 Task { await runLookup() }
             } label: {
                 HStack(spacing: Tokens.Spacing.sm) {
@@ -109,7 +126,7 @@ struct TripPickerView: View {
                     Text(tripStore.isLookingUp ? Copy.Trip.lookingUp : Copy.Trip.lookupFlight)
                 }
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
             .disabled(tripStore.isLookingUp)
             if let formError {
                 Text(formError).font(T.caption).foregroundStyle(P.coral500)
@@ -153,7 +170,7 @@ struct TripPickerView: View {
             } label: {
                 Label(Copy.Trip.useThisFlight, systemImage: "checkmark")
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
         }
         .cardStyle(fill: P.green100, stroke: P.green400, shadow: false)
     }
@@ -173,6 +190,9 @@ struct TripPickerView: View {
                 }
             }
             inputField(Copy.Trip.activityOther, text: $activityExtra)
+                .focused($focus, equals: .activity)
+                .submitLabel(.done)
+                .onSubmit { focus = nil }
         }
         .cardStyle()
     }

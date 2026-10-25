@@ -28,7 +28,6 @@ struct ConfidenceBadge: View {
 
 struct MeasurementMethodBadge: View {
     let method: MeasureMethod?
-    var tapMeasured = false
 
     var body: some View {
         Text(text)
@@ -39,9 +38,8 @@ struct MeasurementMethodBadge: View {
     }
 
     private var text: String {
-        if tapMeasured { return Copy.Scan.measuredARTaps }
         switch method {
-        case .lidar: return Copy.Scan.measuredLidar
+        case .lidar: return Copy.Scan.measuredDepth
         case .manual: return Copy.Scan.measuredManual
         case .reference: return Copy.Scan.measuredReference
         case .estimate: return Copy.Scan.estimatedFromPhoto

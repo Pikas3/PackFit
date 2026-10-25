@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://packfit.local/schemas/item.schema.json",
+  "$id": "https://snugly.local/schemas/item.schema.json",
   "title": "Item",
   "description": "A thing to pack. Units: cm and kg. w/h/d are as scanned, before orientation.",
   "type": "object",

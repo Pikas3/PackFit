@@ -158,8 +158,12 @@ extension AppFixtures {
         let country = AirportCatalog.country(for: trip.to) ?? "US"
         let cold = trip.activities.contains { $0.localizedCaseInsensitiveContains("ski") || $0.localizedCaseInsensitiveContains("cold") }
             || trip.to == "KEF"
-        var suggestions: [Suggestion] = [
-            Suggestion(id: UUID().uuidString, name: "T-shirt stack", reason: "Everyday tops for \(trip.nights) nights", category: .clothing, estDims: [28, 4, 22], estKg: 0.4, fragile: false, soft: true, essential: true),
+        // Like the server, a quantity becomes separate suggestions named "(1)", "(2)", ...
+        let tees = min(5, max(2, trip.nights))
+        var suggestions: [Suggestion] = (1...tees).map { n in
+            Suggestion(id: UUID().uuidString, name: "T-shirt stack (\(n))", reason: "Everyday tops for \(trip.nights) nights", category: .clothing, estDims: [28, 4, 22], estKg: 0.4, fragile: false, soft: true, essential: true)
+        }
+        suggestions += [
             Suggestion(id: UUID().uuidString, name: "Toiletry pouch", reason: "Basics for the trip length", category: .toiletries, estDims: [20, 8, 12], estKg: 0.3, fragile: false, soft: true, essential: true),
             Suggestion(id: UUID().uuidString, name: "Phone charger cable", reason: "Keep devices charged on the road", category: .electronics, estDims: [12, 2, 8], estKg: 0.1, fragile: false, soft: true, essential: true),
             Suggestion(id: UUID().uuidString, name: "Passport wallet", reason: "International trip documents", category: .documents, estDims: [14, 2, 10], estKg: 0.15, fragile: false, soft: true, essential: true),
