@@ -7,6 +7,13 @@ enum Copy {
         static let wordmarkLead = "Snug"
         static let wordmarkTail = "ly"
         static let tagline = "Scan it. Pack it. Fly home under 23 kg."
+        static func moodLabel(_ mood: SnuglyMark.Mood) -> String {
+            switch mood {
+            case .sleepy: "nothing to pack yet"
+            case .happy: "everything fits"
+            case .worried: "over the limit or something doesn’t fit"
+            }
+        }
     }
 
     enum Onboarding {

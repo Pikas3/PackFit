@@ -11,6 +11,7 @@
 		0DFEB8EBA44D30131E86090E /* App/SnuglyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090FFBE868FA2262A05105D6 /* App/SnuglyApp.swift */; };
 		0E1773D78C7C806428582046 /* Bag/BackpackEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766AAD86A3BC760EAF309F29 /* Bag/BackpackEditorView.swift */; };
 		0E191DEE2F928DE346813B9E /* Components/EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AD92DD3741F52867232BEA /* Components/EmptyStateView.swift */; };
+		5A0C1E0F5A0C1E0F5A0C1E01 /* Components/SnuglyMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A0C1E0F5A0C1E0F5A0C1E02 /* Components/SnuglyMark.swift */; };
 		13BE9B3EBD7C636000D59103 /* Theme/Tokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F2CE94E61FAD274AECF24A /* Theme/Tokens.swift */; };
 		1C46D20F58A43F6F9216E207 /* Viewer/PlanStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3689EFA54397898E0E1B0F77 /* Viewer/PlanStepper.swift */; };
 		1C6FECAA6DA3EE3D84D0B600 /* Rules/RulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E16EAEAAA83259437104DE /* Rules/RulesView.swift */; };
@@ -135,6 +136,7 @@
 		B1AIRPORTCAT00000000002 /* Data/AirportCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/AirportCatalog.swift; sourceTree = "<group>"; };
 
 		61AD92DD3741F52867232BEA /* Components/EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/EmptyStateView.swift; sourceTree = "<group>"; };
+		5A0C1E0F5A0C1E0F5A0C1E02 /* Components/SnuglyMark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/SnuglyMark.swift; sourceTree = "<group>"; };
 		766AAD86A3BC760EAF309F29 /* Bag/BackpackEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bag/BackpackEditorView.swift; sourceTree = "<group>"; };
 		795D693A63556DAA91798028 /* Viewer/PlanStepControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/PlanStepControls.swift; sourceTree = "<group>"; };
 		8333C6DE760161CAE93C1C52 /* App/Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Route.swift; sourceTree = "<group>"; };
@@ -214,6 +216,7 @@
 				3C44E31532AEB2379E46FD76 /* Bag/ManualBagView.swift */,
 				B72799E8B1EDACCBDAEE30AC /* Components/ConfidenceBadge.swift */,
 				61AD92DD3741F52867232BEA /* Components/EmptyStateView.swift */,
+				5A0C1E0F5A0C1E0F5A0C1E02 /* Components/SnuglyMark.swift */,
 				C1D7531BBDEFE09B8BD3835C /* Copy.swift */,
 				56C37326FA86B1FAB0AFEFA4 /* Fixtures/AppFixtures.swift */,
 				55D6EC85506565815AA9A661 /* Items/ItemDetailView.swift */,
@@ -437,6 +440,7 @@
 				26C3EACC1B8847EB0F01A544 /* Bag/ManualBagView.swift in Sources */,
 				402088880466E75D06993EFE /* Components/ConfidenceBadge.swift in Sources */,
 				0E191DEE2F928DE346813B9E /* Components/EmptyStateView.swift in Sources */,
+				5A0C1E0F5A0C1E0F5A0C1E01 /* Components/SnuglyMark.swift in Sources */,
 				5AC2AC808D4BC1C9128B3913 /* Copy.swift in Sources */,
 				8645FE56D70A3836978D09FC /* Fixtures/AppFixtures.swift in Sources */,
 				5D0D018104719AA773FDCC57 /* Items/ItemDetailView.swift in Sources */,
