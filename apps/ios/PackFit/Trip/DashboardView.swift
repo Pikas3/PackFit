@@ -6,7 +6,6 @@ struct DashboardView: View {
     @Environment(ItemsStore.self) private var itemsStore
     @Environment(PlanStore.self) private var planStore
     @Environment(RulesStore.self) private var rulesStore
-    @Environment(DeviceCapabilities.self) private var caps
     @Environment(AppNavigator.self) private var navigator
     @Binding var path: [Route]
 
@@ -47,7 +46,7 @@ struct DashboardView: View {
                     .frame(width: 34, height: 34)
                     .background(P.pink300, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
                 (Text("Pack").foregroundStyle(P.textPrimary) + Text("Fit").foregroundStyle(P.pink700))
-                    .font(.system(.title2, design: .rounded, weight: .semibold))
+                    .font(T.wordmark)
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Copy.App.name)
@@ -65,7 +64,7 @@ struct DashboardView: View {
                     .overlay(alignment: .topTrailing) {
                         if !rulesStore.flags.isEmpty {
                             Text("\(rulesStore.flags.count)")
-                                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                                .font(.custom(Tokens.FontName.nunitoExtraBold, size: 10))
                                 .foregroundStyle(P.surface)
                                 .padding(4)
                                 .background(P.coral500, in: Circle())
@@ -131,12 +130,7 @@ struct DashboardView: View {
     @ViewBuilder
     private var itemsTile: some View {
         if itemsStore.items.isEmpty {
-            Menu {
-                Button(Copy.Inventory.entry, systemImage: "camera") { path.append(.inventoryScan) }
-                Button(Copy.Items.scan, systemImage: "viewfinder") {
-                    path.append(caps.supportsGuidedScan ? .guidedScan : .scan)
-                }
-            } label: {
+            Button { path.append(.inventoryScan) } label: {
                 emptyTile(systemImage: "camera", title: Copy.Home.itemsTile, caption: Copy.Home.itemsEmpty, action: Copy.Home.addPhoto)
             }
             .buttonStyle(.plain)
@@ -393,6 +387,8 @@ enum PackRun {
         trip: Trip, bag: Container, useChecked: Bool, items: [Item],
         planStore: PlanStore, rulesStore: RulesStore, client: any APIClient
     ) async {
+        // Mark packing during the rules check too, so the spinner and disabled buttons cover it.
+        planStore.isPacking = true
         await rulesStore.check(items: items, trip: trip, bag: useChecked ? "checked" : "carryOn", client: client)
         let banned = Set(rulesStore.flags.filter { $0.severity == .banned }.map(\.itemId))
         await planStore.computePlan(items: items.filter { !banned.contains($0.id) }, into: bag)
@@ -411,6 +407,10 @@ enum TripDates {
 
     static func date(_ iso: String?) -> Date? {
         iso.flatMap { isoDay.date(from: String($0.prefix(10))) }
+    }
+
+    static func iso(_ date: Date) -> String {
+        isoDay.string(from: date)
     }
 
     static func daysUntil(_ iso: String?) -> Int? {

@@ -3,10 +3,12 @@ import { buildAskRulePrompt, AskRuleToolSchema } from "../claude/prompts/askRule
 import { buildMapRulesPrompt, MapRulesToolSchema } from "../claude/prompts/mapRules.js";
 import { env } from "../env.js";
 import {
+  bagVerdict,
   findCandidatesForItem,
   findCandidatesForQuestion,
   getRulesLastSynced,
   recordById,
+  weightRuleForAirline,
 } from "../rules/store.js";
 import { anyStale } from "../rules/stale.js";
 import type { Item, RuleFlag } from "../schemas.js";
@@ -25,11 +27,14 @@ export async function checkRules(input: {
     if (cands.length > 0) itemsWithCandidates.push(item);
   }
 
+  const weightFlag = bagWeightFlag(input.items, input.trip.airline, input.bag);
+
   if (itemsWithCandidates.length === 0) {
+    const flags = weightFlag ? [weightFlag] : [];
     return {
-      flags: [],
-      summary: "No matching travel-rule flags for these items.",
-      stale: false,
+      flags,
+      summary: templateSummary(flags),
+      stale: anyStale(flags.map((f) => f.lastVerified)),
       rulesLastSynced: getRulesLastSynced(),
     };
   }
@@ -47,30 +52,29 @@ export async function checkRules(input: {
     mock: () => mockMap(itemsWithCandidates, candidatesByItem, input.bag),
   });
 
-  const allowed = new Set(
-    Object.values(candidatesByItem)
-      .flat()
-      .map((r) => r.ruleId),
-  );
-
   const flags: RuleFlag[] = [];
   for (const f of data.flags) {
-    if (!allowed.has(f.ruleId)) {
+    // Only rules this item breaks were offered, so anything else is dropped.
+    if (!candidatesByItem[f.itemId]?.some((r) => r.ruleId === f.ruleId)) {
       console.warn(JSON.stringify({ kind: "drop_unknown_ruleId", ruleId: f.ruleId }));
       continue;
     }
     const record = recordById(f.ruleId);
     if (!record) continue;
+    const verdict = bagVerdict(record, input.bag);
     flags.push({
       itemId: f.itemId,
       scope: record.scope,
-      severity: f.severity,
+      // Severity comes from the record's verdict for this bag, never from the model.
+      severity: verdict === "banned" ? "banned" : "restricted",
       text: f.text,
       sourceUrl: record.sourceUrl,
       lastVerified: record.lastVerified,
       ruleId: record.ruleId,
     });
   }
+
+  if (weightFlag) flags.push(weightFlag);
 
   const summary = templateSummary(flags);
   return {
@@ -127,6 +131,28 @@ export async function askRule(input: {
   };
 }
 
+/**
+ * One flag for the whole bag, only when the items together are over the airline's
+ * checked-bag weight limit. Weight is a property of the bag, never of a single item.
+ */
+function bagWeightFlag(items: Item[], airline: string, bag: "carryOn" | "checked"): RuleFlag | null {
+  if (bag !== "checked") return null;
+  const record = weightRuleForAirline(airline);
+  const maxKg = record?.limits?.maxKg;
+  if (!record || maxKg === undefined) return null;
+  const totalKg = items.reduce((sum, i) => sum + i.kg, 0);
+  if (totalKg <= maxKg) return null;
+  return {
+    itemId: "bag",
+    scope: record.scope,
+    severity: "restricted",
+    text: `Your items weigh about ${totalKg.toFixed(1)} kg, over the ${airline} ${maxKg} kg checked-bag limit. Excess weight fees may apply.`,
+    sourceUrl: record.sourceUrl,
+    lastVerified: record.lastVerified,
+    ruleId: record.ruleId,
+  };
+}
+
 function templateSummary(flags: RuleFlag[]): string {
   if (flags.length === 0) return "No matching travel-rule flags for these items.";
   const banned = flags.filter((f) => f.severity === "banned").length;
@@ -144,16 +170,14 @@ function mockMap(
   candidatesByItem: Record<string, ReturnType<typeof findCandidatesForItem>>,
   bag: "carryOn" | "checked",
 ) {
+  // Candidates are already only the rules each item breaks in this bag.
   const flags = [];
   for (const item of items) {
     for (const c of candidatesByItem[item.id] ?? []) {
-      const verdict = bag === "carryOn" ? c.carryOn : c.checked;
-      if (verdict === "ok" && c.severity === "check") continue;
-      if (verdict === "ok") continue;
       flags.push({
         itemId: item.id,
         ruleId: c.ruleId,
-        severity: c.severity,
+        severity: bagVerdict(c, bag) === "banned" ? ("banned" as const) : ("restricted" as const),
         text: c.text,
       });
     }

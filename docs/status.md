@@ -331,7 +331,10 @@ Not measured yet: viewer fps with the multi-part models on device.
 Figma: https://www.figma.com/design/90r9EPWzi2CDYln8Nwy4m5/PackFit-Cute
 
 - **Built:**
-  - **Tokens:** `Theme/Tokens.swift` holds the Figma palette (pink, green, alert colors) with dark variants. Its text styles map onto Dynamic Type using SF Rounded. Fredoka and Nunito are not bundled.
+  - **Tokens:** `Theme/Tokens.swift` holds the Figma palette (pink, green, alert colors) with dark variants.
+  - Text styles use the bundled Fredoka (Medium, SemiBold) and Nunito (Regular, SemiBold, Bold, ExtraBold) at their Figma sizes. They scale with Dynamic Type through `relativeTo:`.
+  - The fonts are static TTFs from Google Fonts in `Theme/Fonts`, OFL licence files alongside. They're listed in `UIAppFonts` in both `Info.plist` and `project.yml`.
+  - Navigation bar titles get Fredoka through `UINavigationBar.appearance()`. The iOS 26 tab bar keeps the system font.
   - **Components:** `Components/PackFitKit.swift` has the shared building blocks:
     - Primary button, chips, section header and stat tile
     - Itinerary field, tip row, nav title and icon bubble
@@ -349,3 +352,46 @@ Figma: https://www.figma.com/design/90r9EPWzi2CDYln8Nwy4m5/PackFit-Cute
 - **Cut:** the Figma Profile tab, since there is no profile feature.
 - **How to run:** debug builds take `-previewPlan` plus `-previewTab home|plan` to open a tab with the fixture trip.
 - **Verified:** simulator tests pass, the device build is clean, and light and dark screenshots were checked. Not yet checked on device.
+
+## 2026-10-25 section-2 tap-to-focus credit card (inventory)
+Built:
+- Tap on the inventory camera preview autofocuses/exposes at that point and searches for an
+  ID-1 card in a box around the tap (`InventoryCamera.focusOnCard`).
+- Live detection uses a Vision ROI + looser thresholds while searching, and
+  `PlanePose.bestCard(..., requireHint: true)` so only a card in that region locks.
+- Dashed search box + reticle; copy prompts to tap if the card is hard to lock.
+- Still measurement falls back to the live/tap hint when Claude did not mark the card.
+Cut: none.
+Run: photo inventory on device — tap the card when the green outline will not lock.
+Measured: not yet (needs Pro / packing-floor try).
+Blocked on: device check of 90° POI mapping and ROI lock rate.
+Schema changes: none.
+## 2026-10-25 section-2 two-sided zipper suitcase
+Built:
+- Bag setup asks “One main cavity” vs “Two sides (zipper)” for suitcases
+  (`Copy.Bag.shell*`, `BagSetupView`).
+- `ContainerFactory.SuitcaseShell` / `applying(_:to:)` splits closed inner height into
+  `base` + `lid`. LiDAR/tap cavity scan defaults to two-sided.
+- Packer fills base then lid (`Compartments.packingSequence`); step notes say which side.
+- 3D viewer draws both cavities open flat along +z with a hinge gap; items offset per side
+  (`SceneBuilder.buildOpenSuitcase`, `PlanStepper`).
+Cut: no shared fixture yet for a two-sided preset (converted at select time).
+Run: Bag → pick a suitcase → Two sides (zipper) → pack → Results 3D.
+Measured: packer unit test `zipperSuitcasePacksBaseThenLid`.
+Blocked on: Core review of base/lid naming (see `docs/requests.md`).
+Schema changes: none (additive use of `compartments`).
+## Section 2 + 3: Fewer redundant rule flags (#16), 2026-10-24
+
+- **Built:**
+  - **Item flags only for real violations.** `services/api/src/rules/store.ts` gained `violates(item, record, bag)`, which runs before Claude sees any candidates:
+    - The item must match by whole-word keyword. A category match alone only counts for `liquids` and `sharp`.
+    - The bag verdict must be `banned` or `restricted`.
+    - Liquid limits use the volume in the item name ("400 ml", "3.4 oz"), else the bounding box.
+    - Severity comes from the record, never from the model.
+  - **Weight is checked once per bag.** It only flags when total item kg is over the airline's checked limit (`itemId: "bag"`, shown as "Whole bag"). The Results kg tile turns coral when over.
+  - **TSA data re-checked on tsa.gov.** Fixed the 404 source links (liquids, lighters, aerosols, laptops, medications), pointed knives at TSA's general knives page, corrected the lighter and aerosol verdicts, and added `tsa:torch-lighter`. India customs no longer matches peanut butter or noodles.
+  - **No generic TSA route card.** Customs tips that duplicate an item flag are hidden.
+  - **One scan entry.** "Add photo" and the Items screen go straight to the camera (Snap the pile). The menu with "Scan item" (a manual form on non-LiDAR phones) is gone.
+  - **iOS offline fallback** (`AppFixtures.sampleFlags`) follows the same rules. Before, it flagged the first item as a liquid when there were no liquids.
+- **Fixture result:** the 25 fixture items on UA SFO→DEL now flag only full-size shampoo, the peanut butter jar and the pocket knife in carry-on, and only the power bank in checked. Nothing else is flagged, and the total weight is under 23 kg.
+- **How to run:** `pnpm --filter api test` (new `test/rules.test.ts`). The iOS tests pass in the simulator.

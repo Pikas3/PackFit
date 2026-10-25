@@ -28,6 +28,7 @@
 		B1BEFOREYOUGO000000001 /* Trip/BeforeYouGoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BEFOREYOUGO000000002 /* Trip/BeforeYouGoView.swift */; };
 		B1SUGGESTVIEW000000001 /* Trip/SuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1SUGGESTVIEW000000002 /* Trip/SuggestionsView.swift */; };
 		B1PACKADVICE00000000001 /* Trip/PackAdvice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1PACKADVICE00000000002 /* Trip/PackAdvice.swift */; };
+		B1DATERANGE000000000001 /* Trip/DateRangeCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DATERANGE000000000002 /* Trip/DateRangeCalendar.swift */; };
 		B1AIRPORTCAT00000000001 /* Data/AirportCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AIRPORTCAT00000000002 /* Data/AirportCatalog.swift */; };
 		2B15ACE254F057D482DFC578 /* Bag/ContainerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158BDD27A320E6198404E50A /* Bag/ContainerFactory.swift */; };
 		2D7B759A62D7215890790D94 /* API/MockAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421EB981FB9A453BA46D7E28 /* API/MockAPIClient.swift */; };
@@ -42,6 +43,7 @@
 		5AC2AC808D4BC1C9128B3913 /* Copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D7531BBDEFE09B8BD3835C /* Copy.swift */; };
 		5D0D018104719AA773FDCC57 /* Items/ItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D6EC85506565815AA9A661 /* Items/ItemDetailView.swift */; };
 		61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21859376838BF23B0332273D /* TapMeasureTests.swift */; };
+		B1DATERANGETEST00000001 /* DateRangeSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DATERANGETEST00000002 /* DateRangeSelectionTests.swift */; };
 		681FB817A8CCCE365BC0EEBE /* Scan/Measurement/BoxFitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF769D9F6593836DC624115 /* Scan/Measurement/BoxFitter.swift */; };
 		6DE82B905DC99550B43DA85E /* Guided/GuidedScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1F4ADDD97AABA1893CE03F /* Guided/GuidedScanView.swift */; };
 		6FC7176E9A0FC11D0205E479 /* Store/ItemsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572CFF43E4103C56C45E4B8B /* Store/ItemsStore.swift */; };
@@ -54,9 +56,16 @@
 		C1A7E0D5PACKINGPLAN0001 /* Viewer/PackingPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */; };
 		C1A7E0D5DASHBOARD000001 /* Trip/DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */; };
 		C1A7E0D5PACKFITKIT00001 /* Components/PackFitKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */; };
+		C1A7E0D5LOADINGMOD00001 /* Components/LoadingModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5LOADINGMOD00002 /* Components/LoadingModal.swift */; };
 		8645FE56D70A3836978D09FC /* Fixtures/AppFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C37326FA86B1FAB0AFEFA4 /* Fixtures/AppFixtures.swift */; };
 		8AF00A0F049540687D771375 /* API/LiveAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC42A8E2E5AB9B31725AD363 /* API/LiveAPIClient.swift */; };
 		8D54DC65EEEAC96AD8ECDE15 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58A12493A45D71A84E6E9B01 /* Assets.xcassets */; };
+		C1A7E0D5FONT05BUILD0001 /* Nunito-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5FONT05FILEREF01 /* Theme/Fonts/Nunito-ExtraBold.ttf */; };
+		C1A7E0D5FONT04BUILD0001 /* Nunito-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5FONT04FILEREF01 /* Theme/Fonts/Nunito-Bold.ttf */; };
+		C1A7E0D5FONT03BUILD0001 /* Nunito-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5FONT03FILEREF01 /* Theme/Fonts/Nunito-SemiBold.ttf */; };
+		C1A7E0D5FONT02BUILD0001 /* Nunito-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5FONT02FILEREF01 /* Theme/Fonts/Nunito-Regular.ttf */; };
+		C1A7E0D5FONT01BUILD0001 /* Fredoka-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5FONT01FILEREF01 /* Theme/Fonts/Fredoka-SemiBold.ttf */; };
+		C1A7E0D5FONT00BUILD0001 /* Fredoka-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5FONT00FILEREF01 /* Theme/Fonts/Fredoka-Medium.ttf */; };
 		9537A78B97C8C0F0F8236F85 /* Store/PlanStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5D149DD8E2B472C0A9DC01 /* Store/PlanStore.swift */; };
 		967DD44C308D05D200CBE0B7 /* PackFitSchemas in Frameworks */ = {isa = PBXBuildFile; productRef = 18100CFFC579293092C83886 /* PackFitSchemas */; };
 		967DD44D308D05D200CBE0B7 /* Packer in Frameworks */ = {isa = PBXBuildFile; productRef = 383790838E72F3070C8D6CB6 /* Packer */; };
@@ -119,6 +128,7 @@
 		1D0AE81C52B847861EB9A0BA /* Rules/RuleFreshness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rules/RuleFreshness.swift; sourceTree = "<group>"; };
 		1E444B89265FD7480F247EE0 /* Store/RulesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store/RulesStore.swift; sourceTree = "<group>"; };
 		21859376838BF23B0332273D /* TapMeasureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapMeasureTests.swift; sourceTree = "<group>"; };
+		B1DATERANGETEST00000002 /* DateRangeSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateRangeSelectionTests.swift; sourceTree = "<group>"; };
 		3058F8F659288DFDF70F961A /* API/APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API/APIClient.swift; sourceTree = "<group>"; };
 		32D873DCD704B727D1968A02 /* Scan/Measurement/DepthSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/DepthSnapshot.swift; sourceTree = "<group>"; };
 		A1GRAVITYPOSE000000000002 /* Scan/Measurement/GravityPose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/GravityPose.swift; sourceTree = "<group>"; };
@@ -135,6 +145,12 @@
 		56C37326FA86B1FAB0AFEFA4 /* Fixtures/AppFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fixtures/AppFixtures.swift; sourceTree = "<group>"; };
 		572CFF43E4103C56C45E4B8B /* Store/ItemsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store/ItemsStore.swift; sourceTree = "<group>"; };
 		58A12493A45D71A84E6E9B01 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C1A7E0D5FONT05FILEREF01 /* Theme/Fonts/Nunito-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Theme/Fonts/Nunito-ExtraBold.ttf; sourceTree = "<group>"; };
+		C1A7E0D5FONT04FILEREF01 /* Theme/Fonts/Nunito-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Theme/Fonts/Nunito-Bold.ttf; sourceTree = "<group>"; };
+		C1A7E0D5FONT03FILEREF01 /* Theme/Fonts/Nunito-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Theme/Fonts/Nunito-SemiBold.ttf; sourceTree = "<group>"; };
+		C1A7E0D5FONT02FILEREF01 /* Theme/Fonts/Nunito-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Theme/Fonts/Nunito-Regular.ttf; sourceTree = "<group>"; };
+		C1A7E0D5FONT01FILEREF01 /* Theme/Fonts/Fredoka-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Theme/Fonts/Fredoka-SemiBold.ttf; sourceTree = "<group>"; };
+		C1A7E0D5FONT00FILEREF01 /* Theme/Fonts/Fredoka-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Theme/Fonts/Fredoka-Medium.ttf; sourceTree = "<group>"; };
 		59B11F6E2AE098928CA5F9E8 /* Scan/Measurement/FitStabilizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/FitStabilizer.swift; sourceTree = "<group>"; };
 		5C3B4B3D43BC697E8A223126 /* Example.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Example.xcconfig; sourceTree = "<group>"; };
 		604D7496338569D36C744497 /* Scan/Measurement/HeightMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/HeightMap.swift; sourceTree = "<group>"; };
@@ -144,6 +160,7 @@
 		B1SUGGESTVIEW000000002 /* Trip/SuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/SuggestionsView.swift; sourceTree = "<group>"; };
 
 		B1PACKADVICE00000000002 /* Trip/PackAdvice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/PackAdvice.swift; sourceTree = "<group>"; };
+		B1DATERANGE000000000002 /* Trip/DateRangeCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/DateRangeCalendar.swift; sourceTree = "<group>"; };
 
 		B1AIRPORTCAT00000000002 /* Data/AirportCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/AirportCatalog.swift; sourceTree = "<group>"; };
 
@@ -166,6 +183,7 @@
 		C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/PackingPlanView.swift; sourceTree = "<group>"; };
 		C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/DashboardView.swift; sourceTree = "<group>"; };
 		C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/PackFitKit.swift; sourceTree = "<group>"; };
+		C1A7E0D5LOADINGMOD00002 /* Components/LoadingModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/LoadingModal.swift; sourceTree = "<group>"; };
 		B51101A24C29803BD819ACA7 /* Scan/Measurement/RectFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/RectFit.swift; sourceTree = "<group>"; };
 		B72799E8B1EDACCBDAEE30AC /* Components/ConfidenceBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/ConfidenceBadge.swift; sourceTree = "<group>"; };
 		BD5D149DD8E2B472C0A9DC01 /* Store/PlanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store/PlanStore.swift; sourceTree = "<group>"; };
@@ -272,6 +290,7 @@
 				B1BEFOREYOUGO000000002 /* Trip/BeforeYouGoView.swift */,
 				B1SUGGESTVIEW000000002 /* Trip/SuggestionsView.swift */,
 				B1PACKADVICE00000000002 /* Trip/PackAdvice.swift */,
+				B1DATERANGE000000000002 /* Trip/DateRangeCalendar.swift */,
 				B1AIRPORTCAT00000000002 /* Data/AirportCatalog.swift */,
 				0EEF0C19C2FAB59249B7B900 /* Viewer/CategoryMaterials.swift */,
 				E18DE82273B61AAF3BE3F467 /* Viewer/PlanViewerController.swift */,
@@ -282,7 +301,14 @@
 				C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */,
 				C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */,
 				C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */,
+				C1A7E0D5LOADINGMOD00002 /* Components/LoadingModal.swift */,
 				58A12493A45D71A84E6E9B01 /* Assets.xcassets */,
+				C1A7E0D5FONT05FILEREF01 /* Theme/Fonts/Nunito-ExtraBold.ttf */,
+				C1A7E0D5FONT04FILEREF01 /* Theme/Fonts/Nunito-Bold.ttf */,
+				C1A7E0D5FONT03FILEREF01 /* Theme/Fonts/Nunito-SemiBold.ttf */,
+				C1A7E0D5FONT02FILEREF01 /* Theme/Fonts/Nunito-Regular.ttf */,
+				C1A7E0D5FONT01FILEREF01 /* Theme/Fonts/Fredoka-SemiBold.ttf */,
+				C1A7E0D5FONT00FILEREF01 /* Theme/Fonts/Fredoka-Medium.ttf */,
 				CCC85518DAF74D311A328861 /* Info.plist */,
 			);
 			path = PackFit;
@@ -312,6 +338,7 @@
 			2230361D1F773C6955285FB6 /* CardScaleTests.swift */,
 			0813ABE8B81360786939232A /* InventoryMergeTests.swift */,
 				21859376838BF23B0332273D /* TapMeasureTests.swift */,
+				B1DATERANGETEST00000002 /* DateRangeSelectionTests.swift */,
 				B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
 				C0FFEE0000000000000A0003 /* ObjectScanTests.swift */,
 				7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */,
@@ -416,6 +443,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D54DC65EEEAC96AD8ECDE15 /* Assets.xcassets in Resources */,
+				C1A7E0D5FONT05BUILD0001 /* Nunito-ExtraBold.ttf in Resources */,
+				C1A7E0D5FONT04BUILD0001 /* Nunito-Bold.ttf in Resources */,
+				C1A7E0D5FONT03BUILD0001 /* Nunito-SemiBold.ttf in Resources */,
+				C1A7E0D5FONT02BUILD0001 /* Nunito-Regular.ttf in Resources */,
+				C1A7E0D5FONT01BUILD0001 /* Fredoka-SemiBold.ttf in Resources */,
+				C1A7E0D5FONT00BUILD0001 /* Fredoka-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -429,6 +462,7 @@
 			4B4B29A7829A65A28AADD4A1 /* CardScaleTests.swift in Sources */,
 			2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */,
 				61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */,
+				B1DATERANGETEST00000001 /* DateRangeSelectionTests.swift in Sources */,
 				23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
 				C0FFEE0000000000000B0003 /* ObjectScanTests.swift in Sources */,
 				F4BA7A26C39806719BC98BA7 /* MeasurementMathTests.swift in Sources */,
@@ -501,6 +535,7 @@
 				B1BEFOREYOUGO000000001 /* Trip/BeforeYouGoView.swift in Sources */,
 				B1SUGGESTVIEW000000001 /* Trip/SuggestionsView.swift in Sources */,
 				B1PACKADVICE00000000001 /* Trip/PackAdvice.swift in Sources */,
+				B1DATERANGE000000000001 /* Trip/DateRangeCalendar.swift in Sources */,
 				B1AIRPORTCAT00000000001 /* Data/AirportCatalog.swift in Sources */,
 				79F634F3DF6BD96955797306 /* Viewer/CategoryMaterials.swift in Sources */,
 				1F068A91541C56ECEE7F98AD /* Viewer/PlanViewerController.swift in Sources */,
@@ -511,6 +546,7 @@
 				C1A7E0D5PACKINGPLAN0001 /* Viewer/PackingPlanView.swift in Sources */,
 				C1A7E0D5DASHBOARD000001 /* Trip/DashboardView.swift in Sources */,
 				C1A7E0D5PACKFITKIT00001 /* Components/PackFitKit.swift in Sources */,
+				C1A7E0D5LOADINGMOD00001 /* Components/LoadingModal.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

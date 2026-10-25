@@ -43,6 +43,12 @@ struct GuidedScanView: View {
                 }
             }
         }
+        .loadingModal(
+            isPresented: session.phase == .identifying,
+            title: Copy.Loading.identifyingTitle,
+            message: Copy.Loading.scanWait,
+            detail: Copy.Loading.identified(session.identifyProgress, of: session.tracked.filter(\.stable).count)
+        )
         .navigationTitle(Copy.Guided.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

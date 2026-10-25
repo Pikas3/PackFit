@@ -29,7 +29,8 @@ describe("flight lookup", () => {
     expect(result.international).toBe(true);
     expect(result.source).toBe("fixture");
     expect(result.routeNotices.length).toBeGreaterThan(0);
-    expect(result.routeNotices.some((n) => n.scope === "tsa")).toBe(true);
+    // TSA rules arrive as item flags only when an item breaks one.
+    expect(result.routeNotices.some((n) => n.scope === "tsa")).toBe(false);
     expect(result.routeNotices.some((n) => n.scope === "country")).toBe(true);
   });
 

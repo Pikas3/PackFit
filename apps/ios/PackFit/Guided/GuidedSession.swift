@@ -232,16 +232,19 @@ final class GuidedSession {
             errorText = Copy.Guided.cornersTooClose
             return
         }
-        let inner = presetBag?.compartments.first?.dims ?? [72, 26, 47]
+        // Closed thickness: sum of side depths for a zipper bag, else the single cavity's y.
+        let closedY = presetBag.map { bag in
+            bag.compartments.compactMap { $0.dims.count == 3 ? $0.dims[1] : nil }.reduce(0, +)
+        }.flatMap { $0 > 0 ? $0 : nil } ?? 26.0
         let floor = cornerTaps.map(\.y).min() ?? 0
-        let fit = CavityFit(box: BoxFit(rect: rect, height: Float(inner[1]) / 200, cellCount: 0, fillRatio: 1), floorY: floor)
+        let fit = CavityFit(box: BoxFit(rect: rect, height: Float(closedY) / 200, cellCount: 0, fillRatio: 1), floorY: floor)
         let camera = latestSnapshot?.cameraPosition ?? SIMD3(rect.center.x, 0, rect.center.y + 1)
         lockedCavity = fit
         bagTransform = fit.transform(cameraXZ: [camera.x, camera.z])
         container = ContainerFactory.fromCavity(
             innerLongCm: Double(rect.long * 100),
             innerShortCm: Double(rect.short * 100),
-            shellDepthCm: inner[1] / 2,
+            shellDepthCm: closedY / 2,
             confidence: 0.7,
             method: .manual
         )
