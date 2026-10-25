@@ -331,7 +331,10 @@ Not measured yet: viewer fps with the multi-part models on device.
 Figma: https://www.figma.com/design/90r9EPWzi2CDYln8Nwy4m5/PackFit-Cute
 
 - **Built:**
-  - **Tokens:** `Theme/Tokens.swift` holds the Figma palette (pink, green, alert colors) with dark variants. Its text styles map onto Dynamic Type using SF Rounded. Fredoka and Nunito are not bundled.
+  - **Tokens:** `Theme/Tokens.swift` holds the Figma palette (pink, green, alert colors) with dark variants.
+  - Text styles use the bundled Fredoka (Medium, SemiBold) and Nunito (Regular, SemiBold, Bold, ExtraBold) at their Figma sizes. They scale with Dynamic Type through `relativeTo:`.
+  - The fonts are static TTFs from Google Fonts in `Theme/Fonts`, OFL licence files alongside. They're listed in `UIAppFonts` in both `Info.plist` and `project.yml`.
+  - Navigation bar titles get Fredoka through `UINavigationBar.appearance()`. The iOS 26 tab bar keeps the system font.
   - **Components:** `Components/PackFitKit.swift` has the shared building blocks:
     - Primary button, chips, section header and stat tile
     - Itinerary field, tip row, nav title and icon bubble

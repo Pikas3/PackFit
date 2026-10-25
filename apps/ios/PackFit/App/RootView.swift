@@ -32,7 +32,7 @@ struct RootView: View {
             }
         }
         .tint(Tokens.Palette.pink700)
-        .fontDesign(.rounded)
+        .font(Tokens.TypeScale.base)
         .task { openPreviewPlanIfAsked() }
     }
 

@@ -47,6 +47,13 @@ targets:
       path: PackFit/Info.plist
       properties:
         UILaunchScreen: {}
+        UIAppFonts:
+          - Fredoka-Medium.ttf
+          - Fredoka-SemiBold.ttf
+          - Nunito-Regular.ttf
+          - Nunito-SemiBold.ttf
+          - Nunito-Bold.ttf
+          - Nunito-ExtraBold.ttf
   PackFitTests:
     type: bundle.unit-test
     platform: iOS

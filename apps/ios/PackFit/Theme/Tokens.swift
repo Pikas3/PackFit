@@ -1,8 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Design tokens from the PackFit-Cute Figma file. Fredoka and Nunito are approximated with
-/// SF Rounded so type stays on Dynamic Type text styles.
+/// Design tokens from the PackFit-Cute Figma file.
 enum Tokens {
     enum Spacing {
         static let unit: CGFloat = 4
@@ -81,26 +80,42 @@ enum Tokens {
         static let check = Palette.lilac500
     }
 
-    /// Figma text styles mapped to the nearest Dynamic Type style.
+    /// Bundled Google Fonts (OFL, see `Theme/Fonts`), by PostScript name.
+    enum FontName {
+        static let fredokaMedium = "Fredoka-Medium"
+        static let fredokaSemiBold = "Fredoka-SemiBold"
+        static let nunitoRegular = "Nunito-Regular"
+        static let nunitoSemiBold = "Nunito-SemiBold"
+        static let nunitoBold = "Nunito-Bold"
+        static let nunitoExtraBold = "Nunito-ExtraBold"
+    }
+
+    /// Figma text styles at their Figma sizes, scaling with the nearest Dynamic Type style.
     enum TypeScale {
+        private typealias N = FontName
+
         /// Display: Fredoka SemiBold 30.
-        static let display: Font = .system(.title, design: .rounded, weight: .semibold)
+        static let display: Font = .custom(N.fredokaSemiBold, size: 30, relativeTo: .title)
         /// Heading/H1: Fredoka SemiBold 24.
-        static let h1: Font = .system(.title2, design: .rounded, weight: .semibold)
+        static let h1: Font = .custom(N.fredokaSemiBold, size: 24, relativeTo: .title2)
         /// Heading/H2: Fredoka SemiBold 19.
-        static let h2: Font = .system(.title3, design: .rounded, weight: .semibold)
+        static let h2: Font = .custom(N.fredokaSemiBold, size: 19, relativeTo: .title3)
         /// Heading/H3: Fredoka Medium 16.
-        static let h3: Font = .system(.callout, design: .rounded, weight: .medium)
+        static let h3: Font = .custom(N.fredokaMedium, size: 16, relativeTo: .callout)
         /// Button: Fredoka SemiBold 17.
-        static let button: Font = .system(.headline, design: .rounded, weight: .semibold)
+        static let button: Font = .custom(N.fredokaSemiBold, size: 17, relativeTo: .headline)
+        /// Wordmark in the brand bar: Fredoka SemiBold 22.
+        static let wordmark: Font = .custom(N.fredokaSemiBold, size: 22, relativeTo: .title2)
         /// Body/Regular and Body/Bold: Nunito 14.
-        static let body: Font = .system(.subheadline, design: .rounded)
-        static let bodyBold: Font = .system(.subheadline, design: .rounded, weight: .bold)
+        static let body: Font = .custom(N.nunitoRegular, size: 14, relativeTo: .subheadline)
+        static let bodyBold: Font = .custom(N.nunitoBold, size: 14, relativeTo: .subheadline)
         /// Caption: Nunito SemiBold 12.
-        static let caption: Font = .system(.caption, design: .rounded, weight: .semibold)
+        static let caption: Font = .custom(N.nunitoSemiBold, size: 12, relativeTo: .caption)
         /// Label: Nunito ExtraBold 11, uppercase, tracked.
-        static let label: Font = .system(.caption2, design: .rounded, weight: .heavy)
+        static let label: Font = .custom(N.nunitoExtraBold, size: 11, relativeTo: .caption2)
         static let labelTracking: CGFloat = 0.66
+        /// Default for text that sets no font (system lists, forms): Nunito at body size.
+        static let base: Font = .custom(N.nunitoRegular, size: 17, relativeTo: .body)
 
         static let hero: Font = display
         static let title: Font = h2

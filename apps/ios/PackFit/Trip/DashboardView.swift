@@ -47,7 +47,7 @@ struct DashboardView: View {
                     .frame(width: 34, height: 34)
                     .background(P.pink300, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
                 (Text("Pack").foregroundStyle(P.textPrimary) + Text("Fit").foregroundStyle(P.pink700))
-                    .font(.system(.title2, design: .rounded, weight: .semibold))
+                    .font(T.wordmark)
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Copy.App.name)
@@ -65,7 +65,7 @@ struct DashboardView: View {
                     .overlay(alignment: .topTrailing) {
                         if !rulesStore.flags.isEmpty {
                             Text("\(rulesStore.flags.count)")
-                                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                                .font(.custom(Tokens.FontName.nunitoExtraBold, size: 10))
                                 .foregroundStyle(P.surface)
                                 .padding(4)
                                 .background(P.coral500, in: Circle())
