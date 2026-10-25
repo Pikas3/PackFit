@@ -3,7 +3,7 @@
     "ruleId": "country:in-food-dairy",
     "scope": "country",
     "subject": "IN",
-    "keywords": ["dairy", "meat", "food", "peanut butter", "noodles"],
+    "keywords": ["dairy", "meat", "food", "cheese", "ghee"],
     "categories": ["food"],
     "severity": "check",
     "carryOn": "restricted",

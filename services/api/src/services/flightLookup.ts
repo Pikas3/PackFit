@@ -62,16 +62,7 @@ function buildRouteNotices(from: string, to: string): FlightLookupResult["routeN
   const toCountry = countryForAirport(to) ?? null;
   const notices: FlightLookupResult["routeNotices"] = [];
 
-  // US TSA always relevant when origin or destination is the US.
-  if (fromCountry === "US" || toCountry === "US") {
-    notices.push({
-      scope: "tsa",
-      text: "TSA liquid and battery rules apply for US security screening. Keep liquids ≤100 ml in carry-on and spare lithium batteries in the cabin.",
-      sourceUrl: "https://www.tsa.gov/travel/security-screening/whatcanibring",
-      lastVerified: "2026-09-20",
-    });
-  }
-
+  // TSA rules show up as item flags only when an item breaks one, so no blanket notice here.
   if (fromCountry && toCountry && fromCountry !== toCountry) {
     const tips = loadCountryTips(toCountry);
     if (tips.length) {

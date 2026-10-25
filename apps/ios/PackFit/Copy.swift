@@ -304,6 +304,7 @@ enum Copy {
 
     enum Results {
         static let title = "Your results"
+        static let wholeBag = "Whole bag"
         static let repack = "Pack again"
         static let rotateHint = "Drag to rotate"
         static func full(_ pct: Double) -> String { String(format: "%.0f%% full", pct) }

@@ -380,3 +380,18 @@ Run: Bag → pick a suitcase → Two sides (zipper) → pack → Results 3D.
 Measured: packer unit test `zipperSuitcasePacksBaseThenLid`.
 Blocked on: Core review of base/lid naming (see `docs/requests.md`).
 Schema changes: none (additive use of `compartments`).
+## Section 2 + 3: Fewer redundant rule flags (#16), 2026-10-24
+
+- **Built:**
+  - **Item flags only for real violations.** `services/api/src/rules/store.ts` gained `violates(item, record, bag)`, which runs before Claude sees any candidates:
+    - The item must match by whole-word keyword. A category match alone only counts for `liquids` and `sharp`.
+    - The bag verdict must be `banned` or `restricted`.
+    - Liquid limits use the volume in the item name ("400 ml", "3.4 oz"), else the bounding box.
+    - Severity comes from the record, never from the model.
+  - **Weight is checked once per bag.** It only flags when total item kg is over the airline's checked limit (`itemId: "bag"`, shown as "Whole bag"). The Results kg tile turns coral when over.
+  - **TSA data re-checked on tsa.gov.** Fixed the 404 source links (liquids, lighters, aerosols, laptops, medications), pointed knives at TSA's general knives page, corrected the lighter and aerosol verdicts, and added `tsa:torch-lighter`. India customs no longer matches peanut butter or noodles.
+  - **No generic TSA route card.** Customs tips that duplicate an item flag are hidden.
+  - **One scan entry.** "Add photo" and the Items screen go straight to the camera (Snap the pile). The menu with "Scan item" (a manual form on non-LiDAR phones) is gone.
+  - **iOS offline fallback** (`AppFixtures.sampleFlags`) follows the same rules. Before, it flagged the first item as a liquid when there were no liquids.
+- **Fixture result:** the 25 fixture items on UA SFO→DEL now flag only full-size shampoo, the peanut butter jar and the pocket knife in carry-on, and only the power bank in checked. Nothing else is flagged, and the total weight is under 23 kg.
+- **How to run:** `pnpm --filter api test` (new `test/rules.test.ts`). The iOS tests pass in the simulator.

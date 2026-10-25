@@ -6,7 +6,6 @@ struct DashboardView: View {
     @Environment(ItemsStore.self) private var itemsStore
     @Environment(PlanStore.self) private var planStore
     @Environment(RulesStore.self) private var rulesStore
-    @Environment(DeviceCapabilities.self) private var caps
     @Environment(AppNavigator.self) private var navigator
     @Binding var path: [Route]
 
@@ -131,12 +130,7 @@ struct DashboardView: View {
     @ViewBuilder
     private var itemsTile: some View {
         if itemsStore.items.isEmpty {
-            Menu {
-                Button(Copy.Inventory.entry, systemImage: "camera") { path.append(.inventoryScan) }
-                Button(Copy.Items.scan, systemImage: "viewfinder") {
-                    path.append(caps.supportsGuidedScan ? .guidedScan : .scan)
-                }
-            } label: {
+            Button { path.append(.inventoryScan) } label: {
                 emptyTile(systemImage: "camera", title: Copy.Home.itemsTile, caption: Copy.Home.itemsEmpty, action: Copy.Home.addPhoto)
             }
             .buttonStyle(.plain)
