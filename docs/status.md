@@ -325,3 +325,27 @@ Viewer:
 - Debug builds launched with `-previewPlan` open the 3D plan with the fixture items in the
   checked bag.
 Not measured yet: viewer fps with the multi-part models on device.
+
+## Section 2: UI redesign to the PackFit-Cute Figma (uncommitted)
+
+Figma: https://www.figma.com/design/90r9EPWzi2CDYln8Nwy4m5/PackFit-Cute
+
+- **Built:**
+  - **Tokens:** `Theme/Tokens.swift` holds the Figma palette (pink, green, alert colors) with dark variants. Its text styles map onto Dynamic Type using SF Rounded. Fredoka and Nunito are not bundled.
+  - **Components:** `Components/PackFitKit.swift` has the shared building blocks:
+    - Primary button, chips, section header and stat tile
+    - Itinerary field, tip row, nav title and icon bubble
+    - Flag card, checklist row, flow layout and blob background
+  - **Tab bar:** a system `TabView` with Home, Results and Plan, each with its own NavigationStack. `AppNavigator` switches tabs after packing.
+  - **Home** (`Trip/DashboardView.swift`) replaces the trip picker:
+    - Next-trip card, then item and bag tiles.
+    - Itinerary card, which opens the restyled flight lookup sheet (`TripPickerView`).
+    - Season chips, the forecast and Optimize. `PackRun` checks the rules, drops banned items and packs the rest.
+  - **Results** (`Viewer/PlanViewerView.swift`):
+    - 3D card with 3D, Top and Side camera presets and a layer filter (the peel).
+    - Step controls, stats, flag cards (rule flags plus route notices, filterable, with source links and stale labels) and the didn't-fit chips.
+  - **Plan** (`Viewer/PackingPlanView.swift`): `describeStep` output as a checklist by layer, with progress and share. The ticks live in `PlanStore.packedSteps`.
+  - **Restyled:** Rules (flag cards), bag setup, item list, onboarding and the empty state. Other screens get the canvas background.
+- **Cut:** the Figma Profile tab, since there is no profile feature.
+- **How to run:** debug builds take `-previewPlan` plus `-previewTab home|plan` to open a tab with the fixture trip.
+- **Verified:** simulator tests pass, the device build is clean, and light and dark screenshots were checked. Not yet checked on device.

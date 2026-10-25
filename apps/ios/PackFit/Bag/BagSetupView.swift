@@ -23,24 +23,36 @@ struct BagSetupView: View {
                             path.append(.itemList)
                         }
                     } label: {
-                        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                            Text(bag.name)
-                                .font(Tokens.TypeScale.title)
-                                .foregroundStyle(.primary)
-                            Text(dimsLabel(bag.outer) + " · \(Int(bag.weightLimitKg)) kg")
-                                .font(Tokens.TypeScale.caption)
-                                .foregroundStyle(.secondary)
+                        HStack(spacing: 12) {
+                            IconBubble(systemImage: bag.type == .backpack ? "backpack" : "suitcase.rolling")
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(bag.name)
+                                    .font(Tokens.TypeScale.h3)
+                                    .foregroundStyle(Tokens.Palette.textPrimary)
+                                Text(dimsLabel(bag.outer) + " · \(Int(bag.weightLimitKg)) kg")
+                                    .font(Tokens.TypeScale.caption)
+                                    .foregroundStyle(Tokens.Palette.textSecondary)
+                            }
+                            Spacer()
+                            if tripStore.bag?.id == bag.id {
+                                Image(systemName: "checkmark.circle.fill").foregroundStyle(Tokens.Palette.green600)
+                            }
                         }
                     }
                 }
             }
             Section(Copy.Bag.custom) {
                 if caps.supportsGuidedScan {
-                    Button(Copy.Bag.measureLidar) { path.append(.guidedScan) }
+                    Button { path.append(.guidedScan) } label: {
+                        Label(Copy.Bag.measureLidar, systemImage: "camera.metering.matrix")
+                    }
                 }
-                Button(Copy.Bag.measureManual) { showManual = true }
+                Button { showManual = true } label: {
+                    Label(Copy.Bag.measureManual, systemImage: "ruler")
+                }
             }
         }
+        .packFitCanvas()
         .navigationTitle(Copy.Bag.title)
         .sheet(isPresented: $showManual) {
             ManualBagView { outer, limit in

@@ -7,6 +7,7 @@ struct GuidedScanView: View {
     @Environment(ItemsStore.self) private var itemsStore
     @Environment(PlanStore.self) private var planStore
     @Environment(DeviceCapabilities.self) private var caps
+    @Environment(AppNavigator.self) private var navigator
     @Binding var path: [Route]
 
     @State private var session: GuidedSession
@@ -282,7 +283,7 @@ struct GuidedScanView: View {
                     .foregroundStyle(Tokens.Color.restricted)
             }
             HStack {
-                Button(Copy.Guided.view3D) { path.append(.planViewer) }
+                Button(Copy.Guided.view3D) { navigator.tab = .results }
                 Spacer()
                 Button(Copy.Guided.itemsLink) { path.append(.itemList) }
                 Spacer()

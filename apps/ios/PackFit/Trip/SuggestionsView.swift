@@ -71,6 +71,7 @@ struct SuggestionsView: View {
                 }
             }
         }
+        .packFitCanvas()
         .navigationTitle(Copy.Trip.suggestionsTitle)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {

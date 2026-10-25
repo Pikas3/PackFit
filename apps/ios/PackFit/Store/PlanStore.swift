@@ -8,6 +8,8 @@ final class PlanStore {
     var plan: Plan?
     /// Why each id in `plan.unplaced` didn't fit. Empty for fixture plans.
     var unplacedReasons: [String: UnplacedReason] = [:]
+    /// Orders of the steps ticked off on the packing checklist.
+    var packedSteps: Set<Int> = []
     var isPacking = false
     var errorMessage: String?
 
@@ -17,6 +19,7 @@ final class PlanStore {
         defer { isPacking = false }
 
         unplacedReasons = [:]
+        packedSteps = []
         if items.isEmpty {
             plan = Plan(placed: [], unplaced: [], stats: PlanStats(fillPct: 0, kg: 0, comHeightPct: 0))
             return
@@ -36,6 +39,7 @@ final class PlanStore {
 
     func loadFixturePlan(named name: String = "sfo-del-checked") {
         unplacedReasons = [:]
+        packedSteps = []
         plan = AppFixtures.plan(named: name)
     }
 }

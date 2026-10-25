@@ -16,11 +16,10 @@ struct EmptyStateView: View {
             Text(message)
                 .font(Tokens.TypeScale.body)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Tokens.Palette.textSecondary)
             if let actionTitle, let action {
                 Button(actionTitle, action: action)
-                    .buttonStyle(.borderedProminent)
-                    .tint(Tokens.Color.brand)
+                    .buttonStyle(.packFitPrimary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
