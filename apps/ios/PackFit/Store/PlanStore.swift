@@ -6,6 +6,10 @@ import PackFitSchemas
 @MainActor
 final class PlanStore {
     var plan: Plan?
+    /// Why each id in `plan.unplaced` didn't fit. Empty for fixture plans.
+    var unplacedReasons: [String: UnplacedReason] = [:]
+    /// Orders of the steps ticked off on the packing checklist.
+    var packedSteps: Set<Int> = []
     var isPacking = false
     var errorMessage: String?
 
@@ -14,6 +18,8 @@ final class PlanStore {
         errorMessage = nil
         defer { isPacking = false }
 
+        unplacedReasons = [:]
+        packedSteps = []
         if items.isEmpty {
             plan = Plan(placed: [], unplaced: [], stats: PlanStats(fillPct: 0, kg: 0, comHeightPct: 0))
             return
@@ -21,13 +27,19 @@ final class PlanStore {
 
         let snapshot = items
         let bag = container
-        plan = await Task.detached(priority: .userInitiated) {
+        let (packed, reasons) = await Task.detached(priority: .userInitiated) {
             // Section 1 solver (Packages/Packer).
-            pack(snapshot, into: bag, options: PackOptions())
+            let options = PackOptions()
+            let plan = pack(snapshot, into: bag, options: options)
+            return (plan, explainUnplaced(plan, items: snapshot, container: bag, options: options))
         }.value
+        unplacedReasons = reasons
+        plan = packed
     }
 
     func loadFixturePlan(named name: String = "sfo-del-checked") {
+        unplacedReasons = [:]
+        packedSteps = []
         plan = AppFixtures.plan(named: name)
     }
 }

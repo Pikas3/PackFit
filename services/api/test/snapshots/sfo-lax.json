@@ -2,31 +2,70 @@
   "suggestions": [
     {
       "name": "T-shirt stack (1)",
-      "category": "clothing"
+      "category": "clothing",
+      "reason": "Everyday tops for 2 nights",
+      "essential": true
     },
     {
       "name": "T-shirt stack (2)",
-      "category": "clothing"
+      "category": "clothing",
+      "reason": "Everyday tops for 2 nights",
+      "essential": true
     },
     {
       "name": "Jeans",
-      "category": "clothing"
+      "category": "clothing",
+      "reason": "One durable pair for the trip",
+      "essential": false
     },
     {
       "name": "Toiletry pouch",
-      "category": "toiletries"
+      "category": "toiletries",
+      "reason": "Basics for the trip length",
+      "essential": true
     },
     {
       "name": "Phone charger cable",
-      "category": "electronics"
+      "category": "electronics",
+      "reason": "Keep devices charged",
+      "essential": true
     }
   ],
   "warnings": [],
   "weather": {
-    "summary": "Forecast highs around 24°C and lows around 0°C.",
-    "lowC": 0,
-    "highC": 23.6,
-    "precipChance": 0.06,
+    "summary": "Forecast highs around 23°C and lows around 19°C.",
+    "lowC": 19.2,
+    "highC": 23.1,
+    "precipChance": 0.1733333333333333,
     "sourceUrl": "https://api.open-meteo.com/v1/forecast?latitude=33.9425&longitude=-118.408&daily=temperature_2m_max%2Ctemperature_2m_min%2Cprecipitation_probability_max&timezone=auto&start_date=2026-11-06&end_date=2026-11-08"
-  }
+  },
+  "beforeYouGo": {
+    "pack": [
+      {
+        "text": "Pack a power adapter suitable for US and check charger voltage.",
+        "sourceUrl": "https://www.iatatravelcentre.com/",
+        "lastVerified": "2026-09-20"
+      },
+      {
+        "text": "Keep passport and visas in your cabin bag.",
+        "sourceUrl": "https://travel.state.gov/",
+        "lastVerified": "2026-09-20"
+      }
+    ],
+    "leaveOrDeclare": [
+      {
+        "text": "Check destination customs for food, plants, drones, vapes, and cash limits.",
+        "sourceUrl": "https://www.iatatravelcentre.com/",
+        "lastVerified": "2026-09-20"
+      }
+    ],
+    "medicationFood": [
+      {
+        "text": "Keep prescription medication in original packaging with a copy of the prescription.",
+        "sourceUrl": "https://www.tsa.gov/travel/security-screening/whatcanibring/items/medications",
+        "lastVerified": "2026-09-18"
+      }
+    ]
+  },
+  "destinationCountry": "US"
 }

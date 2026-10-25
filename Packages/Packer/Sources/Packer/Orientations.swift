@@ -9,7 +9,14 @@ struct Orientation: Equatable {
 ///
 /// - `upright` items keep their scanned `h` vertical: (w, h, d) and (d, h, w).
 /// - `options.orientations == 2` keeps only the flat orientation and its 90 degree turn.
-func orientations(for item: Item, options: PackOptions) -> [Orientation] {
+/// - With `space`, an upright item that cannot stand in it at all is treated as not upright
+///   (a bottle taller than the bag lies down), matching `uprightViolation`.
+func orientations(for item: Item, options: PackOptions, space: Size? = nil) -> [Orientation] {
+    if item.upright, let space, !canStand(item, in: space) {
+        var lying = item
+        lying.upright = false
+        return orientations(for: lying, options: options)
+    }
     let (w, h, d) = (item.w, item.h, item.d)
     var all: [Orientation]
     if item.upright {
@@ -39,6 +46,15 @@ func orientations(for item: Item, options: PackOptions) -> [Orientation] {
         unique = unique.map { Orientation(w: $0.w, h: max($0.h * factor, eps * 10), d: $0.d) }
     }
     return unique
+}
+
+/// Whether `item` fits `space` standing with its scanned `h` vertical, ignoring everything
+/// else in the bag.
+func canStand(_ item: Item, in space: Size) -> Bool {
+    let fitsH = item.h <= space.h + eps
+    let a = item.w <= space.w + eps && item.d <= space.d + eps
+    let b = item.d <= space.w + eps && item.w <= space.d + eps
+    return fitsH && (a || b)
 }
 
 private func sameSize(_ a: Orientation, _ b: Orientation) -> Bool {

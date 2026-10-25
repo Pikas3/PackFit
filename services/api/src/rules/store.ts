@@ -66,6 +66,16 @@ export function airportCoords(iata: string): { lat: number; lon: number } | unde
   return a ? { lat: a.lat, lon: a.lon } : undefined;
 }
 
+/** Country customs tips for the Before You Go panel (from cached rule fixtures). */
+export function loadCountryTips(
+  country: string | undefined,
+): Array<{ text: string; sourceUrl: string; lastVerified: string }> {
+  if (!country) return [];
+  return loadAll()
+    .filter((r) => r.scope === "country" && r.subject === country)
+    .map((r) => ({ text: r.text, sourceUrl: r.sourceUrl, lastVerified: r.lastVerified }));
+}
+
 export function findCandidatesForItem(
   item: Item,
   trip: { from: string; to: string; airline: string },

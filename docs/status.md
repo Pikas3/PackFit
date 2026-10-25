@@ -239,3 +239,113 @@ Measured: synthetic end-to-end scene (Vision on the Mac, Claude boxes shifted 6%
 clipped): can 5.8 × 15.7 → 5.8 × 15.7, bottle 7.5 × 25 → 7.6 × 25.0, sunglasses 14 × 5 × 4 →
 14.1 × 5.1 × 3.9. Real photos not yet re-measured.
 Run: iOS `PackFitTests`; backend 17 passing; device build clean.
+## 2026-10-24 trip/rules/suggestions wiring (branch objectdetection)
+Built:
+- **F1 Trip setup:** `TripPickerView` activities multi-select, airport autocomplete (`AirportCatalog`),
+  bag choice, validation; weather + warnings via `TripStore.loadSuggestions` ? `POST /trip/suggest`
+- **F2 Apify:** airline-baggage public README + INPUT_SCHEMA; fixtures in `data/rules/*` remain the
+  offline cache; stale labeling unchanged
+- **F3 Flags:** item list badges + pack advice (`PackAdvice`); low-confidence confirm sheet;
+  flags refresh when the list changes; banned items skipped at pack time; Rules sheet + disclaimer
+- **F4 Suggestions:** `SuggestionsView` grouped by category, essentials, one-tap accept ? `Item`
+  with `measurement.method = estimate`; subtracts already-scanned names
+- **F5 Before you go:** `BeforeYouGoView` from `beforeYouGo` panel + country flags + overweight warning
+- **F6:** Routes wired; README sponsor sections; API tests for Suggestion JSON (`suggestions.test.ts`)
+- Backend: `/trip/suggest` now returns `Suggestion[]` + `beforeYouGo` + `destinationCountry`
+  (additive; see `docs/requests.md`)
+Cut:
+- Live Apify publish (`apify push` still needs token)
+- Separate `/trip/forecast` route (weather stays inside suggest)
+- Changing `Trip.airline` to optional in JSON Schema
+Run:
+- `pnpm --filter api test` (15 passing)
+- iOS: open `apps/ios/PackFit.xcodeproj`, mock API default
+Measured: API unit tests green on Windows host
+Blocked on: device build; live Anthropic/Apify keys for non-mock demo
+Schema changes: none to `schemas/*.schema.json`; additive API DTOs only
+
+## 2026-10-24 trip lookup by flight number
+Built:
+- Replaced sample-trip list with airline + flight number lookup (POST /trip/lookup)
+- Weather / suggestions / before-you-go load only after the user confirms the found flight
+- Route notices: TSA when US involved; destination-country customs when international
+- Demo fixtures offline; optional `AVIATIONSTACK_API_KEY` for live lookup
+Run: enter UA / 88 ? Use this flight ? weather for DEL + rules appear
+Cut: browsing a dropdown of all sample trips as the primary path
+
+## 2026-10-24 — Section 3: live flight lookup through Apify; weather for any trip date
+Flight lookup (`/trip/lookup`):
+- Tested four Apify flight-status actors on UA 901, BA 178, EK 202, AI 173 and 6E 1.
+  `apt_marble/flight-status-tracker` won: right routes for every flight that operates now
+  (as did travelcode and parseforge), 4-7 s per run, $0.003 per flight, airport names and
+  countries included, 97 runs in 30 days with none failed. `moving_beacon-owner1/flightaware-flight-scraper`
+  found nothing. None of them know flights months ahead, so the route comes from the flight
+  operating now or next and the user's date is kept.
+- Order: demo fixtures, then the in-memory route cache (7 days; misses 1 hour), then Apify,
+  then AviationStack if configured. Not found is a 404 with a reason; a failing service a 502.
+  Measured on the dev server: first UA 901 lookup 4.6 s, cached 2 ms.
+- The app shows the server's message and no longer substitutes SFO→DEL for unknown flights.
+Weather (`/trip/suggest`): Open-Meteo's forecast reaches 16 days; trips used to ask for the
+whole stay and always fell back to a default. Now the forecast is cut where it ends, and
+later trips get last year's weather on the same dates from the archive.
+Run: backend 25 tests passing (no test calls Apify; live keys are cleared per test).
+- Follow-up: the lookup now follows the trip date. The actor's history (about ten days back,
+  two days ahead) gives that day's own flight when covered; later dates take the route flown
+  on the same weekday most recently and return `routeNote` (shown in the app) saying it is
+  inferred. One history run per flight number serves every date for 12 hours.
+
+## 2026-10-24 — Section 2 (with Packer changes): why items don't fit, better packing, 3D shapes
+Packer (`Packages/Packer`, see the request to Section 1):
+- An upright item too tall to stand in the bag now lies down (step note: "too tall to
+  stand, close it tightly and lay it flat") instead of going unplaced. A 27 cm-tall checked
+  bag rejected any upright bottle scanned over 27 cm.
+- Light soft items (≤ 1 kg) may go above fragile ones; rigid or heavier items still may not.
+- Two more item orderings (largest volume, longest side) are tried after the 16 existing
+  strategies when something is still left out.
+- `explainUnplaced` gives each left-out item a reason: too large for the bag, only room is
+  above a fragile item, no room left, or invalid size.
+- Tests: 33 passing (3 new). Bench (30 items, checked, debug): 825 ms best of 5, was 717 ms;
+  budget 1,000 ms. Demo plans unchanged.
+Viewer:
+- The suitcase lid plane lay vertically through the bag (a flat plane rotated again); now it
+  caps the top.
+- "Didn't fit" lists each item with its size and reason; tap opens it for editing. The
+  current step shows the packer's notes (keep upright, fragile, lay flat, press down).
+- Items are drawn as built-in models in one flat style (`Viewer/ItemModels.swift`), picked by
+  name then category: bottle, can/jar/mug, tube, laptop, phone/tablet, book/documents,
+  folded clothing, shoes, zip pouch, first-aid kit, headphones, camera, glasses, plain box.
+  The photo scan's cylinder shape forces a round model. Models turn with the item when the
+  packer lays it on its side. No photo textures. Past items are solid in the viewer (85%
+  opacity let model parts show through each other); the AR overlay keeps 60%.
+- The current item has a name tag above the bag that faces the camera.
+- Fragile outlines were offset by half the item (drawn from a corner, not the centre) and
+  their lines stretched with the item; now centred with a constant 4 mm line.
+- The lid plane sat exactly on the bag volume's top face and flickered while orbiting; it is
+  now 2 mm above it, drawn after it in one sort group, and lighter (15% instead of 35%).
+- Debug builds launched with `-previewPlan` open the 3D plan with the fixture items in the
+  checked bag.
+Not measured yet: viewer fps with the multi-part models on device.
+
+## Section 2: UI redesign to the PackFit-Cute Figma (uncommitted)
+
+Figma: https://www.figma.com/design/90r9EPWzi2CDYln8Nwy4m5/PackFit-Cute
+
+- **Built:**
+  - **Tokens:** `Theme/Tokens.swift` holds the Figma palette (pink, green, alert colors) with dark variants. Its text styles map onto Dynamic Type using SF Rounded. Fredoka and Nunito are not bundled.
+  - **Components:** `Components/PackFitKit.swift` has the shared building blocks:
+    - Primary button, chips, section header and stat tile
+    - Itinerary field, tip row, nav title and icon bubble
+    - Flag card, checklist row, flow layout and blob background
+  - **Tab bar:** a system `TabView` with Home, Results and Plan, each with its own NavigationStack. `AppNavigator` switches tabs after packing.
+  - **Home** (`Trip/DashboardView.swift`) replaces the trip picker:
+    - Next-trip card, then item and bag tiles.
+    - Itinerary card, which opens the restyled flight lookup sheet (`TripPickerView`).
+    - Season chips, the forecast and Optimize. `PackRun` checks the rules, drops banned items and packs the rest.
+  - **Results** (`Viewer/PlanViewerView.swift`):
+    - 3D card with 3D, Top and Side camera presets and a layer filter (the peel).
+    - Step controls, stats, flag cards (rule flags plus route notices, filterable, with source links and stale labels) and the didn't-fit chips.
+  - **Plan** (`Viewer/PackingPlanView.swift`): `describeStep` output as a checklist by layer, with progress and share. The ticks live in `PlanStore.packedSteps`.
+  - **Restyled:** Rules (flag cards), bag setup, item list, onboarding and the empty state. Other screens get the canvas background.
+- **Cut:** the Figma Profile tab, since there is no profile feature.
+- **How to run:** debug builds take `-previewPlan` plus `-previewTab home|plan` to open a tab with the fixture trip.
+- **Verified:** simulator tests pass, the device build is clean, and light and dark screenshots were checked. Not yet checked on device.

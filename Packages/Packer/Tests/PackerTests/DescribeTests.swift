@@ -29,7 +29,7 @@ import Testing
         #expect(mug.region == "back left corner")
         #expect(mug.position == .middle)
         #expect(mug.near == ["Jeans"])
-        #expect(mug.notes == ["fragile, nothing goes on top"])
+        #expect(mug.notes == ["fragile, only soft clothes on top"])
 
         let shoes = try #require(describeStep(p, items: items, order: 2, container: suitcase))
         #expect(shoes.region == "front right corner")

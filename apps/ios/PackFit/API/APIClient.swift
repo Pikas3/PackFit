@@ -13,6 +13,10 @@ protocol APIClient: Sendable {
     func scanInventory(imageBase64: String, hint: String?, reference: String?) async throws -> ScanInventoryResponse
 
     func checkRules(items: [Item], trip: Trip, bag: String) async throws -> RulesCheckResponse
+
+    func suggestTrip(_ trip: Trip) async throws -> TripSuggestResponse
+
+    func lookupFlight(airline: String, flightNumber: String, departDate: String?) async throws -> FlightLookupResponse
 }
 
 struct MeasuredDims: Codable, Sendable, Equatable {
@@ -29,6 +33,12 @@ enum APIError: Error, LocalizedError {
     case decoding
     case upstream(String)
     case network
+
+    /// The server could not be reached at all, as opposed to answering with an error.
+    var isNetwork: Bool {
+        if case .network = self { return true }
+        return false
+    }
 
     var errorDescription: String? {
         switch self {

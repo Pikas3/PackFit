@@ -24,6 +24,33 @@ mirror `schemas/*.schema.json`.
 
 `200 { ok: true, version: string, rulesLastSynced: string | null }`
 
+## POST /trip/lookup
+
+Resolve a commercial flight from airline IATA + flight number. Used by trip setup instead of
+picking a sample trip from a list.
+
+Request:
+```json
+{ "airline": "UA", "flightNumber": "88", "departDate": "2026-11-01" }
+```
+
+Response includes `from` / `to` airports, country codes, `international`, and `routeNotices`
+(TSA and destination-country tips with `sourceUrl`). Demo fixture flights (UA 88, BA 178,
+AS 204, …) answer first. Any other flight runs the Apify actor `apt_marble/flight-status-tracker`
+(needs `APIFY_TOKEN`; override with `APIFY_FLIGHT_ACTOR`), one run of about 5 s and $0.004
+that returns the flight number's operations from about ten days back to two days ahead. The
+route follows `departDate`: that day's own flight when the window covers it (`404` if the
+flight does not fly that day); for later dates the most recent flight on the same weekday,
+with `routeNote` saying the route is inferred; with no date, the next flight. Histories are
+cached in memory per flight number for 12 hours, misses for 1 hour. AviationStack (`AVIATIONSTACK_API_KEY`; the
+free plan needs `AVIATIONSTACK_BASE_URL=http://api.aviationstack.com/v1`) is tried when Apify
+finds nothing or fails.
+Errors: `404` when the flight is not found (the message says if live lookup is not set up),
+`502` when AviationStack is unreachable or refuses; the app shows the message.
+
+Weather is **not** included here — call `POST /trip/suggest` only after the user confirms the flight
+so the forecast is for the selected destination.
+
 ## POST /scan/item  (WS3 server, Section 3)
 
 Claude vision acts as an object-detection model on the photo and returns an `Item`.
@@ -184,7 +211,9 @@ Response:
 ```
 
 Suggestions have `source = 'suggested'`, `confidence = 1`, dims and weight from the catalog.
-Weather from Open-Meteo (no key) keyed by destination airport coordinates.
+Weather from Open-Meteo (no key) keyed by destination airport coordinates. Its forecast reaches
+16 days ahead: a trip starting inside that range gets the forecast up to where it ends (the
+summary says so); a later trip gets last year's weather on the same dates from the archive.
 
 ## POST /voice/tts  (WS7, Section 4)
 

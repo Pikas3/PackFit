@@ -1,4 +1,5 @@
 import Foundation
+import Packer
 import RealityKit
 import SwiftUI
 
@@ -22,9 +23,15 @@ final class PlanStepper: PlanViewerControlling {
     let pastOpacity: CGFloat
 
     private(set) var itemEntities: [String: ModelEntity] = [:]
+    /// Each entity's resting scale. Cylinders lying down are rotated, so it is not simply w, h, d.
+    private var baseScales: [String: SIMD3<Float>] = [:]
+    /// Name tag over the current item, rebuilt on each step.
+    private let label = Entity()
     private(set) var placements: [Placement] = []
     private(set) var innerDims: [Double] = []
     private var itemsById: [String: Item] = [:]
+    private var plan: Plan?
+    private var container: Container?
     private var playTask: Task<Void, Never>?
 
     /// Origin at the compartment's inner bottom-left-back corner, metres.
@@ -35,16 +42,22 @@ final class PlanStepper: PlanViewerControlling {
     }
 
     /// Loads the first compartment's placements. Other compartments are not drawn.
-    func load(plan: Plan, items: [Item], container: Container, style: ContainerStyle) {
+    func load(
+        plan: Plan, items: [Item], container: Container, style: ContainerStyle,
+        shapes: [String: ObjectShape] = [:]
+    ) {
         stopPlay()
         root.children.forEach { $0.removeFromParent() }
         itemEntities.removeAll()
+        baseScales.removeAll()
         let main = container.compartments.first
         innerDims = main?.dims ?? container.outer
         placements = plan.placed
             .filter { $0.compartment == nil || $0.compartment == main?.name }
             .sorted { $0.order < $1.order }
         itemsById = Dictionary(items.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        self.plan = plan
+        self.container = container
 
         switch style {
         case .volume:
@@ -61,10 +74,12 @@ final class PlanStepper: PlanViewerControlling {
 
         for placement in placements {
             guard let item = itemsById[placement.itemId] else { continue }
-            let entity = SceneBuilder.buildItemEntity(placement: placement, item: item)
+            let entity = SceneBuilder.buildItemEntity(placement: placement, item: item, shape: shapes[placement.itemId])
             root.addChild(entity)
             itemEntities[placement.itemId] = entity
+            baseScales[placement.itemId] = entity.scale
         }
+        root.addChild(label)
         goToStep(style == .wireframe ? 0 : placements.count, animated: false)
     }
 
@@ -77,6 +92,12 @@ final class PlanStepper: PlanViewerControlling {
     }
 
     var currentItem: Item? { currentPlacement.flatMap { itemsById[$0.itemId] } }
+
+    /// Packer notes for the current step, e.g. "keep upright" or "lay it flat".
+    var currentNotes: [String] {
+        guard let plan, let order = currentPlacement?.order else { return [] }
+        return describeStep(plan, items: Array(itemsById.values), order: order, container: container)?.notes ?? []
+    }
 
     func goToStep(_ n: Int, animated: Bool) {
         let clamped = max(0, min(n, placements.count))
@@ -124,12 +145,8 @@ final class PlanStepper: PlanViewerControlling {
     private func applyStepAppearance(animated: Bool) {
         _ = animated
         for (index, placement) in placements.enumerated() {
-            guard let entity = itemEntities[placement.itemId] else { continue }
-            let base = SIMD3<Float>(
-                Float(placement.w) * SceneBuilder.cmToMeters,
-                Float(placement.h) * SceneBuilder.cmToMeters,
-                Float(placement.d) * SceneBuilder.cmToMeters
-            )
+            guard let entity = itemEntities[placement.itemId],
+                  let base = baseScales[placement.itemId] else { continue }
             let peeled = placement.y + placement.h > peelThreshold
             guard index < currentStep, !peeled else {
                 entity.isEnabled = false
@@ -138,9 +155,28 @@ final class PlanStepper: PlanViewerControlling {
             entity.isEnabled = true
             let isCurrent = index == currentStep - 1
             entity.scale = isCurrent ? base * 1.03 : base
-            if let item = itemsById[placement.itemId] {
-                entity.model?.materials = [CategoryMaterials.material(for: item.category, opacity: isCurrent ? 1 : pastOpacity)]
+            // Models are several parts, so opacity goes on the parent and reaches them all.
+            if isCurrent || pastOpacity >= 1 {
+                entity.components.remove(OpacityComponent.self)
+            } else {
+                entity.components.set(OpacityComponent(opacity: Float(pastOpacity)))
             }
         }
+        updateLabel()
+    }
+
+    private func updateLabel() {
+        label.children.forEach { $0.removeFromParent() }
+        guard let placement = currentPlacement, let item = currentItem,
+              placement.y + placement.h <= peelThreshold else { return }
+        let tag = SceneBuilder.buildLabel(item.name)
+        label.addChild(tag)
+        // Above the bag's rim as well as the item, so other items and the lid never hide it.
+        let top = max(placement.y + placement.h, innerDims.count == 3 ? innerDims[1] : 0)
+        label.position = [
+            Float(placement.x + placement.w / 2) * SceneBuilder.cmToMeters,
+            Float(top) * SceneBuilder.cmToMeters + 0.04,
+            Float(placement.z + placement.d / 2) * SceneBuilder.cmToMeters,
+        ]
     }
 }

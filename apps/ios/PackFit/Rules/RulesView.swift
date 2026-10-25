@@ -1,57 +1,81 @@
 import SwiftUI
 
+/// Every flag for the trip as Figma flag cards, grouped by severity, with the stale banner.
 struct RulesView: View {
     @Environment(RulesStore.self) private var rulesStore
     @Environment(ItemsStore.self) private var itemsStore
     @Environment(\.openURL) private var openURL
 
+    private typealias P = Tokens.Palette
+    private typealias T = Tokens.TypeScale
+
     var body: some View {
-        List {
-            if rulesStore.stale {
-                Section {
-                    Text(Copy.Rules.stale)
-                        .font(Tokens.TypeScale.callout)
-                        .foregroundStyle(Tokens.Color.restricted)
+        ScrollView {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
+                if rulesStore.stale {
+                    TipRow(text: Copy.Rules.stale)
                 }
-            }
-            if !rulesStore.summary.isEmpty {
-                Section {
+                if !rulesStore.summary.isEmpty {
                     Text(rulesStore.summary)
-                    Text(Copy.Rules.guidance)
-                        .font(Tokens.TypeScale.caption)
-                        .foregroundStyle(.secondary)
+                        .font(T.body)
+                        .foregroundStyle(P.textPrimary)
                 }
-            }
-            ForEach(RuleSeverity.allCases, id: \.self) { severity in
-                let group = rulesStore.flags.filter { $0.severity == severity }
-                if !group.isEmpty {
-                    Section(severity.rawValue.capitalized) {
-                        ForEach(group) { flag in
-                            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                                Text(itemName(flag.itemId))
-                                    .font(Tokens.TypeScale.body.weight(.semibold))
-                                Text(flag.text)
-                                Button {
-                                    if let url = URL(string: flag.sourceUrl) { openURL(url) }
-                                } label: {
-                                    Text("Source · \(Copy.Rules.verifiedPrefix) \(RuleFreshness.daysSinceVerified(flag.lastVerified)) \(Copy.Rules.daysAgo)")
-                                        .font(Tokens.TypeScale.caption)
-                                }
-                                if RuleFreshness.isStale(flag.lastVerified) {
-                                    Text("Stale")
-                                        .font(Tokens.TypeScale.caption)
-                                        .foregroundStyle(Tokens.Color.restricted)
-                                }
+                Text(Copy.Rules.guidance)
+                    .font(T.caption)
+                    .foregroundStyle(P.textSecondary)
+
+                ForEach(RuleSeverity.allCases, id: \.self) { severity in
+                    let group = rulesStore.flags.filter { $0.severity == severity }
+                    if !group.isEmpty {
+                        Text(severity.rawValue).eyebrow()
+                            .padding(.top, Tokens.Spacing.sm)
+                        ForEach(Array(group.enumerated()), id: \.offset) { _, flag in
+                            let kind = FlagCard.Kind(flag.scope)
+                            FlagCard(
+                                kind: kind,
+                                status: status(severity, kind: kind),
+                                item: itemName(flag.itemId),
+                                rule: flag.text,
+                                fix: PackAdvice.forFlags([flag]).rawValue,
+                                source: Copy.Flags.source(RuleFreshness.daysSinceVerified(flag.lastVerified)),
+                                isStale: RuleFreshness.isStale(flag.lastVerified)
+                            ) {
+                                if let url = URL(string: flag.sourceUrl) { openURL(url) }
                             }
                         }
                     }
                 }
+
+                if rulesStore.flags.isEmpty {
+                    VStack(spacing: Tokens.Spacing.md) {
+                        IconBubble(systemImage: "checkmark.shield", size: 64, iconSize: 28, radius: Tokens.Radius.lg, fill: P.green100, tint: P.green700)
+                        Text(Copy.Rules.empty)
+                            .font(T.body)
+                            .foregroundStyle(P.textSecondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, Tokens.Spacing.xl)
+                }
             }
-            if rulesStore.flags.isEmpty {
-                Section { Text(Copy.Rules.empty).foregroundStyle(.secondary) }
+            .padding(.horizontal, Tokens.Spacing.screen)
+            .padding(.vertical, Tokens.Spacing.sm)
+        }
+        .packFitCanvas()
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                NavTitle(title: Copy.Rules.title, subtitle: Copy.Results.flaggedCaption)
             }
         }
-        .navigationTitle(Copy.Rules.title)
+    }
+
+    private func status(_ severity: RuleSeverity, kind: FlagCard.Kind) -> String {
+        switch severity {
+        case .banned: kind == .destination ? Copy.Flags.leaveHome : Copy.Flags.mustFix
+        case .restricted: Copy.Flags.needsApproval
+        case .check: Copy.Flags.checkFirst
+        }
     }
 
     private func itemName(_ id: String) -> String {

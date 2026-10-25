@@ -22,7 +22,7 @@ enum CategoryMaterials {
         return material
     }
 
-    private static func uiColor(for category: Category) -> UIColor {
+    static func uiColor(for category: Category) -> UIColor {
         switch category {
         case .clothing: return UIColor(red: 0.25, green: 0.45, blue: 0.85, alpha: 1)
         case .shoes: return UIColor(red: 0.45, green: 0.30, blue: 0.20, alpha: 1)
