@@ -8,7 +8,8 @@ struct TripPickerView: View {
     @State private var airline = "UA"
     @State private var flightNumber = "88"
     @State private var nights = 14
-    @State private var date = ""
+    @State private var dates = DateRangeSelection()
+    @State private var showCalendar = false
     @State private var activityPick: Set<String> = ["home"]
     @State private var activityExtra = ""
     @State private var useChecked = true
@@ -49,7 +50,12 @@ struct TripPickerView: View {
             if let trip = tripStore.trip {
                 airline = trip.airline
                 nights = trip.nights
-                date = trip.departDate ?? ""
+                if let depart = TripDates.date(trip.departDate) {
+                    dates = DateRangeSelection(
+                        start: depart,
+                        end: Calendar.current.date(byAdding: .day, value: trip.nights, to: depart)
+                    )
+                }
                 useChecked = tripStore.useChecked
                 activityPick = Set(trip.activities.filter { activityOptions.contains($0) })
             }
@@ -66,12 +72,19 @@ struct TripPickerView: View {
                 inputField(Copy.Trip.flightNumberField, text: $flightNumber)
                     .keyboardType(.numberPad)
             }
-            inputField(Copy.Trip.departField, text: $date)
-                .keyboardType(.numbersAndPunctuation)
-            Stepper(value: $nights, in: 1...60) {
-                Text("\(Copy.Trip.nightsField): \(nights)")
-                    .font(T.bodyBold)
-                    .foregroundStyle(P.textPrimary)
+            DateRangeCalendar(selection: $dates, isExpanded: $showCalendar)
+                .padding(Tokens.Spacing.sm)
+                .background(P.pink100.opacity(showCalendar ? 0.5 : 0), in: RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous))
+                .onChange(of: dates) { _, new in
+                    if let n = new.nights { nights = n }
+                }
+            // Without dates the trip length still matters for packing, so keep the stepper.
+            if dates.start == nil {
+                Stepper(value: $nights, in: 1...DateRangeSelection.maxNights) {
+                    Text("\(Copy.Trip.nightsField): \(nights)")
+                        .font(T.bodyBold)
+                        .foregroundStyle(P.textPrimary)
+                }
             }
             HStack(spacing: Tokens.Spacing.sm) {
                 Text(Copy.Trip.bagField).eyebrow()
@@ -182,15 +195,16 @@ struct TripPickerView: View {
             formError = Copy.Trip.needFlightFields
             return
         }
-        if !date.isEmpty, date.count != 10 {
-            formError = Copy.Trip.invalidDate
+        if dates.isPickingReturn {
+            formError = Copy.Trip.needReturnDate
+            showCalendar = true
             return
         }
         // The current trip stays until this lookup is confirmed, so Cancel keeps it.
         pendingLookup = await tripStore.lookupFlight(
             airline: airlineCode,
             flightNumber: number,
-            departDate: date.isEmpty ? nil : date,
+            departDate: dates.start.map(TripDates.iso),
             client: client
         )
         if pendingLookup == nil {
