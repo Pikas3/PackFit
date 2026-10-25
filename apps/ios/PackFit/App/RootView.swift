@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(TripStore.self) private var tripStore
+    @Environment(ItemsStore.self) private var itemsStore
     @Environment(DeviceCapabilities.self) private var caps
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var path: [Route] = []
@@ -42,5 +43,20 @@ struct RootView: View {
                 OnboardingView(hasSeen: $hasSeenOnboarding)
             }
         }
+        .task { openPreviewPlanIfAsked() }
+    }
+
+    /// Debug builds launched with `-previewPlan` skip to the 3D plan with the fixture items in
+    /// the checked bag, for checking the viewer without a trip or a scan.
+    private func openPreviewPlanIfAsked() {
+        #if DEBUG
+        guard ProcessInfo.processInfo.arguments.contains("-previewPlan"),
+              let trip = AppFixtures.trips().first else { return }
+        hasSeenOnboarding = true
+        tripStore.trip = trip
+        tripStore.bag = trip.checked
+        itemsStore.items = AppFixtures.items()
+        path = [.itemList, .planViewer]
+        #endif
     }
 }

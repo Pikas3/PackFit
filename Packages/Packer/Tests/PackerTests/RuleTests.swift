@@ -50,6 +50,19 @@ import Testing
         #expect(!p.placed.contains { isAbove($0, glass) })
     }
 
+    @Test func lightSoftItemsMayCushionFragile() {
+        let items = [item("laptop", 30, 2, 20, kg: 1.5, hardness: 0.9, fragile: true),
+                     item("tee", 30, 3, 20, kg: 0.2, hardness: 0.1, soft: true),
+                     item("book", 20, 3, 15, kg: 0.15, hardness: 0.8)]
+        let tee = plan([place("laptop", 0, 0, 0, 30, 2, 20), place("tee", 0, 2, 0, 30, 3, 20, order: 1)])
+        #expect(validatePlan(tee, items: items, container: suitcase) == [])
+        // Rigid items stay off the column, even resting on the cushion.
+        let book = plan([place("laptop", 0, 0, 0, 30, 2, 20), place("tee", 0, 2, 0, 30, 3, 20, order: 1),
+                         place("book", 0, 5, 0, 20, 3, 15, order: 2)])
+        #expect(validatePlan(book, items: items, container: suitcase)
+            == [.fragileUnder(fragileId: "laptop", aboveId: "book")])
+    }
+
     // MARK: Rule 4, no heavy on light
 
     @Test func heavyRigidOnLightSoftIsRejected() {
@@ -91,6 +104,17 @@ import Testing
         #expect(p.placed.count == 2)
         #expect(abs(p.placed.first { $0.itemId == "bottle" }!.h - 21) < 1e-9)
         #expect(validatePlan(p, items: items, container: suitcase) == [])
+    }
+
+    @Test func uprightItemTooTallForTheBagLiesDown() {
+        // The test suitcase is 30 cm tall inside.
+        let items = [item("flask", 8, 34, 8, upright: true)]
+        let p = pack(items, into: suitcase)
+        #expect(p.unplaced.isEmpty)
+        #expect(abs(p.placed[0].h - 8) < 1e-9)
+        #expect(validatePlan(p, items: items, container: suitcase) == [])
+        let notes = describeStep(p, items: items, order: 0, container: suitcase)!.notes
+        #expect(notes.contains("too tall to stand, close it tightly and lay it flat"))
     }
 
     @Test func twoOrientationModeOnlyLiesFlat() {
@@ -191,6 +215,19 @@ import Testing
         let p = pack(items, into: suitcase)
         #expect(p.placed.map(\.itemId) == ["sock"])
         #expect(p.unplaced.sorted() == ["sock", "surfboard"])
+    }
+
+    @Test func unplacedItemsAreExplained() {
+        let items = [item("surfboard", 200, 10, 50), item("glass", 60, 5, 40, kg: 1, fragile: true),
+                     item("box", 20, 20, 20, hardness: 1)]
+        let full = Container(id: "f", name: "f", type: .suitcase, outer: [60, 30, 40],
+                             compartments: [Compartment(name: "main", dims: [60, 25, 40])], weightLimitKg: 23)
+        let p = pack(items, into: full)
+        let reasons = explainUnplaced(p, items: items, container: full)
+        #expect(reasons["surfboard"] == .tooLarge)
+        // The glass (more volume) wins the floor, so the rigid box could only go above it.
+        #expect(reasons["box"] == .fragileInTheWay)
+        #expect(Set(reasons.keys) == Set(p.unplaced))
     }
 
     // MARK: Stats

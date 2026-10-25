@@ -218,6 +218,10 @@ enum Copy {
         static let weight = "Weight"
         static let unplaced = "Didn’t fit"
         static let openRules = "Rules"
+        static let tooLarge = "Bigger than the bag in every direction. Check its size, or carry it."
+        static let fragileInTheWay = "The only room left is on top of a fragile item. Pack the fragile item elsewhere, or mark this one soft."
+        static let noRoom = "No space left. Remove something or use a bigger bag."
+        static let invalidSize = "Its size is missing. Tap to enter it."
     }
 
     enum Rules {

@@ -50,6 +50,7 @@
 		7AF248AC41048243D389AF99 /* Items/ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42EC5F14651F0BA4677111B3 /* Items/ItemListView.swift */; };
 		7E069614943364CCBB88AF7D /* Viewer/PlanViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1950DD945B6CC68218F0DC64 /* Viewer/PlanViewerView.swift */; };
 		84E1A9AA802DA01A2CD49B9D /* Viewer/SceneBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38669DE6D35F140DD245C56 /* Viewer/SceneBuilder.swift */; };
+		C1A7E0D5ITEMMODELS00001 /* Viewer/ItemModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5ITEMMODELS00002 /* Viewer/ItemModels.swift */; };
 		8645FE56D70A3836978D09FC /* Fixtures/AppFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C37326FA86B1FAB0AFEFA4 /* Fixtures/AppFixtures.swift */; };
 		8AF00A0F049540687D771375 /* API/LiveAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC42A8E2E5AB9B31725AD363 /* API/LiveAPIClient.swift */; };
 		8D54DC65EEEAC96AD8ECDE15 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58A12493A45D71A84E6E9B01 /* Assets.xcassets */; };
@@ -158,6 +159,7 @@
 		A3467DF633313A8EC8841DFC /* App/AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AppConfig.swift; sourceTree = "<group>"; };
 		B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepthPipelineTests.swift; sourceTree = "<group>"; };
 		B38669DE6D35F140DD245C56 /* Viewer/SceneBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/SceneBuilder.swift; sourceTree = "<group>"; };
+		C1A7E0D5ITEMMODELS00002 /* Viewer/ItemModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/ItemModels.swift; sourceTree = "<group>"; };
 		B51101A24C29803BD819ACA7 /* Scan/Measurement/RectFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/RectFit.swift; sourceTree = "<group>"; };
 		B72799E8B1EDACCBDAEE30AC /* Components/ConfidenceBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/ConfidenceBadge.swift; sourceTree = "<group>"; };
 		BD5D149DD8E2B472C0A9DC01 /* Store/PlanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store/PlanStore.swift; sourceTree = "<group>"; };
@@ -270,6 +272,7 @@
 				D0FCF6861C8BA9911B865B78 /* Viewer/PlanViewerControlling.swift */,
 				1950DD945B6CC68218F0DC64 /* Viewer/PlanViewerView.swift */,
 				B38669DE6D35F140DD245C56 /* Viewer/SceneBuilder.swift */,
+				C1A7E0D5ITEMMODELS00002 /* Viewer/ItemModels.swift */,
 				58A12493A45D71A84E6E9B01 /* Assets.xcassets */,
 				CCC85518DAF74D311A328861 /* Info.plist */,
 			);
@@ -495,6 +498,7 @@
 				42CB41A3657DCC9614643BAD /* Viewer/PlanViewerControlling.swift in Sources */,
 				7E069614943364CCBB88AF7D /* Viewer/PlanViewerView.swift in Sources */,
 				84E1A9AA802DA01A2CD49B9D /* Viewer/SceneBuilder.swift in Sources */,
+				C1A7E0D5ITEMMODELS00001 /* Viewer/ItemModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

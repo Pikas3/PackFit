@@ -293,3 +293,35 @@ Run: backend 25 tests passing (no test calls Apify; live keys are cleared per te
   two days ahead) gives that day's own flight when covered; later dates take the route flown
   on the same weekday most recently and return `routeNote` (shown in the app) saying it is
   inferred. One history run per flight number serves every date for 12 hours.
+
+## 2026-10-24 — Section 2 (with Packer changes): why items don't fit, better packing, 3D shapes
+Packer (`Packages/Packer`, see the request to Section 1):
+- An upright item too tall to stand in the bag now lies down (step note: "too tall to
+  stand, close it tightly and lay it flat") instead of going unplaced. A 27 cm-tall checked
+  bag rejected any upright bottle scanned over 27 cm.
+- Light soft items (≤ 1 kg) may go above fragile ones; rigid or heavier items still may not.
+- Two more item orderings (largest volume, longest side) are tried after the 16 existing
+  strategies when something is still left out.
+- `explainUnplaced` gives each left-out item a reason: too large for the bag, only room is
+  above a fragile item, no room left, or invalid size.
+- Tests: 33 passing (3 new). Bench (30 items, checked, debug): 825 ms best of 5, was 717 ms;
+  budget 1,000 ms. Demo plans unchanged.
+Viewer:
+- The suitcase lid plane lay vertically through the bag (a flat plane rotated again); now it
+  caps the top.
+- "Didn't fit" lists each item with its size and reason; tap opens it for editing. The
+  current step shows the packer's notes (keep upright, fragile, lay flat, press down).
+- Items are drawn as built-in models in one flat style (`Viewer/ItemModels.swift`), picked by
+  name then category: bottle, can/jar/mug, tube, laptop, phone/tablet, book/documents,
+  folded clothing, shoes, zip pouch, first-aid kit, headphones, camera, glasses, plain box.
+  The photo scan's cylinder shape forces a round model. Models turn with the item when the
+  packer lays it on its side. No photo textures. Past items are solid in the viewer (85%
+  opacity let model parts show through each other); the AR overlay keeps 60%.
+- The current item has a name tag above the bag that faces the camera.
+- Fragile outlines were offset by half the item (drawn from a corner, not the centre) and
+  their lines stretched with the item; now centred with a constant 4 mm line.
+- The lid plane sat exactly on the bag volume's top face and flickered while orbiting; it is
+  now 2 mm above it, drawn after it in one sort group, and lighter (15% instead of 35%).
+- Debug builds launched with `-previewPlan` open the 3D plan with the fixture items in the
+  checked bag.
+Not measured yet: viewer fps with the multi-part models on device.

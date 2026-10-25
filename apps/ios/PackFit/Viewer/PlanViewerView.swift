@@ -1,4 +1,5 @@
 import SwiftUI
+import Packer
 import RealityKit
 
 struct PlanViewerView: View {
@@ -81,13 +82,45 @@ struct PlanViewerView: View {
             )
 
             if let unplaced = planStore.plan?.unplaced, !unplaced.isEmpty {
-                Text("\(Copy.Viewer.unplaced): \(unplaced.count)")
-                    .font(Tokens.TypeScale.caption)
-                    .foregroundStyle(Tokens.Color.restricted)
+                unplacedList(unplaced)
             }
         }
         .packFitScreenPadding()
         .background(.ultraThinMaterial)
+    }
+
+    private func unplacedList(_ ids: [String]) -> some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            Text("\(Copy.Viewer.unplaced): \(ids.count)")
+                .font(Tokens.TypeScale.caption.weight(.semibold))
+                .foregroundStyle(Tokens.Color.restricted)
+            ForEach(Array(ids.enumerated()), id: \.offset) { _, id in
+                let item = itemsStore.items.first { $0.id == id }
+                Button {
+                    selectedItem = item
+                } label: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.map { "\($0.name) · \(Int($0.w.rounded()))×\(Int($0.h.rounded()))×\(Int($0.d.rounded())) cm" } ?? id)
+                            .font(Tokens.TypeScale.caption.weight(.semibold))
+                        Text(reasonText(planStore.unplacedReasons[id]))
+                            .font(Tokens.TypeScale.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.plain)
+                .disabled(item == nil)
+            }
+        }
+    }
+
+    private func reasonText(_ reason: UnplacedReason?) -> String {
+        switch reason {
+        case .tooLarge: Copy.Viewer.tooLarge
+        case .fragileInTheWay: Copy.Viewer.fragileInTheWay
+        case .invalid: Copy.Viewer.invalidSize
+        case .noRoom, nil: Copy.Viewer.noRoom
+        }
     }
 
     private var orbitGesture: some Gesture {
@@ -130,6 +163,6 @@ struct PlanViewerView: View {
 
     private func reloadScene() {
         guard let plan = planStore.plan, let bag = tripStore.bag else { return }
-        controller.load(plan: plan, items: itemsStore.items, container: bag)
+        controller.load(plan: plan, items: itemsStore.items, container: bag, shapes: itemsStore.shapes)
     }
 }

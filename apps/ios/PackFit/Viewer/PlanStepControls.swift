@@ -30,7 +30,17 @@ struct PlanStepControls: View {
                 Text(item.name)
                     .font(Tokens.TypeScale.title)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                let notes = stepper.currentNotes
+                if !notes.isEmpty {
+                    Text(notes.joined(separator: " · ").capitalizedFirst)
+                        .font(Tokens.TypeScale.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
     }
+}
+
+private extension String {
+    var capitalizedFirst: String { prefix(1).uppercased() + dropFirst() }
 }
