@@ -370,4 +370,13 @@ enum Copy {
         static let network = "Couldn’t reach the server. Using offline demo data."
         static let serverUnreachable = "Couldn’t reach the server. Check your connection and try again."
     }
+
+    enum Loading {
+        static let identifyingTitle = "Identifying your items"
+        static let scanWait = "Usually 3–8 seconds."
+        static let inventoryWait = "Usually 5–15 seconds."
+        static func identified(_ done: Int, of total: Int) -> String { "\(done) of \(total) done" }
+        static let packingTitle = "Optimizing your packing"
+        static let packingWait = "Checking the rules and fitting everything into your bag."
+    }
 }

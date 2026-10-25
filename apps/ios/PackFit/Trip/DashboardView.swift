@@ -393,6 +393,8 @@ enum PackRun {
         trip: Trip, bag: Container, useChecked: Bool, items: [Item],
         planStore: PlanStore, rulesStore: RulesStore, client: any APIClient
     ) async {
+        // Mark packing during the rules check too, so the spinner and disabled buttons cover it.
+        planStore.isPacking = true
         await rulesStore.check(items: items, trip: trip, bag: useChecked ? "checked" : "carryOn", client: client)
         let banned = Set(rulesStore.flags.filter { $0.severity == .banned }.map(\.itemId))
         await planStore.computePlan(items: items.filter { !banned.contains($0.id) }, into: bag)

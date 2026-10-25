@@ -56,6 +56,7 @@
 		C1A7E0D5PACKINGPLAN0001 /* Viewer/PackingPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */; };
 		C1A7E0D5DASHBOARD000001 /* Trip/DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */; };
 		C1A7E0D5PACKFITKIT00001 /* Components/PackFitKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */; };
+		C1A7E0D5LOADINGMOD00001 /* Components/LoadingModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5LOADINGMOD00002 /* Components/LoadingModal.swift */; };
 		8645FE56D70A3836978D09FC /* Fixtures/AppFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C37326FA86B1FAB0AFEFA4 /* Fixtures/AppFixtures.swift */; };
 		8AF00A0F049540687D771375 /* API/LiveAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC42A8E2E5AB9B31725AD363 /* API/LiveAPIClient.swift */; };
 		8D54DC65EEEAC96AD8ECDE15 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58A12493A45D71A84E6E9B01 /* Assets.xcassets */; };
@@ -182,6 +183,7 @@
 		C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/PackingPlanView.swift; sourceTree = "<group>"; };
 		C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/DashboardView.swift; sourceTree = "<group>"; };
 		C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/PackFitKit.swift; sourceTree = "<group>"; };
+		C1A7E0D5LOADINGMOD00002 /* Components/LoadingModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/LoadingModal.swift; sourceTree = "<group>"; };
 		B51101A24C29803BD819ACA7 /* Scan/Measurement/RectFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/RectFit.swift; sourceTree = "<group>"; };
 		B72799E8B1EDACCBDAEE30AC /* Components/ConfidenceBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/ConfidenceBadge.swift; sourceTree = "<group>"; };
 		BD5D149DD8E2B472C0A9DC01 /* Store/PlanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store/PlanStore.swift; sourceTree = "<group>"; };
@@ -299,6 +301,7 @@
 				C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */,
 				C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */,
 				C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */,
+				C1A7E0D5LOADINGMOD00002 /* Components/LoadingModal.swift */,
 				58A12493A45D71A84E6E9B01 /* Assets.xcassets */,
 				C1A7E0D5FONT05FILEREF01 /* Theme/Fonts/Nunito-ExtraBold.ttf */,
 				C1A7E0D5FONT04FILEREF01 /* Theme/Fonts/Nunito-Bold.ttf */,
@@ -543,6 +546,7 @@
 				C1A7E0D5PACKINGPLAN0001 /* Viewer/PackingPlanView.swift in Sources */,
 				C1A7E0D5DASHBOARD000001 /* Trip/DashboardView.swift in Sources */,
 				C1A7E0D5PACKFITKIT00001 /* Components/PackFitKit.swift in Sources */,
+				C1A7E0D5LOADINGMOD00001 /* Components/LoadingModal.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
