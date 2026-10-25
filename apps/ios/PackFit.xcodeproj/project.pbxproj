@@ -79,6 +79,7 @@
 		A1GRAVITYPOSE000000000001 /* Scan/Measurement/GravityPose.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1GRAVITYPOSE000000000002 /* Scan/Measurement/GravityPose.swift */; };
 		A1LIDARCAPTURE00000000001 /* Scan/Measurement/LidarCaptureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1LIDARCAPTURE00000000002 /* Scan/Measurement/LidarCaptureSession.swift */; };
 		DE64128BF3B0859AEDF5C682 /* Guided/WireBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7F407471A0EC0D0DCAC89B /* Guided/WireBox.swift */; };
+		C1A7E0D5DESTWEATHER0100 /* Trip/DestinationWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5DESTWEATHER0200 /* Trip/DestinationWeather.swift */; };
 		E3F5229D430902EDDDF0DF87 /* Trip/TripPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 617D3D4CAAA174FD8C38A312 /* Trip/TripPickerView.swift */; };
 
 
@@ -94,6 +95,7 @@
 	1EC31477D0E6CD4C525DD45A /* InventoryCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D007669112ED24127A28E0 /* InventoryCamera.swift */; };
 	EDA8FF2A60C863ABCA0B1D33 /* InventoryScanModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C45C4FD955E92A3D92D042 /* InventoryScanModel.swift */; };
 	A0CB6FDCE60CC2A112FB25B7 /* InventoryScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F31E776A0A393EA1F4A14B /* InventoryScanView.swift */; };
+	C1A7E0D5DESTWEATHER0300 /* DestinationWeatherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5DESTWEATHER0400 /* DestinationWeatherTests.swift */; };
 	C1A7E0D5SUGGESTMATCH0100 /* SuggestionMatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5SUGGESTMATCH0200 /* SuggestionMatchTests.swift */; };
 	2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0813ABE8B81360786939232A /* InventoryMergeTests.swift */; };
 	A7A6636B7F03A01FEEE33FBC /* CardScale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA50B639EE1DBC63ABF1EAE /* CardScale.swift */; };
@@ -155,6 +157,7 @@
 		59B11F6E2AE098928CA5F9E8 /* Scan/Measurement/FitStabilizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/FitStabilizer.swift; sourceTree = "<group>"; };
 		5C3B4B3D43BC697E8A223126 /* Example.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Example.xcconfig; sourceTree = "<group>"; };
 		604D7496338569D36C744497 /* Scan/Measurement/HeightMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/HeightMap.swift; sourceTree = "<group>"; };
+		C1A7E0D5DESTWEATHER0200 /* Trip/DestinationWeather.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/DestinationWeather.swift; sourceTree = "<group>"; };
 		617D3D4CAAA174FD8C38A312 /* Trip/TripPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/TripPickerView.swift; sourceTree = "<group>"; };
 		B1BEFOREYOUGO000000002 /* Trip/BeforeYouGoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/BeforeYouGoView.swift; sourceTree = "<group>"; };
 
@@ -204,6 +207,7 @@
 	C8D007669112ED24127A28E0 /* InventoryCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryCamera.swift"; sourceTree = "<group>"; };
 	58C45C4FD955E92A3D92D042 /* InventoryScanModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryScanModel.swift"; sourceTree = "<group>"; };
 	B8F31E776A0A393EA1F4A14B /* InventoryScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Inventory/InventoryScanView.swift"; sourceTree = "<group>"; };
+	C1A7E0D5DESTWEATHER0400 /* DestinationWeatherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DestinationWeatherTests.swift"; sourceTree = "<group>"; };
 	C1A7E0D5SUGGESTMATCH0200 /* SuggestionMatchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SuggestionMatchTests.swift"; sourceTree = "<group>"; };
 	0813ABE8B81360786939232A /* InventoryMergeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InventoryMergeTests.swift"; sourceTree = "<group>"; };
 	5CA50B639EE1DBC63ABF1EAE /* CardScale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Scan/Measurement/CardScale.swift"; sourceTree = "<group>"; };
@@ -288,6 +292,7 @@
 				1E444B89265FD7480F247EE0 /* Store/RulesStore.swift */,
 				C28C2B5C5FE88F267FC7FEA5 /* Store/TripStore.swift */,
 				40F2CE94E61FAD274AECF24A /* Theme/Tokens.swift */,
+				C1A7E0D5DESTWEATHER0200 /* Trip/DestinationWeather.swift */,
 				617D3D4CAAA174FD8C38A312 /* Trip/TripPickerView.swift */,
 				B1BEFOREYOUGO000000002 /* Trip/BeforeYouGoView.swift */,
 				B1SUGGESTVIEW000000002 /* Trip/SuggestionsView.swift */,
@@ -340,6 +345,7 @@
 			2230361D1F773C6955285FB6 /* CardScaleTests.swift */,
 			0813ABE8B81360786939232A /* InventoryMergeTests.swift */,
 			C1A7E0D5SUGGESTMATCH0200 /* SuggestionMatchTests.swift */,
+			C1A7E0D5DESTWEATHER0400 /* DestinationWeatherTests.swift */,
 				21859376838BF23B0332273D /* TapMeasureTests.swift */,
 				B1DATERANGETEST00000002 /* DateRangeSelectionTests.swift */,
 				B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
@@ -465,6 +471,7 @@
 			4B4B29A7829A65A28AADD4A1 /* CardScaleTests.swift in Sources */,
 			2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */,
 			C1A7E0D5SUGGESTMATCH0100 /* SuggestionMatchTests.swift in Sources */,
+			C1A7E0D5DESTWEATHER0300 /* DestinationWeatherTests.swift in Sources */,
 				61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */,
 				B1DATERANGETEST00000001 /* DateRangeSelectionTests.swift in Sources */,
 				23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
@@ -535,6 +542,7 @@
 				5AACCE3E4C8999C4CE38CD63 /* Store/RulesStore.swift in Sources */,
 				F436272D604EB0735B2B7BCD /* Store/TripStore.swift in Sources */,
 				13BE9B3EBD7C636000D59103 /* Theme/Tokens.swift in Sources */,
+				C1A7E0D5DESTWEATHER0100 /* Trip/DestinationWeather.swift in Sources */,
 				E3F5229D430902EDDDF0DF87 /* Trip/TripPickerView.swift in Sources */,
 				B1BEFOREYOUGO000000001 /* Trip/BeforeYouGoView.swift in Sources */,
 				B1SUGGESTVIEW000000001 /* Trip/SuggestionsView.swift in Sources */,

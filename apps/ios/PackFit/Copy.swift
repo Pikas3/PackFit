@@ -307,9 +307,26 @@ enum Copy {
         static let dates = "Dates"
         static let airlineBag = "Airline & bag"
         static let addFlight = "Add your flight"
-        static let timeOfYear = "Time of year"
-        static let seasons = ["Spring", "Summer", "Fall", "Winter"]
-        static let noForecast = "Add your flight to see the forecast."
+        static let noForecast = "Add your flight to see the weather there."
+        static func weatherIn(_ place: String?) -> String { place.map { "Weather in \($0)" } ?? "Weather at destination" }
+        static let forecastTag = "Forecast"
+        static let lastYearTag = "Last year"
+        static let loadingWeather = "Checking the weather…"
+        static let weatherNeedsDates = "Add your travel dates to see the weather."
+        static let weatherFailed = "Couldn’t load the weather. Pack layers to be safe."
+        static let retry = "Try again"
+        static func tempRange(low: Int, high: Int, fahrenheit: Bool) -> String {
+            "\(low)° – \(high)°\(fahrenheit ? "F" : "C")"
+        }
+        static let fahrenheit = "Fahrenheit"
+        static let celsius = "Celsius"
+        static func wetDays(_ wet: Int, of total: Int) -> String {
+            wet == 0 ? "Dry all \(total) days" : "Rain or snow on \(wet) of \(total) days"
+        }
+        static let lastYearNote = "Too far ahead for a forecast, so this is the same dates last year."
+        static func clampedNote(_ last: Date) -> String {
+            "The forecast only reaches \(last.formatted(DestinationWeather.dayStyle.month(.abbreviated).day())). Check again closer to the trip."
+        }
         static let packingIdeas = "Packing ideas"
         static let optimize = "Optimize my packing"
         static func optimizeCaption(_ items: Int) -> String {

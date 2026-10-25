@@ -9,6 +9,11 @@ final class TripStore {
 
     /// Set only after a flight is looked up / confirmed — never before.
     var weather: WeatherSummary?
+    /// Day-by-day weather from Open-Meteo for the trip's dates. Loaded on its own, so it
+    /// neither waits for the suggestions call nor needs the flight to be re-confirmed.
+    var destinationWeather: DestinationWeather?
+    var isLoadingWeather = false
+    var weatherFailed = false
     var suggestions: [Suggestion] = []
     var warnings: [TripWarning] = []
     var beforeYouGo: BeforeYouGoPanel?
@@ -24,6 +29,7 @@ final class TripStore {
         trip = nil
         bag = nil
         weather = nil
+        destinationWeather = nil
         suggestions = []
         warnings = []
         beforeYouGo = nil
@@ -56,6 +62,7 @@ final class TripStore {
         self.routeNotices = lookup.routeNotices
         // Weather / suggestions load only after the flight is confirmed.
         weather = nil
+        destinationWeather = nil
         suggestions = []
         warnings = []
         beforeYouGo = nil
@@ -116,6 +123,27 @@ final class TripStore {
             warnings = fallback.warnings
             beforeYouGo = fallback.beforeYouGo
             destinationCountry = fallback.destinationCountry ?? AirportCatalog.country(for: trip.to)
+        }
+    }
+
+    /// Fetches the destination weather for the current trip; the dashboard calls it whenever
+    /// the destination or dates change.
+    func loadWeather() async {
+        guard let trip else {
+            destinationWeather = nil
+            return
+        }
+        isLoadingWeather = true
+        weatherFailed = false
+        defer { isLoadingWeather = false }
+        do {
+            let result = try await WeatherClient.fetch(airport: trip.to, departDate: trip.departDate, nights: trip.nights)
+            guard !Task.isCancelled else { return }
+            destinationWeather = result
+        } catch {
+            guard !Task.isCancelled else { return }
+            destinationWeather = nil
+            weatherFailed = true
         }
     }
 

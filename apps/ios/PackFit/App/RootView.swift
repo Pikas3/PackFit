@@ -83,7 +83,9 @@ struct RootView: View {
     private func openPreviewPlanIfAsked() {
         #if DEBUG
         let args = ProcessInfo.processInfo.arguments
-        guard args.contains("-previewPlan"), let trip = AppFixtures.trips().first else { return }
+        guard args.contains("-previewPlan"), var trip = AppFixtures.trips().first else { return }
+        // `-previewDepart yyyy-MM-dd` moves the trip, e.g. into the 16-day forecast range.
+        if let depart = UserDefaults.standard.string(forKey: "previewDepart") { trip.departDate = depart }
         hasSeenOnboarding = true
         tripStore.trip = trip
         // `-previewNoBag` leaves the bag unset, to check the screens that ask for one.
