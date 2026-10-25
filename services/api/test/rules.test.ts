@@ -46,6 +46,21 @@ describe("rules: flag only real violations", () => {
     expect(checked.flags).toEqual([]);
   });
 
+  it("treats drinks as liquids even when filed under food", async () => {
+    const drink = item({ id: "drink", name: "Large energy drink", category: "food", w: 7, h: 17, d: 7 });
+    const juice = item({ id: "juice", name: "Orange juice", category: "food", w: 6, h: 15, d: 6 });
+    const carry = await checkRules({ items: [drink, juice], trip: ua, bag: "carryOn" });
+    expect(carry.flags.filter((f) => f.ruleId === "tsa:liquids-100ml").map((f) => f.itemId).sort()).toEqual(["drink", "juice"]);
+  });
+
+  it("does not treat drink-free names as liquids", () => {
+    const jacket = item({ name: "Waterproof jacket", category: "clothing" });
+    const bottle = item({ name: "Drinking straw set", category: "other", w: 2, h: 20, d: 2 });
+    for (const thing of [jacket, bottle]) {
+      expect(findCandidatesForItem(thing, ua, "carryOn").map((r) => r.ruleId)).not.toContain("tsa:liquids-100ml");
+    }
+  });
+
   it("knife flags in carry-on, power bank flags in checked", async () => {
     const knife = byName(/Pocket knife/);
     const bank = byName(/Power bank/);

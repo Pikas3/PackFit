@@ -71,6 +71,9 @@ Skip anything you cannot see well enough to name.
 For each object give:
 - name: short and specific ("Grey hoodie", "iPhone charger", "Shampoo 250 ml").
 - category and packing attributes: weight kg, fragile, soft, hardness 0-1, upright.
+  Drinks and anything pourable (energy drinks, soda, juice, coffee, sauces) are "liquids",
+  not "food": airport security screens them as liquids. Put the size in the name when
+  printed on it ("Energy drink 473 ml").
 - w, h, d: your best estimate in cm of its packed size. These are rough; the app may
   replace them with measured values.
 - shape: "cylinder_upright" for cans, bottles, jars, tubes and anything round standing on
