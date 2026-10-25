@@ -166,18 +166,24 @@ struct PlanePose: Sendable {
         return (0..<n).map { a[$0][n] / a[$0][$0] }
     }
 
-    /// Picks the card among rectangle candidates. Prefers quads inside `hint` (where Claude saw a
-    /// card), then the best ID-1 fit. Nil when nothing plausibly is a card.
+    /// Picks the card among rectangle candidates. Prefers quads inside `hint` (where the user
+    /// tapped, or where Claude saw a card), then the best ID-1 fit. When `requireHint` is set,
+    /// only a card in that region counts — nothing elsewhere. Nil when nothing plausibly is a card.
     static func bestCard(
         among quads: [ImageQuad],
         intrinsics: CameraIntrinsics,
         hint: CGRect? = nil,
-        maxError: Double = 0.2
+        maxError: Double = 0.2,
+        requireHint: Bool = false
     ) -> PlanePose? {
         let poses = quads.compactMap { fromCard($0, intrinsics: intrinsics) }.filter { $0.error <= maxError }
         if let hint {
-            let inside = poses.filter { hint.insetBy(dx: -hint.width * 0.2, dy: -hint.height * 0.2).contains(CGPoint(x: $0.card.center.x, y: $0.card.center.y)) }
+            let expanded = hint.insetBy(dx: -hint.width * 0.25, dy: -hint.height * 0.25)
+            let inside = poses.filter {
+                expanded.contains(CGPoint(x: $0.card.center.x, y: $0.card.center.y))
+            }
             if let pick = inside.min(by: { $0.error < $1.error }) { return pick }
+            if requireHint { return nil }
         }
         return poses.min(by: { $0.error < $1.error })
     }

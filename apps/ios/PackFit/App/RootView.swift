@@ -3,6 +3,7 @@ import SwiftUI
 struct RootView: View {
     @Environment(TripStore.self) private var tripStore
     @Environment(ItemsStore.self) private var itemsStore
+    @Environment(PlanStore.self) private var planStore
     @Environment(DeviceCapabilities.self) private var caps
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var navigator = AppNavigator()
@@ -27,12 +28,17 @@ struct RootView: View {
                     }
                 }
                 .environment(navigator)
+                .loadingModal(
+                    isPresented: planStore.isPacking,
+                    title: Copy.Loading.packingTitle,
+                    message: Copy.Loading.packingWait
+                )
             } else {
                 OnboardingView(hasSeen: $hasSeenOnboarding)
             }
         }
         .tint(Tokens.Palette.pink700)
-        .fontDesign(.rounded)
+        .font(Tokens.TypeScale.base)
         .task { openPreviewPlanIfAsked() }
     }
 

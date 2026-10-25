@@ -178,8 +178,9 @@ final class InventoryScanModel {
             add(response.detections)
             return
         }
+        let tapHint = camera.cardHintBox
         let measured: CardMeasurer.Result? = if let intrinsics = shot.intrinsics {
-            await Self.measure(shot.image, intrinsics: intrinsics, response: response)
+            await Self.measure(shot.image, intrinsics: intrinsics, response: response, cardHint: tapHint)
         } else {
             nil
         }
@@ -223,14 +224,15 @@ final class InventoryScanModel {
     private nonisolated static func measure(
         _ image: CGImage,
         intrinsics: CameraIntrinsics,
-        response: ScanInventoryResponse
+        response: ScanInventoryResponse,
+        cardHint: InventoryBox?
     ) async -> CardMeasurer.Result? {
         CardMeasurer.measure(
             image: image,
             intrinsics: intrinsics,
             boxes: response.detections.map(\.box),
             shapes: response.detections.map(\.objectShape),
-            cardHint: response.reference?.box
+            cardHint: response.reference?.box ?? cardHint
         )
     }
 

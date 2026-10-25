@@ -60,6 +60,6 @@ struct OnboardingView: View {
         .padding(.horizontal, Tokens.Spacing.screen)
         .padding(.vertical, Tokens.Spacing.md)
         .background { BlobBackground().ignoresSafeArea() }
-        .fontDesign(.rounded)
+        .font(Tokens.TypeScale.base)
     }
 }

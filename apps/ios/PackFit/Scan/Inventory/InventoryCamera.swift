@@ -37,6 +37,10 @@ final class InventoryCamera: NSObject {
     /// The card in the live preview, corners normalized 0-1 to the upright frame. Nil when no
     /// rectangle in view fits a real card.
     private(set) var liveCard: ImageQuad?
+    /// Normalized upright point the user last tapped to focus/find the card. Nil when idle.
+    private(set) var focusPoint: CGPoint?
+    /// Normalized upright box around the tap where live detection looks for the card.
+    private(set) var focusRegion: CGRect?
 
     // startRunning blocks, so it is called on the capture queue; Apple documents the session as thread-safe.
     @ObservationIgnored nonisolated(unsafe) let session = AVCaptureSession()
@@ -49,6 +53,23 @@ final class InventoryCamera: NSObject {
     @ObservationIgnored nonisolated(unsafe) private var fieldOfView: Double = 0
     /// Only touched on the capture queue.
     @ObservationIgnored nonisolated(unsafe) private var frameCount = 0
+    @ObservationIgnored nonisolated(unsafe) private var device: AVCaptureDevice?
+    /// Normalized upright search region; read on the capture queue, written on main after a tap.
+    @ObservationIgnored nonisolated(unsafe) private var searchRegion: CGRect?
+    /// Remaining video frames to search densely in `searchRegion` after a tap.
+    @ObservationIgnored nonisolated(unsafe) private var searchBudget = 0
+
+    /// Box for `CardMeasurer` when Claude did not mark the card: live lock, else the tap region.
+    var cardHintBox: InventoryBox? {
+        if let live = liveCard {
+            let b = live.bounds
+            return InventoryBox(x: b.minX, y: b.minY, w: b.width, h: b.height)
+        }
+        if let r = focusRegion, r.width > 0, r.height > 0 {
+            return InventoryBox(x: r.minX, y: r.minY, w: r.width, h: r.height)
+        }
+        return nil
+    }
 
     static var isAvailable: Bool {
         #if targetEnvironment(simulator)
@@ -64,6 +85,7 @@ final class InventoryCamera: NSObject {
             guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
                 throw CameraError.unavailable
             }
+            self.device = device
             session.beginConfiguration()
             session.sessionPreset = .photo
             let input = try AVCaptureDeviceInput(device: device)
@@ -92,6 +114,52 @@ final class InventoryCamera: NSObject {
     func stop() {
         let session = session
         queue.async { if session.isRunning { session.stopRunning() } }
+    }
+
+    /// Autofocus / expose on the tap, then hunt for an ID-1 card in that region of the frame.
+    /// `normalized` is upright image space (origin top-left, 0…1).
+    func focusOnCard(at normalized: CGPoint) {
+        let x = min(1, max(0, normalized.x))
+        let y = min(1, max(0, normalized.y))
+        focusPoint = CGPoint(x: x, y: y)
+        // Large enough to cover a credit card at typical packing distance, small enough to
+        // ignore other rectangles across the room.
+        let side: CGFloat = 0.42
+        let region = CGRect(x: x - side / 2, y: y - side / 2, width: side, height: side)
+            .intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
+        focusRegion = region
+        searchRegion = region
+        searchBudget = 90
+        liveCard = nil
+        applyLensFocus(at: CGPoint(x: x, y: y))
+    }
+
+    private func applyLensFocus(at upright: CGPoint) {
+        guard let device else { return }
+        // Preview / sample buffers are rotated 90° to portrait; device POI is sensor-native.
+        let poi = CGPoint(x: upright.y, y: 1 - upright.x)
+        do {
+            try device.lockForConfiguration()
+            if device.isFocusPointOfInterestSupported {
+                device.focusPointOfInterest = poi
+                if device.isFocusModeSupported(.autoFocus) {
+                    device.focusMode = .autoFocus
+                } else if device.isFocusModeSupported(.continuousAutoFocus) {
+                    device.focusMode = .continuousAutoFocus
+                }
+            }
+            if device.isExposurePointOfInterestSupported {
+                device.exposurePointOfInterest = poi
+                if device.isExposureModeSupported(.autoExpose) {
+                    device.exposureMode = .autoExpose
+                } else if device.isExposureModeSupported(.continuousAutoExposure) {
+                    device.exposureMode = .continuousAutoExposure
+                }
+            }
+            device.unlockForConfiguration()
+        } catch {
+            // Focus is best-effort; rectangle search still runs.
+        }
     }
 
     /// One portrait-upright still, with the camera geometry needed to measure in it.
@@ -143,28 +211,90 @@ extension InventoryCamera: AVCapturePhotoCaptureDelegate {
 }
 
 extension InventoryCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
-    /// About three times a second: is there a real card in view? Same test as the final photo.
+    /// Live card hunt. Idle: ~3 Hz full frame. After a tap: every frame, prefer / ROI the
+    /// tapped region until a card locks or the budget runs out.
     nonisolated func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         frameCount += 1
-        guard frameCount % 10 == 0, fieldOfView > 1, let buffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        let searching = searchBudget > 0
+        if searching {
+            searchBudget -= 1
+        } else if frameCount % 10 != 0 {
+            return
+        }
+        guard fieldOfView > 1, let buffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+
         let width = CVPixelBufferGetWidth(buffer), height = CVPixelBufferGetHeight(buffer)
+        let size = SIMD2(Double(width), Double(height))
+        let region = searchRegion
+        let quads = Self.detectRectangles(in: buffer, region: searching ? region : nil, loose: searching)
+        let intrinsics = CameraIntrinsics.fromFieldOfView(degrees: fieldOfView, width: width, height: height)
+        let hintPixels: CGRect? = region.map {
+            CGRect(x: $0.minX * size.x, y: $0.minY * size.y, width: $0.width * size.x, height: $0.height * size.y)
+        }
+        var card = PlanePose.bestCard(
+            among: quads,
+            intrinsics: intrinsics,
+            hint: hintPixels,
+            requireHint: searching && region != nil
+        ).map { ImageQuad(corners: $0.card.corners.map { $0 / size }) }
+
+        // ROI can miss a slightly off tap: one full-frame pass still biased to the region.
+        if card == nil, searching, region != nil {
+            let all = Self.detectRectangles(in: buffer, region: nil, loose: true)
+            card = PlanePose.bestCard(
+                among: all,
+                intrinsics: intrinsics,
+                hint: hintPixels,
+                requireHint: true
+            ).map { ImageQuad(corners: $0.card.corners.map { $0 / size }) }
+        }
+
+        let locked = card != nil
+        let exhausted = !searching && region != nil
+        if locked || exhausted {
+            searchRegion = nil
+            searchBudget = 0
+        }
+
+        Task { @MainActor in
+            self.liveCard = card
+            if locked || exhausted {
+                self.focusRegion = nil
+                self.focusPoint = nil
+            }
+        }
+    }
+
+    /// Rectangles in pixels, origin top-left. Optional Vision ROI (upright normalized → Vision
+    /// bottom-left). Looser thresholds while the user is pointing at the card.
+    nonisolated private static func detectRectangles(
+        in buffer: CVPixelBuffer,
+        region: CGRect?,
+        loose: Bool
+    ) -> [ImageQuad] {
         let request = VNDetectRectanglesRequest()
-        request.maximumObservations = 8
+        request.maximumObservations = loose ? 16 : 8
         request.minimumAspectRatio = 0.25
         request.maximumAspectRatio = 1.0
-        request.quadratureTolerance = 35
-        request.minimumSize = 0.04
-        request.minimumConfidence = 0.5
+        request.quadratureTolerance = loose ? 40 : 35
+        request.minimumSize = loose ? 0.025 : 0.04
+        request.minimumConfidence = loose ? 0.3 : 0.5
+        if let region, region.width > 0.05, region.height > 0.05 {
+            // Vision regionOfInterest: origin bottom-left, unit square.
+            request.regionOfInterest = CGRect(
+                x: region.minX,
+                y: 1 - region.maxY,
+                width: region.width,
+                height: region.height
+            )
+        }
         try? VNImageRequestHandler(cvPixelBuffer: buffer, orientation: .up).perform([request])
-        let size = SIMD2(Double(width), Double(height))
-        let quads = (request.results ?? []).map { r in
+        let width = Double(CVPixelBufferGetWidth(buffer))
+        let height = Double(CVPixelBufferGetHeight(buffer))
+        return (request.results ?? []).map { r in
             ImageQuad(corners: [r.topLeft, r.topRight, r.bottomRight, r.bottomLeft].map {
-                SIMD2(Double($0.x) * size.x, (1 - Double($0.y)) * size.y)
+                SIMD2(Double($0.x) * width, (1 - Double($0.y)) * height)
             })
         }
-        let intrinsics = CameraIntrinsics.fromFieldOfView(degrees: fieldOfView, width: width, height: height)
-        let card = PlanePose.bestCard(among: quads, intrinsics: intrinsics)
-            .map { ImageQuad(corners: $0.card.corners.map { $0 / size }) }
-        Task { @MainActor in self.liveCard = card }
     }
 }

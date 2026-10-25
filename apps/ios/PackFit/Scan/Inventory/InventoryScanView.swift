@@ -32,6 +32,11 @@ struct InventoryScanView: View {
                 .padding(Tokens.Spacing.md)
                 .background(.bar)
         }
+        .loadingModal(
+            isPresented: model.phase == .identifying,
+            title: Copy.Loading.identifyingTitle,
+            message: Copy.Loading.inventoryWait
+        )
         .navigationTitle(Copy.Inventory.title)
         .navigationBarTitleDisplayMode(.inline)
         .task { await model.startCamera() }
@@ -51,9 +56,31 @@ struct InventoryScanView: View {
         if model.phase == .camera {
             ZStack {
                 if model.cameraAvailable {
-                    CameraPreview(session: model.camera.session)
-                    // Preview and video frames are both 3:4 portrait, aspect-fit.
-                    QuadOverlay(quad: model.camera.liveCard, aspect: 3.0 / 4.0, color: .green)
+                    GeometryReader { geo in
+                        let aspect: CGFloat = 3.0 / 4.0
+                        let fitted = PhotoWithBoxes.fit(aspect: aspect, in: geo.size)
+                        ZStack {
+                            CameraPreview(session: model.camera.session)
+                            QuadOverlay(quad: model.camera.liveCard, aspect: aspect, color: .green)
+                            FocusRegionOverlay(
+                                region: model.camera.focusRegion,
+                                point: model.camera.focusPoint,
+                                aspect: aspect
+                            )
+                            // Above the AVPreview layer so UIKit does not eat the tap.
+                            Color.clear
+                                .contentShape(Rectangle())
+                                .onTapGesture { location in
+                                    guard fitted.width > 0, fitted.height > 0,
+                                          fitted.contains(location) else { return }
+                                    let normalized = CGPoint(
+                                        x: (location.x - fitted.minX) / fitted.width,
+                                        y: (location.y - fitted.minY) / fitted.height
+                                    )
+                                    model.camera.focusOnCard(at: normalized)
+                                }
+                        }
+                    }
                 } else {
                     Color.black
                     Text(Copy.Inventory.simulator)
@@ -71,17 +98,6 @@ struct InventoryScanView: View {
             }
         } else {
             PhotoWithBoxes(photo: model.photo, entries: model.phase == .noCard ? [] : model.latestEntries, card: model.card)
-                .overlay {
-                    if model.phase == .identifying {
-                        VStack(spacing: Tokens.Spacing.sm) {
-                            ProgressView()
-                            Text(Copy.Inventory.identifying)
-                                .font(Tokens.TypeScale.callout)
-                        }
-                        .padding(Tokens.Spacing.md)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Tokens.Radius.md))
-                    }
-                }
         }
     }
 
@@ -96,6 +112,10 @@ struct InventoryScanView: View {
                     Label(Copy.Inventory.cardSeen, systemImage: "checkmark.circle.fill")
                         .font(Tokens.TypeScale.callout)
                         .foregroundStyle(.green)
+                } else if model.cameraAvailable, model.camera.focusRegion != nil {
+                    Label(Copy.Inventory.tapToFocus, systemImage: "viewfinder")
+                        .font(Tokens.TypeScale.callout)
+                        .foregroundStyle(.secondary)
                 } else {
                     Text(Copy.Inventory.hint)
                         .font(Tokens.TypeScale.callout)
@@ -154,7 +174,7 @@ struct InventoryScanView: View {
                     .font(Tokens.TypeScale.title)
                 Spacer()
             }
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: Tokens.Spacing.sm) {
                     ForEach(model.entries) { entry in
                         InventoryRow(
@@ -382,5 +402,55 @@ private struct QuadOverlay: View {
             }
         }
         .allowsHitTesting(false)
+    }
+}
+
+/// Dashed search box + reticle after the user taps to focus the credit card.
+private struct FocusRegionOverlay: View {
+    let region: CGRect?
+    let point: CGPoint?
+    let aspect: CGFloat
+
+    var body: some View {
+        GeometryReader { geo in
+            let fitted = PhotoWithBoxes.fit(aspect: aspect, in: geo.size)
+            ZStack {
+                if let region {
+                    let rect = CGRect(
+                        x: fitted.minX + region.minX * fitted.width,
+                        y: fitted.minY + region.minY * fitted.height,
+                        width: region.width * fitted.width,
+                        height: region.height * fitted.height
+                    )
+                    Rectangle()
+                        .stroke(style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                        .foregroundStyle(.yellow)
+                        .frame(width: rect.width, height: rect.height)
+                        .position(x: rect.midX, y: rect.midY)
+                }
+                if let point {
+                    let center = CGPoint(
+                        x: fitted.minX + point.x * fitted.width,
+                        y: fitted.minY + point.y * fitted.height
+                    )
+                    FocusReticle()
+                        .position(center)
+                }
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+private struct FocusReticle: View {
+    var body: some View {
+        ZStack {
+            Circle()
+                .strokeBorder(.yellow, lineWidth: 2)
+            Image(systemName: "plus")
+                .font(.title2.weight(.light))
+                .foregroundStyle(.yellow)
+        }
+        .frame(width: 44, height: 44)
     }
 }

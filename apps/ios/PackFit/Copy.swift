@@ -89,6 +89,10 @@ enum Copy {
         static let wheelsPrompt = "Where are the wheels?"
         static let wheelsBack = "Back"
         static let wheelsBottom = "Bottom"
+        static let shellPrompt = "How does your suitcase open?"
+        static let shellMessage = "Some bags are one open shell. Others zip into two sides (base and lid)."
+        static let shellSingle = "One main cavity"
+        static let shellTwoSided = "Two sides (zipper)"
         static let continueItems = "Add items"
         static let weightLimit = "Weight limit (kg)"
     }
@@ -112,7 +116,8 @@ enum Copy {
     enum Inventory {
         static let title = "Photo inventory"
         static let entry = "Snap the pile"
-        static let hint = "Put a credit card flat on the floor next to your things. Hold the phone at about 45°, with everything in the frame."
+        static let hint = "Put a credit card flat on the floor next to your things. Hold the phone at about 45°, with everything in the frame. Tap the card if it is hard to lock."
+        static let tapToFocus = "Looking for the card here…"
         static let cardSeen = "Card found. Take the photo."
         static let capture = "Take photo"
         static let identifying = "Finding everything in the photo… usually 5–15 seconds."
@@ -370,5 +375,14 @@ enum Copy {
         static let retry = "Try again"
         static let network = "Couldn’t reach the server. Using offline demo data."
         static let serverUnreachable = "Couldn’t reach the server. Check your connection and try again."
+    }
+
+    enum Loading {
+        static let identifyingTitle = "Identifying your items"
+        static let scanWait = "Usually 3–8 seconds."
+        static let inventoryWait = "Usually 5–15 seconds."
+        static func identified(_ done: Int, of total: Int) -> String { "\(done) of \(total) done" }
+        static let packingTitle = "Optimizing your packing"
+        static let packingWait = "Checking the rules and fitting everything into your bag."
     }
 }
