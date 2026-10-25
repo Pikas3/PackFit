@@ -10,6 +10,7 @@ struct InventoryEntry: Identifiable {
     var outline: [SIMD2<Double>]?
     var alternatives: [ItemAlternative]
     var thumbnail: CGImage?
+    var shape: ObjectShape?
     /// Which photo it came from (0-based).
     var photo: Int
     var included: Bool
@@ -62,6 +63,7 @@ enum InventoryMerge {
                 outline: d.outline,
                 alternatives: d.alternatives,
                 thumbnail: d.box.flatMap(thumbnail),
+                shape: d.objectShape,
                 photo: photo,
                 included: !duplicate,
                 likelyDuplicate: duplicate
@@ -256,4 +258,9 @@ final class InventoryScanModel {
     }
 
     var itemsToAdd: [Item] { entries.filter(\.included).map(\.item) }
+
+    var shapesToAdd: [String: ObjectShape] {
+        Dictionary(entries.filter(\.included).compactMap { e in e.shape.map { (e.item.id, $0) } },
+                   uniquingKeysWith: { a, _ in a })
+    }
 }

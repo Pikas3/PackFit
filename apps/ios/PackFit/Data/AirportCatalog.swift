@@ -49,6 +49,10 @@ enum AirportCatalog {
         }.prefix(8).map { $0 }
     }
 
+    static func name(for code: String) -> String? {
+        all.first { $0.code == code.uppercased() }?.name
+    }
+
     static func country(for code: String) -> String? {
         all.first { $0.code == code.uppercased() }?.country
     }

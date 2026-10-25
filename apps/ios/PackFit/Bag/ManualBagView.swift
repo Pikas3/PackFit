@@ -43,6 +43,7 @@ struct ManualBagView: View {
                 .background(Color.black.opacity(0.06), in: RoundedRectangle(cornerRadius: Tokens.Radius.md))
                 .padding(.horizontal)
             }
+            .packFitCanvas()
             .navigationTitle(Copy.Bag.measureManual)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

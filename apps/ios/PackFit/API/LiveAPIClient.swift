@@ -106,7 +106,10 @@ struct LiveAPIClient: APIClient, Sendable {
         guard let http = response as? HTTPURLResponse else { throw APIError.network }
         if http.statusCode == 401 { throw APIError.unauthorized }
         guard (200..<300).contains(http.statusCode) else {
-            throw APIError.upstream("HTTP \(http.statusCode)")
+            // The server explains failures as {"error": {"code", "message"}}; pass the message on.
+            let message = (try? decoder.decode(ErrorBody.self, from: data))?.error.message
+            if (400..<500).contains(http.statusCode), let message { throw APIError.badRequest(message) }
+            throw APIError.upstream(message ?? "HTTP \(http.statusCode)")
         }
         do {
             return try decoder.decode(R.self, from: data)
@@ -114,4 +117,10 @@ struct LiveAPIClient: APIClient, Sendable {
             throw APIError.decoding
         }
     }
+}
+
+/// The server's error envelope: `{"error": {"code", "message"}}`.
+private struct ErrorBody: Decodable {
+    struct Detail: Decodable { var message: String }
+    var error: Detail
 }

@@ -50,6 +50,10 @@
 		7AF248AC41048243D389AF99 /* Items/ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42EC5F14651F0BA4677111B3 /* Items/ItemListView.swift */; };
 		7E069614943364CCBB88AF7D /* Viewer/PlanViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1950DD945B6CC68218F0DC64 /* Viewer/PlanViewerView.swift */; };
 		84E1A9AA802DA01A2CD49B9D /* Viewer/SceneBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38669DE6D35F140DD245C56 /* Viewer/SceneBuilder.swift */; };
+		C1A7E0D5ITEMMODELS00001 /* Viewer/ItemModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5ITEMMODELS00002 /* Viewer/ItemModels.swift */; };
+		C1A7E0D5PACKINGPLAN0001 /* Viewer/PackingPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */; };
+		C1A7E0D5DASHBOARD000001 /* Trip/DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */; };
+		C1A7E0D5PACKFITKIT00001 /* Components/PackFitKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */; };
 		8645FE56D70A3836978D09FC /* Fixtures/AppFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C37326FA86B1FAB0AFEFA4 /* Fixtures/AppFixtures.swift */; };
 		8AF00A0F049540687D771375 /* API/LiveAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC42A8E2E5AB9B31725AD363 /* API/LiveAPIClient.swift */; };
 		8D54DC65EEEAC96AD8ECDE15 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58A12493A45D71A84E6E9B01 /* Assets.xcassets */; };
@@ -72,7 +76,6 @@
 
 
 		EBF10FA8A7805DD06308DF1D /* Scan/ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC741861ECD4DFC4978C2FA /* Scan/ScanView.swift */; };
-		B1ITEMCAMERA00000000001 /* Scan/ItemCameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1ITEMCAMERA00000000002 /* Scan/ItemCameraPreview.swift */; };
 		F1868E5F66FD26B84771A1C2 /* Scan/Measurement/ScanWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AD58CDFC5D218BF5B46C926 /* Scan/Measurement/ScanWorker.swift */; };
 		F436272D604EB0735B2B7BCD /* Store/TripStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28C2B5C5FE88F267FC7FEA5 /* Store/TripStore.swift */; };
 		F4BA7A26C39806719BC98BA7 /* MeasurementMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */; };
@@ -159,6 +162,10 @@
 		A3467DF633313A8EC8841DFC /* App/AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AppConfig.swift; sourceTree = "<group>"; };
 		B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepthPipelineTests.swift; sourceTree = "<group>"; };
 		B38669DE6D35F140DD245C56 /* Viewer/SceneBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/SceneBuilder.swift; sourceTree = "<group>"; };
+		C1A7E0D5ITEMMODELS00002 /* Viewer/ItemModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/ItemModels.swift; sourceTree = "<group>"; };
+		C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/PackingPlanView.swift; sourceTree = "<group>"; };
+		C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/DashboardView.swift; sourceTree = "<group>"; };
+		C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/PackFitKit.swift; sourceTree = "<group>"; };
 		B51101A24C29803BD819ACA7 /* Scan/Measurement/RectFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/RectFit.swift; sourceTree = "<group>"; };
 		B72799E8B1EDACCBDAEE30AC /* Components/ConfidenceBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/ConfidenceBadge.swift; sourceTree = "<group>"; };
 		BD5D149DD8E2B472C0A9DC01 /* Store/PlanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store/PlanStore.swift; sourceTree = "<group>"; };
@@ -171,7 +178,6 @@
 		E18DE82273B61AAF3BE3F467 /* Viewer/PlanViewerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/PlanViewerController.swift; sourceTree = "<group>"; };
 		E5E75621B8FBCFDC67E72FEE /* Onboarding/OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding/OnboardingView.swift; sourceTree = "<group>"; };
 		EAC741861ECD4DFC4978C2FA /* Scan/ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/ScanView.swift; sourceTree = "<group>"; };
-		B1ITEMCAMERA00000000002 /* Scan/ItemCameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/ItemCameraPreview.swift; sourceTree = "<group>"; };
 		EF695D66250FBEAA42EFE360 /* App/DeviceCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/DeviceCapabilities.swift; sourceTree = "<group>"; };
 		F66C29C9109E89FCD4392361 /* Guided/GuidedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guided/GuidedSession.swift; sourceTree = "<group>"; };
 		F71B9DAE26775B429CF08342 /* PackFitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PackFitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -257,7 +263,6 @@
 				D039890D9726C4C97A6C288F /* Scan/Measurement/MeasurementMath.swift */,
 				86D8A43DD535E7BF1BBEF46E /* Scan/ReviewCardView.swift */,
 				EAC741861ECD4DFC4978C2FA /* Scan/ScanView.swift */,
-				B1ITEMCAMERA00000000002 /* Scan/ItemCameraPreview.swift */,
 				572CFF43E4103C56C45E4B8B /* Store/ItemsStore.swift */,
 				BD5D149DD8E2B472C0A9DC01 /* Store/PlanStore.swift */,
 				1E444B89265FD7480F247EE0 /* Store/RulesStore.swift */,
@@ -273,6 +278,10 @@
 				D0FCF6861C8BA9911B865B78 /* Viewer/PlanViewerControlling.swift */,
 				1950DD945B6CC68218F0DC64 /* Viewer/PlanViewerView.swift */,
 				B38669DE6D35F140DD245C56 /* Viewer/SceneBuilder.swift */,
+				C1A7E0D5ITEMMODELS00002 /* Viewer/ItemModels.swift */,
+				C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */,
+				C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */,
+				C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */,
 				58A12493A45D71A84E6E9B01 /* Assets.xcassets */,
 				CCC85518DAF74D311A328861 /* Info.plist */,
 			);
@@ -483,7 +492,6 @@
 				B5853417EA8FD10643516233 /* Scan/Measurement/MeasurementMath.swift in Sources */,
 				2F765AB914536D55CB4CA660 /* Scan/ReviewCardView.swift in Sources */,
 				EBF10FA8A7805DD06308DF1D /* Scan/ScanView.swift in Sources */,
-				B1ITEMCAMERA00000000001 /* Scan/ItemCameraPreview.swift in Sources */,
 				6FC7176E9A0FC11D0205E479 /* Store/ItemsStore.swift in Sources */,
 				9537A78B97C8C0F0F8236F85 /* Store/PlanStore.swift in Sources */,
 				5AACCE3E4C8999C4CE38CD63 /* Store/RulesStore.swift in Sources */,
@@ -499,6 +507,10 @@
 				42CB41A3657DCC9614643BAD /* Viewer/PlanViewerControlling.swift in Sources */,
 				7E069614943364CCBB88AF7D /* Viewer/PlanViewerView.swift in Sources */,
 				84E1A9AA802DA01A2CD49B9D /* Viewer/SceneBuilder.swift in Sources */,
+				C1A7E0D5ITEMMODELS00001 /* Viewer/ItemModels.swift in Sources */,
+				C1A7E0D5PACKINGPLAN0001 /* Viewer/PackingPlanView.swift in Sources */,
+				C1A7E0D5DASHBOARD000001 /* Trip/DashboardView.swift in Sources */,
+				C1A7E0D5PACKFITKIT00001 /* Components/PackFitKit.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

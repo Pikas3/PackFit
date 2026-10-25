@@ -8,14 +8,14 @@ import PackFitSchemas
 /// Every rule, cheapest first. The solver accepts a candidate only when this is nil.
 func firstViolation(
     _ c: Placement, placed: [Placement], items: [String: Item], container: Container,
-    options: PackOptions
+    options: PackOptions, skipFragile: Bool = false
 ) -> PlanViolation? {
     compartmentViolation(c, placed: placed, items: items, container: container)
         ?? boundsViolation(c, placed: placed, items: items, container: container)
         ?? uprightViolation(c, placed: placed, items: items, container: container)
         ?? overlapViolation(c, placed: placed, items: items, container: container)
         ?? supportViolation(c, placed: placed, items: items, container: container, minPct: options.supportPct)
-        ?? fragileViolation(c, placed: placed, items: items, container: container)
+        ?? (skipFragile ? nil : fragileViolation(c, placed: placed, items: items, container: container))
         ?? heavyOnLightViolation(c, placed: placed, items: items, container: container)
         ?? (options.securityOnTop
             ? securityViolation(c, placed: placed, items: items, container: container) : nil)
@@ -51,13 +51,23 @@ func supportViolation(
     return pct >= minPct - eps ? nil : .floating(itemId: c.itemId, supportPct: pct)
 }
 
-/// Rule 3: nothing anywhere above a fragile item's footprint.
+/// Soft items up to this weight may go above a fragile one, like clothes over a laptop.
+let cushionMaxKg = 1.0
+
+/// A light soft item that protects rather than crushes.
+func cushions(_ item: Item?) -> Bool {
+    guard let item else { return false }
+    return item.soft && !item.fragile && item.kg <= cushionMaxKg + eps
+}
+
+/// Rule 3: nothing above a fragile item's footprint except light soft items. Anything rigid
+/// or heavy is rejected however high it sits, so it cannot rest on the cushioning either.
 func fragileViolation(_ c: Placement, placed: [Placement], items: [String: Item], container: Container) -> PlanViolation? {
     for p in placed where sameCompartment(c, p) {
-        if items[p.itemId]?.fragile == true, isAbove(c, p) {
+        if items[p.itemId]?.fragile == true, isAbove(c, p), !cushions(items[c.itemId]) {
             return .fragileUnder(fragileId: p.itemId, aboveId: c.itemId)
         }
-        if items[c.itemId]?.fragile == true, isAbove(p, c) {
+        if items[c.itemId]?.fragile == true, isAbove(p, c), !cushions(items[p.itemId]) {
             return .fragileUnder(fragileId: c.itemId, aboveId: p.itemId)
         }
     }
@@ -82,9 +92,13 @@ private func crushes(_ upper: Item?, _ lower: Item?) -> Bool {
     return lower.hardness < upper.hardness - eps && upper.kg > lower.kg + eps
 }
 
-/// Rule 6: an upright item's horizontal footprint is its scanned w x d (so h is vertical).
+/// Rule 6: an upright item's horizontal footprint is its scanned w x d (so h is vertical),
+/// unless it cannot stand in its compartment at all; then it may lie down.
 func uprightViolation(_ c: Placement, placed: [Placement], items: [String: Item], container: Container) -> PlanViolation? {
     guard let item = items[c.itemId], item.upright else { return nil }
+    if let size = compartment(named: c.compartment, in: container)?.size, !canStand(item, in: size) {
+        return nil
+    }
     let same = { (a: Double, b: Double) in abs(a - b) <= eps }
     let ok = (same(c.w, item.w) && same(c.d, item.d)) || (same(c.w, item.d) && same(c.d, item.w))
     return ok ? nil : .uprightBroken(itemId: c.itemId)

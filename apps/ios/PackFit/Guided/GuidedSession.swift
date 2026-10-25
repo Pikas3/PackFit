@@ -106,17 +106,16 @@ final class GuidedSession {
             return
         }
         pose.start()
+        do {
+            try capture.start()
+        } catch {
+            errorText = Copy.Guided.lidarStartFailed
+            return
+        }
         loop?.cancel()
         loop = Task { [weak self] in
-            guard let self else { return }
-            do {
-                try await self.capture.start()
-            } catch {
-                self.errorText = Copy.Guided.lidarStartFailed
-                return
-            }
             while !Task.isCancelled {
-                await self.tick()
+                await self?.tick()
                 try? await Task.sleep(nanoseconds: 200_000_000)
             }
         }

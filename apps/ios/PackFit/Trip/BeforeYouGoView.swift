@@ -56,6 +56,7 @@ struct BeforeYouGoView: View {
                 }
             }
         }
+        .packFitCanvas()
         .navigationTitle(Copy.Trip.beforeYouGoTitle)
     }
 

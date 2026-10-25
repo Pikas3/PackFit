@@ -2,45 +2,91 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(TripStore.self) private var tripStore
+    @Environment(ItemsStore.self) private var itemsStore
     @Environment(DeviceCapabilities.self) private var caps
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
-    @State private var path: [Route] = []
+    @State private var navigator = AppNavigator()
+    @State private var homePath: [Route] = []
+    @State private var resultsPath: [Route] = []
+    @State private var planPath: [Route] = []
 
     private let client = APIClientFactory.make()
 
     var body: some View {
         Group {
             if hasSeenOnboarding {
-                NavigationStack(path: $path) {
-                    TripPickerView(path: $path)
-                        .navigationDestination(for: Route.self) { route in
-                            switch route {
-                            case .tripPicker:
-                                TripPickerView(path: $path)
-                            case .bagSetup:
-                                BagSetupView(path: $path)
-                            case .itemList:
-                                ItemListView(path: $path)
-                            case .scan:
-                                ScanView(client: client)
-                            case .planViewer:
-                                PlanViewerView()
-                            case .rules:
-                                RulesView()
-                            case .inventoryScan:
-                                InventoryScanView(path: $path, client: client)
-                            case .arOverlay, .guidedScan:
-                                GuidedScanView(path: $path, client: client)
-                            case .suggestions:
-                                SuggestionsView(path: $path)
-                            case .beforeYouGo:
-                                BeforeYouGoView()
-                            }
-                        }
+                TabView(selection: $navigator.tab) {
+                    Tab(Copy.Tabs.home, systemImage: "house", value: AppTab.home) {
+                        stack(path: $homePath) { DashboardView(path: $homePath) }
+                    }
+                    Tab(Copy.Tabs.results, systemImage: "shippingbox", value: AppTab.results) {
+                        stack(path: $resultsPath) { PlanViewerView(path: $resultsPath) }
+                    }
+                    Tab(Copy.Tabs.plan, systemImage: "checklist", value: AppTab.plan) {
+                        stack(path: $planPath) { PackingPlanView(path: $planPath) }
+                    }
                 }
+                .environment(navigator)
             } else {
                 OnboardingView(hasSeen: $hasSeenOnboarding)
             }
         }
+        .tint(Tokens.Palette.pink700)
+        .fontDesign(.rounded)
+        .task { openPreviewPlanIfAsked() }
+    }
+
+    private func stack<Content: View>(path: Binding<[Route]>, @ViewBuilder root: () -> Content) -> some View {
+        NavigationStack(path: path) {
+            root()
+                .navigationDestination(for: Route.self) { route in
+                    destination(route, path: path)
+                }
+        }
+    }
+
+    @ViewBuilder
+    private func destination(_ route: Route, path: Binding<[Route]>) -> some View {
+        switch route {
+        case .tripPicker:
+            DashboardView(path: path)
+        case .bagSetup:
+            BagSetupView(path: path)
+        case .itemList:
+            ItemListView(path: path)
+        case .scan:
+            ScanView(client: client)
+        case .planViewer:
+            PlanViewerView(path: path)
+        case .rules:
+            RulesView()
+        case .inventoryScan:
+            InventoryScanView(path: path, client: client)
+        case .arOverlay, .guidedScan:
+            GuidedScanView(path: path, client: client)
+        case .suggestions:
+            SuggestionsView(path: path)
+        case .beforeYouGo:
+            BeforeYouGoView()
+        }
+    }
+
+    /// Debug builds launched with `-previewPlan` skip to the results with the fixture items in
+    /// the checked bag, for checking the viewer without a trip or a scan. `-previewTab plan`
+    /// or `-previewTab home` opens another tab instead.
+    private func openPreviewPlanIfAsked() {
+        #if DEBUG
+        let args = ProcessInfo.processInfo.arguments
+        guard args.contains("-previewPlan"), let trip = AppFixtures.trips().first else { return }
+        hasSeenOnboarding = true
+        tripStore.trip = trip
+        tripStore.bag = trip.checked
+        itemsStore.items = AppFixtures.items()
+        switch UserDefaults.standard.string(forKey: "previewTab") {
+        case "plan": navigator.tab = .plan
+        case "home": navigator.tab = .home
+        default: navigator.tab = .results
+        }
+        #endif
     }
 }

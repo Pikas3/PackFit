@@ -5,7 +5,6 @@ struct ScanView: View {
     @Environment(DeviceCapabilities.self) private var caps
     @Environment(\.dismiss) private var dismiss
 
-    @State private var camera = ItemCameraController()
     @State private var showReview = false
     @State private var draft: Item?
     @State private var alternatives: [ItemAlternative] = []
@@ -15,7 +14,6 @@ struct ScanView: View {
     @State private var manualD = "15"
     @State private var hint = ""
     @State private var errorText: String?
-    @State private var useManualOnly = false
 
     private let client: any APIClient
 
@@ -23,17 +21,9 @@ struct ScanView: View {
         self.client = client
     }
 
-    private var showCamera: Bool {
-        !caps.isSimulator && ItemCameraController.canUseCamera && !useManualOnly
-    }
-
     var body: some View {
         ZStack {
-            if showCamera {
-                cameraStack
-            } else {
-                manualForm
-            }
+            manualForm
 
             if isIdentifying {
                 Color.black.opacity(0.35).ignoresSafeArea()
@@ -49,16 +39,6 @@ struct ScanView: View {
         }
         .navigationTitle(Copy.Scan.title)
         .navigationBarTitleDisplayMode(.inline)
-        .task {
-            if showCamera {
-                await camera.start()
-                if camera.statusMessage != nil {
-                    useManualOnly = true
-                    errorText = camera.statusMessage
-                }
-            }
-        }
-        .onDisappear { camera.stop() }
         .sheet(isPresented: $showReview) {
             if let draft {
                 ReviewCardView(
@@ -73,55 +53,6 @@ struct ScanView: View {
                 )
                 .presentationDetents([.medium, .large])
             }
-        }
-    }
-
-    private var cameraStack: some View {
-        VStack(spacing: 0) {
-            Text(caps.measurementModeLabel)
-                .font(Tokens.TypeScale.caption)
-                .frame(maxWidth: .infinity)
-                .padding(Tokens.Spacing.sm)
-                .background(Tokens.Color.brandSecondary.opacity(0.25))
-
-            ItemCameraPreview(controller: camera)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
-                HStack {
-                    TextField("W", text: $manualW)
-                        .keyboardType(.decimalPad)
-                        .textFieldStyle(.roundedBorder)
-                    TextField("H", text: $manualH)
-                        .keyboardType(.decimalPad)
-                        .textFieldStyle(.roundedBorder)
-                    TextField("D", text: $manualD)
-                        .keyboardType(.decimalPad)
-                        .textFieldStyle(.roundedBorder)
-                    Text("cm").font(Tokens.TypeScale.caption)
-                }
-                TextField(Copy.Scan.hintPlaceholder, text: $hint)
-                    .textFieldStyle(.roundedBorder)
-                if let errorText {
-                    Text(errorText).font(Tokens.TypeScale.caption).foregroundStyle(Tokens.Color.banned)
-                }
-                if let status = camera.statusMessage {
-                    Text(status).font(Tokens.TypeScale.caption).foregroundStyle(Tokens.Color.restricted)
-                }
-                HStack {
-                    Button(Copy.Scan.manualFallbackShort) { useManualOnly = true }
-                        .font(Tokens.TypeScale.caption)
-                    Spacer()
-                    Button(Copy.Scan.capture) {
-                        Task { await identifyFromCamera() }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Tokens.Color.brand)
-                    .disabled(isIdentifying || !camera.isRunning)
-                }
-            }
-            .padding(Tokens.Spacing.md)
-            .background(.ultraThinMaterial)
         }
     }
 
@@ -147,36 +78,28 @@ struct ScanView: View {
                 Section { Text(errorText).foregroundStyle(Tokens.Color.banned) }
             }
             Section {
-                if !caps.isSimulator && ItemCameraController.canUseCamera {
-                    Button(Copy.Scan.useCamera) { useManualOnly = false }
-                }
                 Button(Copy.Scan.capture) {
-                    Task { await identifyManual(imageBase64: nil) }
+                    Task { await identifyManual() }
                 }
                 .disabled(isIdentifying)
             }
         }
     }
 
-    private func identifyFromCamera() async {
-        let image = await camera.captureJPEGBase64() ?? ImageCapture.placeholderBase64()
-        await identifyManual(imageBase64: image)
-    }
-
-    private func identifyManual(imageBase64: String?) async {
+    private func identifyManual() async {
         let w = Double(manualW) ?? 20
         let h = Double(manualH) ?? 10
         let d = Double(manualD) ?? 15
         let method: MeasureMethod = caps.hasLidar ? .manual : (caps.isSimulator ? .manual : .reference)
-        let measured = MeasuredBox(w: w, h: h, d: d, confidence: method == .manual ? 1 : 0.7, method: method)
-        await identify(measured: measured, imageBase64: imageBase64)
+        let measured = MeasuredDims(w: w, h: h, d: d, method: method, confidence: method == .manual ? 1 : 0.7)
+        await identify(measured: MeasuredBox(w: w, h: h, d: d, confidence: measured.confidence, method: method))
     }
 
-    private func identify(measured: MeasuredBox, imageBase64: String?) async {
+    private func identify(measured: MeasuredBox) async {
         isIdentifying = true
         errorText = nil
         defer { isIdentifying = false }
-        let image = imageBase64 ?? ImageCapture.placeholderBase64()
+        let image = ImageCapture.placeholderBase64()
         let dims = MeasuredDims(
             w: measured.w,
             h: measured.h,
@@ -195,6 +118,7 @@ struct ScanView: View {
             alternatives = response.alternatives
             showReview = true
         } catch {
+            // Keep measured dims; drop to editable manual card.
             draft = Item(
                 id: UUID().uuidString,
                 name: hint.isEmpty ? "Item" : hint,
@@ -208,7 +132,7 @@ struct ScanView: View {
                 measurement: Measurement(
                     method: measured.method,
                     confidence: measured.confidence,
-                    deviceHasLidar: caps.hasLidar
+                    deviceHasLidar: measured.method == .lidar
                 )
             )
             alternatives = []

@@ -79,10 +79,19 @@ final class TripStore {
         defer { isLookingUp = false }
         do {
             return try await client.lookupFlight(airline: airline, flightNumber: flightNumber, departDate: departDate)
+        } catch APIError.badRequest(let message), APIError.upstream(let message) {
+            // The server answered: say what it said (flight not found, lookup service down).
+            lookupError = message
+            return nil
+        } catch let error as APIError where !error.isNetwork {
+            // Reached the server but it refused or answered oddly (wrong token, bad reply).
+            lookupError = error.localizedDescription
+            return nil
         } catch {
-            // Offline demo fallback so the flow never dies.
-            lookupError = Copy.Errors.network
-            return AppFixtures.flightLookupFallback(airline: airline, flightNumber: flightNumber, departDate: departDate)
+            // Server unreachable: demo flights still work offline; anything else is not guessed.
+            let demo = AppFixtures.flightLookupFallback(airline: airline, flightNumber: flightNumber, departDate: departDate)
+            lookupError = demo == nil ? Copy.Errors.serverUnreachable : Copy.Errors.network
+            return demo
         }
     }
 

@@ -6,7 +6,8 @@ import SwiftUI
 @MainActor
 @Observable
 final class PlanViewerController: PlanViewerControlling {
-    let stepper = PlanStepper()
+    // Solid past items: models are several parts, and see-through parts muddy each other.
+    let stepper = PlanStepper(pastOpacity: 1)
 
     var currentStep: Int { stepper.currentStep }
     var onStepChange: ((Int) -> Void)? {
@@ -22,8 +23,8 @@ final class PlanViewerController: PlanViewerControlling {
     var elevation: Float = .pi / 5
     var distance: Float = 1.4
 
-    func load(plan: Plan, items: [Item], container: Container) {
-        stepper.load(plan: plan, items: items, container: container, style: .volume)
+    func load(plan: Plan, items: [Item], container: Container, shapes: [String: ObjectShape] = [:]) {
+        stepper.load(plan: plan, items: items, container: container, style: .volume, shapes: shapes)
         let dims = stepper.innerDims
         cameraPivot.position = SIMD3<Float>(dims.map { Float($0) * SceneBuilder.cmToMeters / 2 })
         camera.name = "orbit-camera"

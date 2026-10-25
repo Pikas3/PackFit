@@ -183,6 +183,7 @@ struct InventoryScanView: View {
                 Spacer()
                 Button(Copy.Inventory.add(model.includedCount)) {
                     for item in model.itemsToAdd { itemsStore.append(item) }
+                    itemsStore.shapes.merge(model.shapesToAdd) { _, new in new }
                     if path.last == .inventoryScan { path.removeLast() }
                     if path.last != .itemList { path.append(.itemList) }
                 }

@@ -52,8 +52,19 @@ public func pack(_ items: [Item], into container: Container, options: PackOption
     return best!
 }
 
+/// The order items are tried in. Every key ends in kg and then `id`, so it is total.
+enum Ordering: Equatable {
+    /// Largest flat footprint first: builds even layers.
+    case footprint
+    /// Largest volume first: big awkward items before the gaps fill.
+    case volume
+    /// Longest side first: long items get the bag's length before it is used up.
+    case longest
+}
+
 /// How one packing attempt orders items and scores positions.
 struct Strategy: Equatable {
+    var ordering: Ordering = .footprint
     /// true: try orientations flat-first and take the first that fits anywhere.
     /// false: take the position with the lowest top over all orientations.
     var flatFirst: Bool
@@ -78,6 +89,8 @@ struct Strategy: Equatable {
 
     /// In preference order: on equal plans the earlier strategy wins, so the rule-following
     /// orderings are kept unless they place fewer items.
+    /// The other orderings come last and only with the rule-following switches, which keeps
+    /// the worst case (something never fits) to 20 attempts.
     static let all: [Strategy] = [true, false].flatMap { securityLast in
         [true, false].flatMap { heavyFirst in
             [true, false].flatMap { flatFirst in
@@ -86,6 +99,11 @@ struct Strategy: Equatable {
                              heavyFirst: heavyFirst, securityLast: securityLast)
                 }
             }
+        }
+    } + [Ordering.volume, .longest].flatMap { ordering in
+        [true, false].map { flatFirst in
+            Strategy(ordering: ordering, flatFirst: flatFirst, fragileLate: false,
+                     heavyFirst: true, securityLast: true)
         }
     }
 }
@@ -103,7 +121,7 @@ func packOnce(
     _ items: [Item], container: Container, items byId: [String: Item], options: PackOptions,
     strategy: Strategy, alreadyUnplaced: [String]
 ) -> Plan {
-    var remaining = items
+    var remaining = strategy.ordering == .footprint ? items : sortedForPacking(items, by: strategy.ordering)
     var placedByCompartment: [String: [Placement]] = [:]
     for compartment in packingSequence(container) {
         let eligible = remaining.filter { accepts(compartment, item: $0, container: container) }
@@ -126,11 +144,18 @@ func packOnce(
                 stats: computeStats(placed, items: byId, container: container))
 }
 
-/// Largest flat footprint first, then heaviest, then `id`: a total order, so input order
-/// never matters.
-func sortedForPacking(_ items: [Item]) -> [Item] {
-    items.sorted { a, b in
-        let fa = flatFootprint(a), fb = flatFootprint(b)
+/// Largest first by `ordering` (flat footprint by default), then heaviest, then `id`: a
+/// total order, so input order never matters.
+func sortedForPacking(_ items: [Item], by ordering: Ordering = .footprint) -> [Item] {
+    func key(_ i: Item) -> Double {
+        switch ordering {
+        case .footprint: return flatFootprint(i)
+        case .volume: return i.w * i.h * i.d
+        case .longest: return max(i.w, i.h, i.d)
+        }
+    }
+    return items.sorted { a, b in
+        let fa = key(a), fb = key(b)
         if fa != fb { return fa > fb }
         if a.kg != b.kg { return a.kg > b.kg }
         if a.id != b.id { return a.id < b.id }
@@ -188,7 +213,7 @@ func topQuartileByWeight(_ items: [Item]) -> Set<String> {
 /// - otherwise: across all orientations, the lowest top (y + h) wins; flat-first breaks ties.
 func placeOne(
     _ item: Item, placed: [Placement], compartment: Compartment, container: Container,
-    items: [String: Item], options: PackOptions, flatFirst: Bool
+    items: [String: Item], options: PackOptions, flatFirst: Bool, skipFragile: Bool = false
 ) -> Placement? {
     let size = compartment.size
     let name = compartment.name == mainCompartment ? nil : compartment.name
@@ -196,7 +221,7 @@ func placeOne(
     // have things on top (rule 8).
     let frontFirst = options.securityOnTop && item.neededAtSecurity == true && container.type != .backpack
     var best: Placement?
-    for o in orientations(for: item, options: options) {
+    for o in orientations(for: item, options: options, space: size) {
         guard o.w <= size.w + eps, o.h <= size.h + eps, o.d <= size.d + eps else { continue }
         for point in candidatePoints(w: o.w, h: o.h, d: o.d, placed: placed, size: size,
                                      frontFirst: frontFirst) {
@@ -204,7 +229,7 @@ func placeOne(
             let candidate = Placement(itemId: item.id, x: point.x, y: point.y, z: point.z,
                                       w: o.w, h: o.h, d: o.d, order: placed.count, compartment: name)
             if firstViolation(candidate, placed: placed, items: items, container: container,
-                              options: options) == nil {
+                              options: options, skipFragile: skipFragile) == nil {
                 if flatFirst { return candidate }
                 best = candidate
                 break

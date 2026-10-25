@@ -67,7 +67,8 @@ extension RuleSeverity: CaseIterable {
 
 extension AppFixtures {
     /// Offline `/trip/lookup` for airline + flight number.
-    static func flightLookupFallback(airline: String, flightNumber: String, departDate: String?) -> FlightLookupResponse {
+    /// A demo flight's route, offline. Nil for any other flight: never guess a route.
+    static func flightLookupFallback(airline: String, flightNumber: String, departDate: String?) -> FlightLookupResponse? {
         let a = airline.uppercased().filter(\.isLetter)
         let n = flightNumber.filter(\.isNumber)
         let key = "\(String(a.prefix(2)))\(n)"
@@ -80,7 +81,7 @@ extension AppFixtures {
             "AA100": ("SFO", "LAX", "San Francisco", "Los Angeles"),
             "UA900": ("SFO", "NRT", "San Francisco", "Tokyo Narita"),
         ]
-        let hit = table[key] ?? ("SFO", "DEL", "San Francisco", "Delhi")
+        guard let hit = table[key] else { return nil }
         let fromCountry = AirportCatalog.country(for: hit.0)
         let toCountry = AirportCatalog.country(for: hit.1)
         var notices: [RouteNotice] = []
