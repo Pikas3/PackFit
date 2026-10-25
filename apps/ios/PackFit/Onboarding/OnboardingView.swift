@@ -10,6 +10,8 @@ struct OnboardingView: View {
         (Copy.Onboarding.s3Title, Copy.Onboarding.s3Body)
     ]
 
+    private let icons = ["camera.metering.matrix", "cube", "checkmark.shield"]
+
     var body: some View {
         VStack(spacing: Tokens.Spacing.lg) {
             HStack {
@@ -19,16 +21,31 @@ struct OnboardingView: View {
             }
 
             Spacer()
-            Text(Copy.App.name)
-                .font(Tokens.TypeScale.hero)
-                .foregroundStyle(Tokens.Color.brand)
+            Image(systemName: icons[page])
+                .font(.system(size: 40, weight: .medium))
+                .foregroundStyle(Tokens.Palette.pink800)
+                .frame(width: 96, height: 96)
+                .background(Tokens.Palette.pink300, in: RoundedRectangle(cornerRadius: 30, style: .continuous))
+                .shadow(color: Tokens.Palette.buttonShadow, radius: 10, y: 8)
+                .accessibilityHidden(true)
+            (Text("Pack").foregroundStyle(Tokens.Palette.textPrimary) + Text("Fit").foregroundStyle(Tokens.Palette.pink700))
+                .font(Tokens.TypeScale.display)
             Text(pages[page].title)
-                .font(Tokens.TypeScale.title)
+                .font(Tokens.TypeScale.h1)
+                .foregroundStyle(Tokens.Palette.textPrimary)
                 .multilineTextAlignment(.center)
             Text(pages[page].body)
                 .font(Tokens.TypeScale.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Tokens.Palette.textSecondary)
                 .multilineTextAlignment(.center)
+            HStack(spacing: 6) {
+                ForEach(pages.indices, id: \.self) { i in
+                    Capsule()
+                        .fill(i == page ? Tokens.Palette.pink700 : Tokens.Palette.pink200)
+                        .frame(width: i == page ? 20 : 8, height: 8)
+                }
+            }
+            .accessibilityHidden(true)
             Spacer()
 
             Button(page == pages.count - 1 ? Copy.Onboarding.done : Copy.Onboarding.next) {
@@ -38,18 +55,11 @@ struct OnboardingView: View {
                     withAnimation(.easeInOut(duration: Tokens.Motion.standard)) { page += 1 }
                 }
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Tokens.Color.brand)
-            .frame(maxWidth: .infinity)
+            .buttonStyle(.packFitPrimary)
         }
-        .packFitScreenPadding()
-        .background(
-            LinearGradient(
-                colors: [Tokens.Color.surface, Tokens.Color.brandSecondary.opacity(0.25)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-        )
+        .padding(.horizontal, Tokens.Spacing.screen)
+        .padding(.vertical, Tokens.Spacing.md)
+        .background { BlobBackground().ignoresSafeArea() }
+        .fontDesign(.rounded)
     }
 }

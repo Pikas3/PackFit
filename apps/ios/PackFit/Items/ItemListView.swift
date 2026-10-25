@@ -6,6 +6,7 @@ struct ItemListView: View {
     @Environment(PlanStore.self) private var planStore
     @Environment(RulesStore.self) private var rulesStore
     @Environment(DeviceCapabilities.self) private var caps
+    @Environment(AppNavigator.self) private var navigator
     @Binding var path: [Route]
 
     @State private var editing: Item?
@@ -44,17 +45,14 @@ struct ItemListView: View {
                             }
                         } label: {
                             HStack(spacing: Tokens.Spacing.md) {
-                                RoundedRectangle(cornerRadius: Tokens.Radius.sm)
-                                    .fill(Tokens.Color.brandSecondary.opacity(0.35))
-                                    .frame(width: 48, height: 48)
-                                    .overlay {
-                                        Text(String(item.category.rawValue.prefix(1)).uppercased())
-                                            .font(Tokens.TypeScale.title)
-                                    }
+                                IconBubble(
+                                    systemImage: item.category.systemImage, size: 48, iconSize: 22,
+                                    radius: Tokens.Radius.md, fill: item.category.swatch
+                                )
                                 VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                                     Text(item.name)
-                                        .font(Tokens.TypeScale.body)
-                                        .foregroundStyle(.primary)
+                                        .font(Tokens.TypeScale.h3)
+                                        .foregroundStyle(Tokens.Palette.textPrimary)
                                     Text(String(format: "%.1f×%.1f×%.1f cm · %.2f kg", item.w, item.h, item.d, item.kg))
                                         .font(Tokens.TypeScale.caption)
                                         .foregroundStyle(.secondary)
@@ -81,6 +79,7 @@ struct ItemListView: View {
                         itemsStore.remove(at: offsets)
                         Task { await refreshFlags() }
                     }
+                    .listRowBackground(Tokens.Palette.surface)
                 }
             }
         }
@@ -95,13 +94,19 @@ struct ItemListView: View {
                     Button(Copy.Inventory.entry) { path.append(.inventoryScan) }
                 }
             }
-            ToolbarItem(placement: .bottomBar) {
-                Button(Copy.Items.pack) {
+        }
+        .packFitCanvas()
+        .safeAreaInset(edge: .bottom) {
+            if !itemsStore.items.isEmpty {
+                Button {
                     Task { await packAndContinue() }
+                } label: {
+                    Label(Copy.Home.optimize, systemImage: "sparkles")
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Tokens.Color.brand)
-                .disabled(itemsStore.items.isEmpty || planStore.isPacking)
+                .buttonStyle(.packFitPrimary)
+                .disabled(tripStore.bag == nil || planStore.isPacking)
+                .padding(.horizontal, Tokens.Spacing.screen)
+                .padding(.bottom, Tokens.Spacing.sm)
             }
         }
         .task(id: itemsStore.items.map(\.id)) {
@@ -172,16 +177,10 @@ struct ItemListView: View {
 
     private func packAndContinue() async {
         guard let bag = tripStore.bag, let trip = tripStore.trip else { return }
-        // Drop banned items from the pack list after confirming advice.
-        let bannedIds = Set(rulesStore.flags.filter { $0.severity == .banned }.map(\.itemId))
-        let packable = itemsStore.items.filter { !bannedIds.contains($0.id) }
-        await planStore.computePlan(items: packable, into: bag)
-        await rulesStore.check(
-            items: itemsStore.items,
-            trip: trip,
-            bag: tripStore.useChecked ? "checked" : "carryOn",
-            client: client
+        await PackRun.run(
+            trip: trip, bag: bag, useChecked: tripStore.useChecked, items: itemsStore.items,
+            planStore: planStore, rulesStore: rulesStore, client: client
         )
-        path.append(.planViewer)
+        navigator.tab = .results
     }
 }

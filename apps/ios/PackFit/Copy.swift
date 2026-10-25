@@ -233,6 +233,123 @@ enum Copy {
         static let daysAgo = "days ago"
     }
 
+    enum Tabs {
+        static let home = "Home"
+        static let results = "Results"
+        static let plan = "Plan"
+    }
+
+    enum Home {
+        static let greeting = "Hi there, traveler"
+        static let title = "Let’s pack smarter"
+        static let nextTrip = "Next trip"
+        static let noTrip = "Where to next?"
+        static let noTripBody = "Add your flight below and we’ll check the rules for your route."
+        static let tripBody = "Snap your stuff and your bag. We’ll play packing Tetris for you."
+        static func inDays(_ place: String, _ days: Int) -> String {
+            switch days {
+            case 0: "\(place) today"
+            case 1: "\(place) tomorrow"
+            default: "\(place) in \(days) days"
+            }
+        }
+        static func nights(_ place: String, _ n: Int) -> String { "\(place) · \(n) nights" }
+        static let snapTitle = "Snap your stuff"
+        static let snapCaption = "Lay everything out on your bed in good light"
+        static let itemsTile = "Your items"
+        static let itemsEmpty = "Snap the pile, or scan items one by one."
+        static func itemsFound(_ n: Int) -> String { n == 1 ? "1 item found" : "\(n) items found" }
+        static let addPhoto = "Add photo"
+        static let bagTile = "Your bag"
+        static let bagEmpty = "Pick a preset or measure it. Open it fully!"
+        static let addBag = "Add bag"
+        static let snapTip = "Tip: include chargers and liquids so we can check the rules."
+        static let tripTitle = "Trip details"
+        static let tripCaption = "We check TSA, airline and destination rules"
+        static let from = "From"
+        static let to = "To"
+        static let dates = "Dates"
+        static let airlineBag = "Airline & bag"
+        static let addFlight = "Add your flight"
+        static let timeOfYear = "Time of year"
+        static let seasons = ["Spring", "Summer", "Fall", "Winter"]
+        static let noForecast = "Add your flight to see the forecast."
+        static let packingIdeas = "Packing ideas"
+        static let optimize = "Optimize my packing"
+        static func optimizeCaption(_ items: Int) -> String {
+            "Takes a few seconds · \(items) item\(items == 1 ? "" : "s"), 1 bag"
+        }
+        static let needTrip = "Add your flight and at least one item first."
+        static let alerts = "Rule flags"
+    }
+
+    enum Results {
+        static let title = "Your results"
+        static let repack = "Pack again"
+        static let rotateHint = "Drag to rotate"
+        static func full(_ pct: Double) -> String { String(format: "%.0f%% full", pct) }
+        static let views = ["3D", "Top", "Side"]
+        static let layers = "Layers"
+        static let layerNames = ["All", "Bottom", "Middle", "Top"]
+        static let spaceUsed = "bag space used"
+        static func ofLimit(_ kg: Double) -> String { String(format: "of %.0f kg limit", kg) }
+        static let itemsFit = "items fit"
+        static func flagged(_ n: Int) -> String { n == 1 ? "Heads up: 1 item flagged" : "Heads up: \(n) items flagged" }
+        static let flaggedCaption = "Sort these out before you fly"
+        static let allRules = "See all rules"
+        static let filterAll = "All"
+        static let filterTSA = "TSA"
+        static let filterAirline = "Airline"
+        static let filterDestination = "Destination"
+        static func leftOut(_ n: Int) -> String { n == 1 ? "1 item didn’t fit" : "\(n) items didn’t fit" }
+        static let leftOutCaption = "Wear the bulky ones on the plane, or tap one for why"
+        static let shortTooLarge = "too big"
+        static let shortFragile = "fragile in the way"
+        static let shortNoRoom = "no room"
+        static let shortInvalid = "size missing"
+        static let seePlan = "See my packing plan"
+        static let empty = "No plan yet. Add your trip, bag and items on Home, then tap Optimize."
+        static let goHome = "Go to Home"
+        static let routeItem = "Everyone on this route"
+    }
+
+    enum PackingPlan {
+        static let title = "Packing plan"
+        static func progress(_ pct: Int) -> String { pct >= 100 ? "All packed!" : "You’re \(pct)% packed!" }
+        static func stepsDone(_ done: Int, _ total: Int, minutes: Int) -> String {
+            let left = minutes == 0 ? "ready to zip" : "about \(minutes) min to go"
+            return "\(done) of \(total) steps done · \(left)"
+        }
+        static func layerChip(_ name: String, _ done: Int, _ total: Int) -> String {
+            done == total ? "\(name) · done" : "\(name) · \(done)/\(total)"
+        }
+        static func step(_ n: Int) -> String { "Step \(n)" }
+        static let bottomTitle = "Bottom layer"
+        static let bottomCaption = "Heavy and flat items sit by the wheels"
+        static let middleTitle = "Middle layer"
+        static let middleCaption = "Soft, bulky things fill the gaps"
+        static let topTitle = "Top layer"
+        static let topCaption = "Grab-first items and security stuff"
+        static func nextTo(_ names: [String]) -> String { "Next to " + names.prefix(2).joined(separator: " and ") }
+        static let proTip = "Pro tip"
+        static let proTipBody = "Rolled soft clothes slip into the gaps between bulky items, so nothing shifts in transit."
+        static let allPacked = "I’m all packed!"
+        static let shareTitle = "My PackFit packing plan"
+        static let empty = "No plan yet. Pack your bag from Home first."
+    }
+
+    enum Flags {
+        static let tsaBadge = "TSA rule"
+        static let airlineBadge = "Airline rule"
+        static let destinationBadge = "Destination law"
+        static let mustFix = "Must fix"
+        static let leaveHome = "Leave at home"
+        static let needsApproval = "Needs approval"
+        static let checkFirst = "Check first"
+        static let stale = "· stale"
+        static func source(_ days: Int) -> String { "Source · verified \(days) days ago" }
+    }
+
     enum Errors {
         static let generic = "Something went wrong."
         static let retry = "Try again"
