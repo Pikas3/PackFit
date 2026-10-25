@@ -154,7 +154,7 @@ struct InventoryScanView: View {
                     .font(Tokens.TypeScale.title)
                 Spacer()
             }
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: Tokens.Spacing.sm) {
                     ForEach(model.entries) { entry in
                         InventoryRow(
