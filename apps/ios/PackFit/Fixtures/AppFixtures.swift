@@ -19,46 +19,92 @@ enum AppFixtures {
         try? Fixtures.plan(named: name)
     }
 
-    /// Mock / offline rule flags until `/rules/check` is live.
-    static func sampleFlags(for items: [Item]) -> [RuleFlag] {
-        guard let liquids = items.first(where: {
-            $0.category == .liquids || $0.name.localizedCaseInsensitiveContains("shampoo")
-        }) ?? items.first else {
-            return []
-        }
-        let knife = items.first(where: {
-            $0.category == .sharp || $0.name.localizedCaseInsensitiveContains("knife")
-        })
-        var flags: [RuleFlag] = [
-            RuleFlag(
-                itemId: liquids.id,
-                scope: .tsa,
-                severity: .restricted,
-                text: "Full-size liquids over 100 ml belong in checked baggage, not carry-on.",
-                sourceUrl: "https://www.tsa.gov/travel/security-screening/whatcanibring/items/liquids-aerosols-and-gels",
-                lastVerified: "2026-10-01",
-                ruleId: "tsa-lag-100ml"
-            )
-        ]
-        if let knife {
-            flags.append(
-                RuleFlag(
-                    itemId: knife.id,
+    /// Offline `/rules/check`, mirroring the server: an item is flagged only when it breaks a
+    /// rule in the bag it is packed in, and weight is checked once for the whole bag.
+    static func sampleFlags(for items: [Item], trip: Trip?, bag: String) -> [RuleFlag] {
+        let carryOn = bag == "carryOn"
+        var flags: [RuleFlag] = []
+        for item in items {
+            let name = item.name.lowercased()
+            if carryOn, item.category == .liquids || name.contains("shampoo"), upperBoundMl(item) > 100 {
+                flags.append(RuleFlag(
+                    itemId: item.id,
+                    scope: .tsa,
+                    severity: .restricted,
+                    text: "Liquids over 3.4 oz (100 ml) are not allowed in carry-on. Pack this in checked baggage.",
+                    sourceUrl: "https://www.tsa.gov/travel/security-screening/liquids-aerosols-gels-rule",
+                    lastVerified: "2026-10-24",
+                    ruleId: "tsa:liquids-100ml"
+                ))
+            }
+            if carryOn, item.category == .sharp || name.contains("knife") {
+                flags.append(RuleFlag(
+                    itemId: item.id,
                     scope: .tsa,
                     severity: .banned,
-                    text: "Pocket knives are not allowed in carry-on. Pack this in checked baggage.",
-                    sourceUrl: "https://www.tsa.gov/travel/security-screening/whatcanibring/items/pocket-knife",
-                    lastVerified: "2026-09-15",
-                    ruleId: "tsa-pocket-knife"
-                )
-            )
+                    text: "Knives are not allowed in carry-on bags, except round-bladed butter knives and plastic cutlery. Pack them in checked baggage.",
+                    sourceUrl: "https://www.tsa.gov/travel/security-screening/whatcanibring/items/knives",
+                    lastVerified: "2026-10-24",
+                    ruleId: "tsa:pocket-knife"
+                ))
+            }
+            if !carryOn, name.contains("power bank") || name.contains("portable charger") {
+                flags.append(RuleFlag(
+                    itemId: item.id,
+                    scope: .tsa,
+                    severity: .banned,
+                    text: "Spare lithium batteries and power banks must go in carry-on, not checked baggage.",
+                    sourceUrl: "https://www.tsa.gov/travel/security-screening/whatcanibring/items/power-banks",
+                    lastVerified: "2026-10-24",
+                    ruleId: "tsa:lithium-battery-spare"
+                ))
+            }
+        }
+        if let weight = bagWeightFlag(items: items, airline: trip?.airline, bag: bag) {
+            flags.append(weight)
         }
         return flags
+    }
+
+    /// One flag for the whole bag when the items are over the airline's checked limit.
+    private static func bagWeightFlag(items: [Item], airline: String?, bag: String) -> RuleFlag? {
+        let limits: [String: (url: String, verified: String)] = [
+            "UA": ("https://www.united.com/ual/en/us/fly/baggage/checked-bags.html", "2026-10-01"),
+            "AA": ("https://www.aa.com/i18n/travel-info/baggage/checked-baggage.jsp", "2026-09-25"),
+            "AI": ("https://www.airindia.com/in/en/book/baggage-information.html", "2026-09-20"),
+        ]
+        guard bag == "checked", let airline, let source = limits[airline] else { return nil }
+        let totalKg = items.reduce(0) { $0 + $1.kg }
+        guard totalKg > 23 else { return nil }
+        return RuleFlag(
+            itemId: RuleFlag.bagItemId,
+            scope: .airline,
+            severity: .restricted,
+            text: String(format: "Your items weigh about %.1f kg, over the %@ 23 kg checked-bag limit. Excess weight fees may apply.", totalKg, airline),
+            sourceUrl: source.url,
+            lastVerified: source.verified,
+            ruleId: "airline:\(airline.lowercased())-checked-23kg"
+        )
+    }
+
+    /// Most the item can hold: the volume in its name ("400 ml") when given, else its box.
+    static func upperBoundMl(_ item: Item) -> Double {
+        let name = item.name.lowercased()
+        if let match = name.firstMatch(of: /(\d+(?:\.\d+)?)\s*ml\b/), let ml = Double(match.1) {
+            return ml
+        }
+        if let match = name.firstMatch(of: /(\d+(?:\.\d+)?)\s*(?:fl\.?\s*)?oz\b/), let oz = Double(match.1) {
+            return (oz * 29.5735).rounded(.down)
+        }
+        return item.w * item.h * item.d
     }
 }
 
 extension RuleFlag: Identifiable {
     public var id: String { "\(itemId)-\(ruleId ?? text)" }
+
+    /// `itemId` of a flag about the whole bag (its weight) rather than one item.
+    static let bagItemId = "bag"
 }
 
 extension RuleSeverity: CaseIterable {
@@ -85,14 +131,6 @@ extension AppFixtures {
         let fromCountry = AirportCatalog.country(for: hit.0)
         let toCountry = AirportCatalog.country(for: hit.1)
         var notices: [RouteNotice] = []
-        if fromCountry == "US" || toCountry == "US" {
-            notices.append(RouteNotice(
-                text: "TSA liquid and battery rules apply for US security screening.",
-                sourceUrl: "https://www.tsa.gov/travel/security-screening/whatcanibring",
-                lastVerified: "2026-09-20",
-                scope: "tsa"
-            ))
-        }
         if let toCountry, fromCountry != toCountry {
             notices.append(contentsOf: countryTips(for: toCountry).map {
                 RouteNotice(text: $0.text, sourceUrl: $0.sourceUrl, lastVerified: $0.lastVerified, scope: "country")

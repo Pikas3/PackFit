@@ -188,7 +188,12 @@ struct PlanViewerView: View {
             let total = plan.placed.count + plan.unplaced.count
             HStack(spacing: 10) {
                 StatTile(value: String(format: "%.0f%%", plan.stats.fillPct), label: Copy.Results.spaceUsed)
-                StatTile(value: String(format: "%.1f kg", plan.stats.kg), label: Copy.Results.ofLimit(tripStore.bag?.weightLimitKg ?? 23))
+                let limitKg = tripStore.bag?.weightLimitKg ?? 23
+                StatTile(
+                    value: String(format: "%.1f kg", plan.stats.kg),
+                    label: Copy.Results.ofLimit(limitKg),
+                    valueColor: plan.stats.kg > limitKg ? P.coral500 : P.textPrimary
+                )
                 StatTile(value: "\(plan.placed.count)/\(total)", label: Copy.Results.itemsFit)
             }
             .fixedSize(horizontal: false, vertical: true)
@@ -224,7 +229,9 @@ struct PlanViewerView: View {
                 url: flag.sourceUrl
             )
         }
-        let fromRoute = tripStore.routeNotices.map { notice in
+        // A customs tip already shown as an item flag is not repeated as a route card.
+        let flaggedSources = Set(rulesStore.flags.map(\.sourceUrl))
+        let fromRoute = tripStore.routeNotices.filter { !flaggedSources.contains($0.sourceUrl) }.map { notice in
             let kind: FlagCard.Kind = switch notice.scope.lowercased() {
             case "tsa": .tsa
             case "airline": .airline
@@ -443,7 +450,8 @@ struct PlanViewerView: View {
     }
 
     private func itemName(_ id: String) -> String {
-        itemsStore.items.first(where: { $0.id == id })?.name ?? id
+        if id == RuleFlag.bagItemId { return Copy.Results.wholeBag }
+        return itemsStore.items.first(where: { $0.id == id })?.name ?? id
     }
 
     private func repack() async {

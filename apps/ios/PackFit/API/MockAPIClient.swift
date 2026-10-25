@@ -88,9 +88,7 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
     }
 
     func checkRules(items: [Item], trip: Trip, bag: String) async throws -> RulesCheckResponse {
-        _ = trip
-        _ = bag
-        let flags = AppFixtures.sampleFlags(for: items)
+        let flags = AppFixtures.sampleFlags(for: items, trip: trip, bag: bag)
         return RulesCheckResponse(
             flags: flags,
             summary: flags.isEmpty

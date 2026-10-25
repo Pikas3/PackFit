@@ -5,7 +5,6 @@ struct ItemListView: View {
     @Environment(TripStore.self) private var tripStore
     @Environment(PlanStore.self) private var planStore
     @Environment(RulesStore.self) private var rulesStore
-    @Environment(DeviceCapabilities.self) private var caps
     @Environment(AppNavigator.self) private var navigator
     @Binding var path: [Route]
 
@@ -17,12 +16,8 @@ struct ItemListView: View {
     var body: some View {
         Group {
             if itemsStore.items.isEmpty {
-                VStack(spacing: Tokens.Spacing.md) {
-                    EmptyStateView(Copy.Items.empty, actionTitle: Copy.Items.emptyAction) {
-                        path.append(.scan)
-                    }
-                    Button(Copy.Inventory.entry) { path.append(.inventoryScan) }
-                        .buttonStyle(.bordered)
+                EmptyStateView(Copy.Items.empty, actionTitle: Copy.Items.emptyAction) {
+                    path.append(.inventoryScan)
                 }
             } else {
                 List {
@@ -89,10 +84,7 @@ struct ItemListView: View {
                 Button(Copy.Trip.suggestionsTitle) { path.append(.suggestions) }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Menu(Copy.Items.scan) {
-                    Button(Copy.Items.scan) { path.append(caps.supportsGuidedScan ? .guidedScan : .scan) }
-                    Button(Copy.Inventory.entry) { path.append(.inventoryScan) }
-                }
+                Button(Copy.Items.scan) { path.append(.inventoryScan) }
             }
         }
         .packFitCanvas()

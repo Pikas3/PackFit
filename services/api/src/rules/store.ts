@@ -76,6 +76,56 @@ export function loadCountryTips(
     .map((r) => ({ text: r.text, sourceUrl: r.sourceUrl, lastVerified: r.lastVerified }));
 }
 
+/** Categories that are themselves the hazard, so a category match is enough to flag. */
+const HAZARD_CATEGORIES: ReadonlySet<Category> = new Set(["liquids", "sharp"]);
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Whole-word keyword hit, so "jam" does not match "pajamas". */
+export function nameMatchesKeyword(name: string, keyword: string): boolean {
+  return new RegExp(`\\b${escapeRegex(keyword.toLowerCase())}\\b`).test(name.toLowerCase());
+}
+
+export function bagVerdict(record: RuleRecord, bag: "carryOn" | "checked"): RuleRecord["carryOn"] {
+  return bag === "carryOn" ? record.carryOn : record.checked;
+}
+
+/**
+ * True only when this item, in this bag, breaks the rule. Advisory rules (verdict "ok"),
+ * bag-level weight rules, loose category matches and items measurably under a limit never
+ * flag.
+ */
+export function violates(item: Item, record: RuleRecord, bag: "carryOn" | "checked"): boolean {
+  if (record.limits?.maxKg !== undefined) return false;
+  if (bagVerdict(record, bag) === "ok") return false;
+  const keywordHit = record.keywords.some((kw) => nameMatchesKeyword(item.name, kw));
+  const hazardHit =
+    HAZARD_CATEGORIES.has(item.category as Category) && record.categories.includes(item.category as Category);
+  if (!keywordHit && !hazardHit) return false;
+  const maxMl = record.limits?.maxMl;
+  if (bagVerdict(record, bag) === "restricted" && maxMl !== undefined && upperBoundMl(item) <= maxMl) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Most the item can hold: the volume written on it ("400 ml", "3.4 oz") when the name says,
+ * else the bounding box, which always holds at least as much as the container inside it.
+ */
+export function upperBoundMl(item: Item): number {
+  const name = item.name.toLowerCase();
+  const ml = name.match(/(\d+(?:\.\d+)?)\s*ml\b/);
+  if (ml) return Number(ml[1]);
+  const oz = name.match(/(\d+(?:\.\d+)?)\s*(?:fl\.?\s*)?oz\b/);
+  // TSA treats 3.4 oz as 100 ml, so round down.
+  if (oz) return Math.floor(Number(oz[1]) * 29.5735);
+  return item.w * item.h * item.d;
+}
+
+/** Rules this item breaks in this bag, best match first. */
 export function findCandidatesForItem(
   item: Item,
   trip: { from: string; to: string; airline: string },
@@ -83,32 +133,31 @@ export function findCandidatesForItem(
   limit = 8,
 ): RuleRecord[] {
   const destCountry = countryForAirport(trip.to) ?? "";
-  const name = item.name.toLowerCase();
   const scored: { record: RuleRecord; score: number }[] = [];
 
   for (const record of loadAll()) {
     if (record.scope === "airline" && record.subject !== trip.airline) continue;
     if (record.scope === "country" && record.subject !== destCountry) continue;
-
-    const bagVerdict = bag === "carryOn" ? record.carryOn : record.checked;
-    if (bagVerdict === "ok" && record.severity === "check" && record.scope !== "tsa") {
-      // still allow "check" guidance
-    }
+    if (!violates(item, record, bag)) continue;
 
     let score = 0;
     if (record.categories.includes(item.category as Category)) score += 2;
     for (const kw of record.keywords) {
-      if (name.includes(kw)) score += 3;
+      if (nameMatchesKeyword(item.name, kw)) score += 3;
     }
-    if (score === 0) continue;
-
-    // Prefer rules that actually restrict this bag.
-    if (bagVerdict !== "ok") score += 1;
+    if (bagVerdict(record, bag) === "banned") score += 1;
     scored.push({ record, score });
   }
 
   scored.sort((a, b) => b.score - a.score || a.record.ruleId.localeCompare(b.record.ruleId));
   return scored.slice(0, limit).map((s) => s.record);
+}
+
+/** The airline's checked-bag weight rule, if we have one. */
+export function weightRuleForAirline(airline: string): RuleRecord | undefined {
+  return loadAll().find(
+    (r) => r.scope === "airline" && r.subject === airline && r.limits?.maxKg !== undefined,
+  );
 }
 
 export function findCandidatesForQuestion(

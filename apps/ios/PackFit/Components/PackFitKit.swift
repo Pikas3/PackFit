@@ -276,12 +276,13 @@ struct SectionHeader: View {
 struct StatTile: View {
     let value: String
     let label: String
+    var valueColor: Color = Tokens.Palette.textPrimary
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(value)
                 .font(T.h1)
-                .foregroundStyle(P.textPrimary)
+                .foregroundStyle(valueColor)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             Text(label)

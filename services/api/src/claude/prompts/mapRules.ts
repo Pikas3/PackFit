@@ -28,7 +28,8 @@ export function buildMapRulesPrompt(input: {
 
   const lines: string[] = [
     `Bag type: ${input.bag}`,
-    "For each item, choose zero or more candidate rules that actually apply. Do not invent ruleIds.",
+    "For each item, choose zero or more candidate rules the item actually breaks in this bag type. Do not invent ruleIds.",
+    "If the item is allowed as packed, return no flag for it. Do not add general advice or reminders.",
     "Write 1-2 plain guidance sentences per flag. Zero flags is fine.",
     "",
   ];
