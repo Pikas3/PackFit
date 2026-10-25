@@ -233,9 +233,9 @@ final class GuidedSession {
             return
         }
         // Closed thickness: sum of side depths for a zipper bag, else the single cavity's y.
-        let closedY = presetBag.map { bag in
-            bag.compartments.compactMap { $0.dims.count == 3 ? $0.dims[1] : nil }.reduce(0, +)
-        }.flatMap { $0 > 0 ? $0 : nil } ?? 26.0
+        let sideDepths: [Double] = presetBag?.compartments.compactMap { $0.dims.count == 3 ? $0.dims[1] : nil } ?? []
+        let depthSum: Double = sideDepths.reduce(0, +)
+        let closedY: Double = depthSum > 0 ? depthSum : 26.0
         let floor = cornerTaps.map(\.y).min() ?? 0
         let fit = CavityFit(box: BoxFit(rect: rect, height: Float(closedY) / 200, cellCount: 0, fillRatio: 1), floorY: floor)
         let camera = latestSnapshot?.cameraPosition ?? SIMD3(rect.center.x, 0, rect.center.y + 1)
