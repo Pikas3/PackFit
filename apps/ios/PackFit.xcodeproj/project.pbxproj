@@ -28,6 +28,7 @@
 		B1BEFOREYOUGO000000001 /* Trip/BeforeYouGoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BEFOREYOUGO000000002 /* Trip/BeforeYouGoView.swift */; };
 		B1SUGGESTVIEW000000001 /* Trip/SuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1SUGGESTVIEW000000002 /* Trip/SuggestionsView.swift */; };
 		B1PACKADVICE00000000001 /* Trip/PackAdvice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1PACKADVICE00000000002 /* Trip/PackAdvice.swift */; };
+		B1DATERANGE000000000001 /* Trip/DateRangeCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DATERANGE000000000002 /* Trip/DateRangeCalendar.swift */; };
 		B1AIRPORTCAT00000000001 /* Data/AirportCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AIRPORTCAT00000000002 /* Data/AirportCatalog.swift */; };
 		2B15ACE254F057D482DFC578 /* Bag/ContainerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158BDD27A320E6198404E50A /* Bag/ContainerFactory.swift */; };
 		2D7B759A62D7215890790D94 /* API/MockAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421EB981FB9A453BA46D7E28 /* API/MockAPIClient.swift */; };
@@ -42,6 +43,7 @@
 		5AC2AC808D4BC1C9128B3913 /* Copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D7531BBDEFE09B8BD3835C /* Copy.swift */; };
 		5D0D018104719AA773FDCC57 /* Items/ItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D6EC85506565815AA9A661 /* Items/ItemDetailView.swift */; };
 		61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21859376838BF23B0332273D /* TapMeasureTests.swift */; };
+		B1DATERANGETEST00000001 /* DateRangeSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DATERANGETEST00000002 /* DateRangeSelectionTests.swift */; };
 		681FB817A8CCCE365BC0EEBE /* Scan/Measurement/BoxFitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF769D9F6593836DC624115 /* Scan/Measurement/BoxFitter.swift */; };
 		6DE82B905DC99550B43DA85E /* Guided/GuidedScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1F4ADDD97AABA1893CE03F /* Guided/GuidedScanView.swift */; };
 		6FC7176E9A0FC11D0205E479 /* Store/ItemsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572CFF43E4103C56C45E4B8B /* Store/ItemsStore.swift */; };
@@ -125,6 +127,7 @@
 		1D0AE81C52B847861EB9A0BA /* Rules/RuleFreshness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rules/RuleFreshness.swift; sourceTree = "<group>"; };
 		1E444B89265FD7480F247EE0 /* Store/RulesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store/RulesStore.swift; sourceTree = "<group>"; };
 		21859376838BF23B0332273D /* TapMeasureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapMeasureTests.swift; sourceTree = "<group>"; };
+		B1DATERANGETEST00000002 /* DateRangeSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateRangeSelectionTests.swift; sourceTree = "<group>"; };
 		3058F8F659288DFDF70F961A /* API/APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API/APIClient.swift; sourceTree = "<group>"; };
 		32D873DCD704B727D1968A02 /* Scan/Measurement/DepthSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/DepthSnapshot.swift; sourceTree = "<group>"; };
 		A1GRAVITYPOSE000000000002 /* Scan/Measurement/GravityPose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/GravityPose.swift; sourceTree = "<group>"; };
@@ -156,6 +159,7 @@
 		B1SUGGESTVIEW000000002 /* Trip/SuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/SuggestionsView.swift; sourceTree = "<group>"; };
 
 		B1PACKADVICE00000000002 /* Trip/PackAdvice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/PackAdvice.swift; sourceTree = "<group>"; };
+		B1DATERANGE000000000002 /* Trip/DateRangeCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/DateRangeCalendar.swift; sourceTree = "<group>"; };
 
 		B1AIRPORTCAT00000000002 /* Data/AirportCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/AirportCatalog.swift; sourceTree = "<group>"; };
 
@@ -284,6 +288,7 @@
 				B1BEFOREYOUGO000000002 /* Trip/BeforeYouGoView.swift */,
 				B1SUGGESTVIEW000000002 /* Trip/SuggestionsView.swift */,
 				B1PACKADVICE00000000002 /* Trip/PackAdvice.swift */,
+				B1DATERANGE000000000002 /* Trip/DateRangeCalendar.swift */,
 				B1AIRPORTCAT00000000002 /* Data/AirportCatalog.swift */,
 				0EEF0C19C2FAB59249B7B900 /* Viewer/CategoryMaterials.swift */,
 				E18DE82273B61AAF3BE3F467 /* Viewer/PlanViewerController.swift */,
@@ -330,6 +335,7 @@
 			2230361D1F773C6955285FB6 /* CardScaleTests.swift */,
 			0813ABE8B81360786939232A /* InventoryMergeTests.swift */,
 				21859376838BF23B0332273D /* TapMeasureTests.swift */,
+				B1DATERANGETEST00000002 /* DateRangeSelectionTests.swift */,
 				B1D7E1284B1A80F158F1ED96 /* DepthPipelineTests.swift */,
 				C0FFEE0000000000000A0003 /* ObjectScanTests.swift */,
 				7C174C74414B9CCC5A26007D /* MeasurementMathTests.swift */,
@@ -453,6 +459,7 @@
 			4B4B29A7829A65A28AADD4A1 /* CardScaleTests.swift in Sources */,
 			2821266AD3C7F117583B3A11 /* InventoryMergeTests.swift in Sources */,
 				61970D5650141A04CF5FE158 /* TapMeasureTests.swift in Sources */,
+				B1DATERANGETEST00000001 /* DateRangeSelectionTests.swift in Sources */,
 				23E7EEDB5EAE98ADAA6F98A1 /* DepthPipelineTests.swift in Sources */,
 				C0FFEE0000000000000B0003 /* ObjectScanTests.swift in Sources */,
 				F4BA7A26C39806719BC98BA7 /* MeasurementMathTests.swift in Sources */,
@@ -525,6 +532,7 @@
 				B1BEFOREYOUGO000000001 /* Trip/BeforeYouGoView.swift in Sources */,
 				B1SUGGESTVIEW000000001 /* Trip/SuggestionsView.swift in Sources */,
 				B1PACKADVICE00000000001 /* Trip/PackAdvice.swift in Sources */,
+				B1DATERANGE000000000001 /* Trip/DateRangeCalendar.swift in Sources */,
 				B1AIRPORTCAT00000000001 /* Data/AirportCatalog.swift in Sources */,
 				79F634F3DF6BD96955797306 /* Viewer/CategoryMaterials.swift in Sources */,
 				1F068A91541C56ECEE7F98AD /* Viewer/PlanViewerController.swift in Sources */,

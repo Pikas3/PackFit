@@ -413,6 +413,10 @@ enum TripDates {
         iso.flatMap { isoDay.date(from: String($0.prefix(10))) }
     }
 
+    static func iso(_ date: Date) -> String {
+        isoDay.string(from: date)
+    }
+
     static func daysUntil(_ iso: String?) -> Int? {
         guard let depart = date(iso) else { return nil }
         let cal = Calendar.current
