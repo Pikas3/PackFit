@@ -32,6 +32,11 @@ struct InventoryScanView: View {
                 .padding(Tokens.Spacing.md)
                 .background(.bar)
         }
+        .loadingModal(
+            isPresented: model.phase == .identifying,
+            title: Copy.Loading.identifyingTitle,
+            message: Copy.Loading.inventoryWait
+        )
         .navigationTitle(Copy.Inventory.title)
         .navigationBarTitleDisplayMode(.inline)
         .task { await model.startCamera() }
@@ -71,17 +76,6 @@ struct InventoryScanView: View {
             }
         } else {
             PhotoWithBoxes(photo: model.photo, entries: model.phase == .noCard ? [] : model.latestEntries, card: model.card)
-                .overlay {
-                    if model.phase == .identifying {
-                        VStack(spacing: Tokens.Spacing.sm) {
-                            ProgressView()
-                            Text(Copy.Inventory.identifying)
-                                .font(Tokens.TypeScale.callout)
-                        }
-                        .padding(Tokens.Spacing.md)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Tokens.Radius.md))
-                    }
-                }
         }
     }
 
