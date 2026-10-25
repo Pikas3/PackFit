@@ -1,7 +1,7 @@
 import Foundation
 
 /// Debug builds keep each inventory photo with what the app made of it, in Documents/Scans
-/// (Files app: On My iPhone › PackFit), so a real scan can be replayed on the Mac.
+/// (Files app: On My iPhone › Snugly), so a real scan can be replayed on the Mac.
 enum ScanArchive {
     struct Record: Encodable, Sendable {
         struct Measured: Encodable, Sendable {

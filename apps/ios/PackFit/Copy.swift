@@ -2,7 +2,7 @@ import Foundation
 
 enum Copy {
     enum App {
-        static let name = "PackFit"
+        static let name = "Snugly"
         static let tagline = "Scan it. Pack it. Fly home under 23 kg."
     }
 
@@ -364,7 +364,7 @@ enum Copy {
         static let proTip = "Pro tip"
         static let proTipBody = "Rolled soft clothes slip into the gaps between bulky items, so nothing shifts in transit."
         static let allPacked = "I’m all packed!"
-        static let shareTitle = "My PackFit packing plan"
+        static let shareTitle = "My Snugly packing plan"
         static let empty = "No plan yet. Pack your bag from Home first."
     }
 

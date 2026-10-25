@@ -1,6 +1,6 @@
-# PackFit
+# Snugly
 
-Cal Hacks 13.0 travel app. Scan your items with LiDAR, then see exactly how to pack your bag
+Cal Hacks 13.0 travel app (formerly PackFit). Scan your items with LiDAR, then see exactly how to pack your bag
 in 3D, with voice guidance and live travel rules. Target user: international students flying
 home with a 23 kg checked-bag limit.
 

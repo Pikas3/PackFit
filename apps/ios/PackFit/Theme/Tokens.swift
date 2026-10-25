@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Design tokens from the PackFit-Cute Figma file.
+/// Design tokens from the Snugly (PackFit-Cute) Figma file.
 enum Tokens {
     enum Spacing {
         static let unit: CGFloat = 4

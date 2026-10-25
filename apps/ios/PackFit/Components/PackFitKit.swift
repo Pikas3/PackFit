@@ -1,6 +1,6 @@
 import SwiftUI
 
-// Components from the "PackFit Components" Figma frame. Colours and type come from `Tokens`.
+// Shared UI components for Snugly. Colours and type come from `Tokens`.
 
 private typealias P = Tokens.Palette
 private typealias T = Tokens.TypeScale

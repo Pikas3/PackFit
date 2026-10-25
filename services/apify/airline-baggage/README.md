@@ -4,7 +4,7 @@ Reusable Apify actor that fetches cabin and checked baggage size/weight notes fo
 airline IATA codes and emits one normalized record per airline with a `sourceUrl` and scrape
 timestamp.
 
-PackFit syncs successful runs into `services/api/data/rules/airline.json` via
+Snugly syncs successful runs into `services/api/data/rules/airline.json` via
 `pnpm --filter api sync:rules`. Other apps can consume the dataset as-is.
 
 ## Input
@@ -40,7 +40,7 @@ apify push
 apify run --input '{"airlines":["UA","BA"]}'
 ```
 
-Schedule daily in the Apify Console. When the live scrape fails, PackFit keeps the last good
+Schedule daily in the Apify Console. When the live scrape fails, Snugly keeps the last good
 `data/rules/airline.json` and labels records older than 30 days as stale in the UI.
 
 ## Guidance

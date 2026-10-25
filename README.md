@@ -1,4 +1,4 @@
-# PackFit (Cal Hacks 13.0)
+# Snugly (Cal Hacks 13.0)
 
 Scan items with LiDAR, get a 3D packing plan, and check travel rules with source links.
 Target user: international students flying home under a 23 kg checked-bag limit.

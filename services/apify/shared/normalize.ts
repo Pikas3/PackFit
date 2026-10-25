@@ -1,5 +1,5 @@
 /**
- * Normalize raw Apify actor dataset items into PackFit RuleRecords.
+ * Normalize raw Apify actor dataset items into Snugly RuleRecords.
  * Keep in sync with `services/api/src/rules/normalize.ts`.
  */
 
