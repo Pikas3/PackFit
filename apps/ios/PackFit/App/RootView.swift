@@ -72,8 +72,8 @@ struct RootView: View {
     }
 
     /// Debug builds launched with `-previewPlan` skip to the results with the fixture items in
-    /// the checked bag, for checking the viewer without a trip or a scan. `-previewTab plan`
-    /// or `-previewTab home` opens another tab instead.
+    /// the checked bag, for checking the viewer without a trip or a scan. `-previewTab plan`,
+    /// `home` or `suggestions` opens another screen instead.
     private func openPreviewPlanIfAsked() {
         #if DEBUG
         let args = ProcessInfo.processInfo.arguments
@@ -82,7 +82,11 @@ struct RootView: View {
         tripStore.trip = trip
         tripStore.bag = trip.checked
         itemsStore.items = AppFixtures.items()
+        tripStore.suggestions = AppFixtures.tripSuggestFallback(for: trip).suggestions
         switch UserDefaults.standard.string(forKey: "previewTab") {
+        case "suggestions":
+            navigator.tab = .home
+            homePath = [.suggestions]
         case "plan": navigator.tab = .plan
         case "home": navigator.tab = .home
         default: navigator.tab = .results

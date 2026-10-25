@@ -120,7 +120,75 @@ final class TripStore {
     }
 
     func openSuggestions(excluding items: [Item]) -> [Suggestion] {
-        let names = Set(items.map { $0.name.lowercased() })
-        return suggestions.filter { !names.contains($0.name.lowercased()) }
+        SuggestionMatch.open(suggestions, excluding: items)
     }
+}
+
+/// Drops suggestions the user already has. A scanned "Passport" covers "Passport wallet",
+/// and three scanned T-shirts cover three of five "T-shirt stack (n)" suggestions: each
+/// item covers one suggestion, or as many as its name counts ("T-shirts x5").
+enum SuggestionMatch {
+    static func open(_ suggestions: [Suggestion], excluding items: [Item]) -> [Suggestion] {
+        var unused = items.map { (category: $0.category, words: words($0.name), left: quantity($0.name)) }
+        return suggestions.filter { suggestion in
+            let wanted = words(suggestion.name)
+            guard let head = headNoun(suggestion.name),
+                  let index = unused.firstIndex(where: { item in
+                      item.left > 0 && item.words.contains(head)
+                          && (item.category == suggestion.category || wanted.isSubset(of: item.words))
+                  })
+            else { return true }
+            unused[index].left -= 1
+            return false
+        }
+    }
+
+    /// "T-shirts x5" and "3x socks" count as 5 and 3; anything else is one.
+    static func quantity(_ name: String) -> Int {
+        let lowered = name.lowercased()
+        for pattern in [#"\bx\s?(\d+)\b"#, #"\b(\d+)\s?x\b"#] {
+            if let match = lowered.firstMatch(of: try! Regex(pattern)),
+               let range = match.output[1].range,
+               let n = Int(lowered[range]), n > 0 {
+                return min(n, 50)
+            }
+        }
+        return 1
+    }
+
+    /// The thing itself, ignoring sizes, colours and containers: "Phone charger cable" is
+    /// "cable", "T-shirt stack (3)" is "tshirt", "Passport wallet" is "passport".
+    static func headNoun(_ name: String) -> String? {
+        orderedWords(name).last
+    }
+
+    static func words(_ name: String) -> Set<String> {
+        Set(orderedWords(name))
+    }
+
+    private static func orderedWords(_ name: String) -> [String] {
+        let lowered = name.lowercased()
+            .replacingOccurrences(of: #"\(\d+\)"#, with: " ", options: .regularExpression)
+            .replacingOccurrences(of: #"\bt[\s-]?shirts?\b|\btees?\b"#, with: " tshirt ", options: .regularExpression)
+        return lowered
+            .split { !$0.isLetter && !$0.isNumber }
+            .map { singular(String($0)) }
+            .filter { $0.count > 1 && !generic.contains($0) && !$0.allSatisfy(\.isNumber) }
+    }
+
+    private static func singular(_ word: String) -> String {
+        guard word.count > 3 else { return word }
+        if word.hasSuffix("ies") { return String(word.dropLast(3)) + "y" }
+        if word.hasSuffix("ss") || word.hasSuffix("us") { return word }
+        if word.hasSuffix("s") { return String(word.dropLast()) }
+        return word
+    }
+
+    /// Words that describe or hold a thing rather than name it.
+    private static let generic: Set<String> = [
+        "a", "an", "and", "the", "of", "for", "with", "in", "on",
+        "stack", "pack", "set", "pair", "bag", "pouch", "case", "kit", "wallet", "holder", "organizer",
+        "lightweight", "light", "warm", "extra", "spare", "small", "large", "mini", "compact",
+        "travel", "portable", "reusable", "basic", "everyday", "clear",
+    ]
 }

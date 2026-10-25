@@ -54,6 +54,16 @@ enum Copy {
         static let continueScan = "Scan items"
         static let essential = "Essential"
         static let accept = "Add"
+        static func addCount(_ n: Int) -> String { n <= 1 ? "Add" : "Add \(n)" }
+        static func howMany(_ name: String) -> String { "How many \(name) to add" }
+        static func suggestionsCaption(_ n: Int) -> String { n == 1 ? "1 idea for this trip" : "\(n) ideas for this trip" }
+        static func suggestionSize(dims: [Double], kg: Double, count: Int) -> String {
+            let size = dims.count == 3 ? String(format: "%.0f×%.0f×%.0f cm", dims[0], dims[1], dims[2]) : "Size unknown"
+            if count > 1 {
+                return String(format: "%@ · %.2f kg each · %.1f kg total · estimated", size, kg, kg * Double(count))
+            }
+            return String(format: "%@ · %.2f kg · estimated", size, kg)
+        }
         static let beforeYouGoTitle = "Before you go"
         static let beforeYouGoEmpty = "No destination tips yet. Continue offline with the sample list."
         static func destinationCountry(_ code: String) -> String { "Destination country: \(code)" }
