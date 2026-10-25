@@ -79,6 +79,20 @@ export function loadCountryTips(
 /** Categories that are themselves the hazard, so a category match is enough to flag. */
 const HAZARD_CATEGORIES: ReadonlySet<Category> = new Set(["liquids", "sharp"]);
 
+/**
+ * Drinks and other pourables. Vision often files these under food, and the scraped rule
+ * keywords ("liquid", "gel", ...) never name them, but security treats them as liquids.
+ * Kept here rather than in data/rules, which the Apify sync rewrites.
+ */
+const LIQUID_NAME =
+  /\b(drinks?|beverages?|soda|juices?|coffee|latte|milk|smoothies?|kombucha|wine|beer|liquor|vodka|whiskey|rum|tequila|sake|alcohol|sauces?|syrup|soup|broth|honey|yogurt|yoghurt)\b/;
+
+/** The item's category, except a drink filed under something else counts as liquids. */
+function effectiveCategory(item: Item): Category {
+  if (item.category !== "liquids" && LIQUID_NAME.test(item.name.toLowerCase())) return "liquids";
+  return item.category as Category;
+}
+
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -101,8 +115,8 @@ export function violates(item: Item, record: RuleRecord, bag: "carryOn" | "check
   if (record.limits?.maxKg !== undefined) return false;
   if (bagVerdict(record, bag) === "ok") return false;
   const keywordHit = record.keywords.some((kw) => nameMatchesKeyword(item.name, kw));
-  const hazardHit =
-    HAZARD_CATEGORIES.has(item.category as Category) && record.categories.includes(item.category as Category);
+  const category = effectiveCategory(item);
+  const hazardHit = HAZARD_CATEGORIES.has(category) && record.categories.includes(category);
   if (!keywordHit && !hazardHit) return false;
   const maxMl = record.limits?.maxMl;
   if (bagVerdict(record, bag) === "restricted" && maxMl !== undefined && upperBoundMl(item) <= maxMl) {
@@ -141,7 +155,7 @@ export function findCandidatesForItem(
     if (!violates(item, record, bag)) continue;
 
     let score = 0;
-    if (record.categories.includes(item.category as Category)) score += 2;
+    if (record.categories.includes(effectiveCategory(item))) score += 2;
     for (const kw of record.keywords) {
       if (nameMatchesKeyword(item.name, kw)) score += 3;
     }

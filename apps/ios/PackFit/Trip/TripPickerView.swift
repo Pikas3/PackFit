@@ -12,6 +12,8 @@ struct TripPickerView: View {
     @State private var showCalendar = false
     @State private var activityPick: Set<String> = ["home"]
     @State private var activityExtra = ""
+    /// Activities the user typed, shown as bubbles after the presets.
+    @State private var customActivities: [String] = []
     @State private var useChecked = true
     @State private var pendingLookup: FlightLookupResponse?
     @State private var formError: String?
@@ -70,6 +72,7 @@ struct TripPickerView: View {
                 }
                 useChecked = tripStore.useChecked
                 activityPick = Set(trip.activities.filter { activityOptions.contains($0) })
+                customActivities = trip.activities.filter { !activityOptions.contains($0) }
             }
         }
     }
@@ -188,13 +191,84 @@ struct TripPickerView: View {
                     }
                     .buttonStyle(.plain)
                 }
+                // Typed activities: tap to remove.
+                ForEach(customActivities, id: \.self) { custom in
+                    Button {
+                        customActivities.removeAll { $0 == custom }
+                    } label: {
+                        Chip(label: custom, state: .selected)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint(Copy.Trip.removeActivity)
+                }
             }
-            inputField(Copy.Trip.activityOther, text: $activityExtra)
-                .focused($focus, equals: .activity)
-                .submitLabel(.done)
-                .onSubmit { focus = nil }
+            HStack(spacing: Tokens.Spacing.sm) {
+                inputField(Copy.Trip.activityOther, text: $activityExtra)
+                    .focused($focus, equals: .activity)
+                    .submitLabel(.done)
+                    // Keep the keyboard up so several can be added in a row.
+                    .onSubmit {
+                        addTypedActivity()
+                        focus = .activity
+                    }
+                Button(action: addTypedActivity) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundStyle(P.pink800)
+                        .frame(width: 44, height: 44)
+                        .background(P.pink300, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .disabled(activityExtra.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .accessibilityLabel(Copy.Trip.addActivity)
+            }
+            // Changing activities on a trip already set up needs no new flight lookup.
+            if let trip = tripStore.trip, pendingLookup == nil, activitiesWithTyped != trip.activities {
+                Button {
+                    addTypedActivity()
+                    let store = tripStore
+                    let client = client
+                    store.updateActivities(selectedActivities)
+                    Task { await store.loadDestinationContext(client: client) }
+                    onDone()
+                } label: {
+                    Label(Copy.Trip.saveActivities, systemImage: "checkmark")
+                }
+                .buttonStyle(.snuglyPrimary)
+            }
         }
         .cardStyle()
+    }
+
+    /// Presets in a stable order, then typed ones in the order they were added.
+    private var selectedActivities: [String] {
+        Array(activityPick).sorted() + customActivities
+    }
+
+    /// `selectedActivities` plus whatever is still in the text field.
+    private var activitiesWithTyped: [String] {
+        let typed = activityExtra.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !typed.isEmpty else { return selectedActivities }
+        var pick = activityPick
+        var custom = customActivities
+        Self.add(typed, options: activityOptions, pick: &pick, custom: &custom)
+        return Array(pick).sorted() + custom
+    }
+
+    /// Turns the text field into a bubble. A preset typed by hand selects that preset.
+    private func addTypedActivity() {
+        let typed = activityExtra.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !typed.isEmpty else { return }
+        Self.add(typed, options: activityOptions, pick: &activityPick, custom: &customActivities)
+        activityExtra = ""
+    }
+
+    private static func add(_ typed: String, options: [String], pick: inout Set<String>, custom: inout [String]) {
+        if let preset = options.first(where: { $0.caseInsensitiveCompare(typed) == .orderedSame }) {
+            pick.insert(preset)
+        } else if !custom.contains(where: { $0.caseInsensitiveCompare(typed) == .orderedSame }) {
+            custom.append(typed)
+        }
     }
 
     private func inputField(_ prompt: String, text: Binding<String>) -> some View {
@@ -234,10 +308,8 @@ struct TripPickerView: View {
     }
 
     private func confirmFlight(_ lookup: FlightLookupResponse) {
-        var activities = Array(activityPick).sorted()
-        let extra = activityExtra.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !extra.isEmpty { activities.append(extra) }
-        tripStore.applyLookup(lookup, nights: nights, activities: activities, useChecked: useChecked)
+        addTypedActivity()
+        tripStore.applyLookup(lookup, nights: nights, activities: selectedActivities, useChecked: useChecked)
         pendingLookup = nil
         let store = tripStore
         let client = client

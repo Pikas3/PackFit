@@ -73,7 +73,6 @@ struct ItemListView: View {
                     }
                     .onDelete { offsets in
                         itemsStore.remove(at: offsets)
-                        Task { await refreshFlags() }
                     }
                     .listRowBackground(Tokens.Palette.surface)
                 }
@@ -95,14 +94,10 @@ struct ItemListView: View {
                     .padding(.bottom, Tokens.Spacing.sm)
             }
         }
-        .task(id: itemsStore.items.map(\.id)) {
-            await refreshFlags()
-        }
         .sheet(item: $editing) { item in
             ItemDetailView(item: item, flags: rulesStore.flags(for: item.id)) { updated in
                 itemsStore.update(updated)
                 editing = nil
-                Task { await refreshFlags() }
             }
         }
         .sheet(item: $confirmItem) { item in
@@ -199,16 +194,6 @@ struct ItemListView: View {
         if flags.contains(where: { $0.severity == .banned }) { return Tokens.Color.banned }
         if flags.contains(where: { $0.severity == .restricted }) { return Tokens.Color.restricted }
         return Tokens.Color.brand
-    }
-
-    private func refreshFlags() async {
-        guard let trip = tripStore.trip else { return }
-        await rulesStore.check(
-            items: itemsStore.items,
-            trip: trip,
-            bag: tripStore.useChecked ? "checked" : "carryOn",
-            client: client
-        )
     }
 
     private func packAndContinue() async {

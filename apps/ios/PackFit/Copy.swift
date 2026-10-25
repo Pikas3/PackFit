@@ -7,6 +7,13 @@ enum Copy {
         static let wordmarkLead = "Snug"
         static let wordmarkTail = "ly"
         static let tagline = "Scan it. Pack it. Fly home under 23 kg."
+        static func moodLabel(_ mood: SnuglyMark.Mood) -> String {
+            switch mood {
+            case .sleepy: "nothing to pack yet"
+            case .happy: "everything fits"
+            case .worried: "over the limit or something doesn’t fit"
+            }
+        }
     }
 
     enum Onboarding {
@@ -47,7 +54,10 @@ enum Copy {
         static let checkedBag = "Checked"
         static let carryOnBag = "Carry-on"
         static let activitiesHeader = "Activities"
-        static let activityOther = "Other activity"
+        static let activityOther = "Add your own, e.g. visiting family"
+        static let addActivity = "Add activity"
+        static let removeActivity = "Removes this activity"
+        static let saveActivities = "Save activities"
         static let datesField = "Flight dates"
         static let addDates = "Add depart and return dates"
         static let departLabel = "Depart"
@@ -193,6 +203,13 @@ enum Copy {
         static let guidance = "Guidance only — not authority."
         static let verifiedPrefix = "Verified"
         static let daysAgo = "days ago"
+        static let noFlags = "No matching travel-rule flags for these items."
+        static func summary(_ count: Int, banned: Int, restricted: Int) -> String {
+            var parts = [count == 1 ? "1 flag" : "\(count) flags"]
+            if banned > 0 { parts.append("\(banned) banned") }
+            if restricted > 0 { parts.append("\(restricted) restricted") }
+            return parts.joined(separator: ", ") + ". Open each flag for the source page — guidance only, not authority."
+        }
     }
 
     enum Tabs {

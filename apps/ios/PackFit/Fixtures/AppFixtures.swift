@@ -21,12 +21,21 @@ enum AppFixtures {
 
     /// Offline `/rules/check`, mirroring the server: an item is flagged only when it breaks a
     /// rule in the bag it is packed in, and weight is checked once for the whole bag.
+    /// Drinks the scan may file under food; security treats them as liquids. Same words as
+    /// the server's `LIQUID_NAME` in services/api/src/rules/store.ts.
+    private static func isDrink(_ lowercasedName: String) -> Bool {
+        lowercasedName.range(
+            of: #"\b(drinks?|beverages?|soda|juices?|coffee|latte|milk|smoothies?|kombucha|wine|beer|liquor|vodka|whiskey|rum|tequila|sake|alcohol|sauces?|syrup|soup|broth|honey|yogurt|yoghurt)\b"#,
+            options: .regularExpression
+        ) != nil
+    }
+
     static func sampleFlags(for items: [Item], trip: Trip?, bag: String) -> [RuleFlag] {
         let carryOn = bag == "carryOn"
         var flags: [RuleFlag] = []
         for item in items {
             let name = item.name.lowercased()
-            if carryOn, item.category == .liquids || name.contains("shampoo"), upperBoundMl(item) > 100 {
+            if carryOn, item.category == .liquids || name.contains("shampoo") || isDrink(name), upperBoundMl(item) > 100 {
                 flags.append(RuleFlag(
                     itemId: item.id,
                     scope: .tsa,

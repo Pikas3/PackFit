@@ -69,6 +69,11 @@ final class TripStore {
         suggestError = nil
     }
 
+    /// New activities for the current trip; the caller reloads the suggestions.
+    func updateActivities(_ activities: [String]) {
+        trip?.activities = activities
+    }
+
     func setBag(_ container: Container) {
         bag = container
         guard var trip else { return }

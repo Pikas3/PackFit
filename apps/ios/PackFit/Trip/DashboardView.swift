@@ -52,16 +52,15 @@ struct DashboardView: View {
     private var brandBar: some View {
         HStack {
             HStack(spacing: Tokens.Spacing.sm) {
-                Image(systemName: "suitcase")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(P.pink800)
-                    .frame(width: 34, height: 34)
-                    .background(P.pink300, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+                SnuglyMark(mood: bagMood, size: 48)
+                    .id(bagMood)
+                    .transition(.opacity)
                 (Text(Copy.App.wordmarkLead).foregroundStyle(P.textPrimary) + Text(Copy.App.wordmarkTail).foregroundStyle(P.pink700))
                     .font(T.wordmark)
             }
+            .animation(.easeInOut(duration: 0.25), value: bagMood)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Copy.App.name)
+            .accessibilityLabel("\(Copy.App.name), \(Copy.App.moodLabel(bagMood))")
             .accessibilityAddTraits(.isHeader)
 
             Spacer()
@@ -87,6 +86,16 @@ struct DashboardView: View {
             .buttonStyle(.plain)
             .accessibilityLabel("\(Copy.Home.alerts), \(rulesStore.flags.count)")
         }
+    }
+
+    /// The logo's face follows the bag: asleep until there is something to pack, worried
+    /// when the items weigh more than the limit or the last plan left something out.
+    private var bagMood: SnuglyMark.Mood {
+        if itemsStore.items.isEmpty { return .sleepy }
+        let kg = itemsStore.items.reduce(0) { $0 + $1.kg }
+        let limit = tripStore.bag?.weightLimitKg ?? 23
+        if kg > limit || planStore.plan?.unplaced.isEmpty == false { return .worried }
+        return .happy
     }
 
     private var greeting: some View {
