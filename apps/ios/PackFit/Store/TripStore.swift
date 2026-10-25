@@ -104,7 +104,8 @@ final class TripStore {
 
     /// Destination weather + packing suggestions + before-you-go. Call only after a flight is selected.
     func loadDestinationContext(client: any APIClient) async {
-        guard let trip else { return }
+        // Home also asks on launch; one request at a time is enough.
+        guard let trip, !isLoadingSuggest else { return }
         isLoadingSuggest = true
         suggestError = nil
         defer { isLoadingSuggest = false }

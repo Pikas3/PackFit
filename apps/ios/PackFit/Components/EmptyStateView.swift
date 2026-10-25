@@ -19,10 +19,10 @@ struct EmptyStateView: View {
                 .foregroundStyle(Tokens.Palette.textSecondary)
             if let actionTitle, let action {
                 Button(actionTitle, action: action)
-                    .buttonStyle(.packFitPrimary)
+                    .buttonStyle(.snuglyPrimary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .packFitScreenPadding()
+        .snuglyScreenPadding()
     }
 }

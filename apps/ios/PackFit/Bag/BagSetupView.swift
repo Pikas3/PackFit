@@ -52,7 +52,7 @@ struct BagSetupView: View {
                 }
             }
         }
-        .packFitCanvas()
+        .snuglyCanvas()
         .navigationTitle(Copy.Bag.title)
         .sheet(isPresented: $showManual) {
             ManualBagView { outer, limit in

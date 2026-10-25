@@ -120,7 +120,7 @@ interface RuleRecord {
    record per item with carry-on and checked verdicts and the item page URL. This is the
    actor we publish publicly for the Best Actor award, so it needs a clean `README.md`,
    `INPUT_SCHEMA.json`, actor description, and an example output. Keep it generic: no
-   PackFit-specific fields in the published dataset, we normalize on our side.
+   Snugly-specific fields in the published dataset, we normalize on our side.
 2. `airline-baggage`: input `{ airlines: ['UA', 'AI', 'EK', ...] }`, scrapes each carrier's
    baggage policy page for cabin and checked dims and weight. Start with 5 airlines that
    matter for the target user (UA, AA, AI, EK, QR). Hardcode the policy URL per airline in

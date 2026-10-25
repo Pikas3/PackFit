@@ -54,7 +54,7 @@ struct ItemDetailView: View {
                     }
                 }
             }
-            .packFitCanvas()
+            .snuglyCanvas()
             .navigationTitle(item.name)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

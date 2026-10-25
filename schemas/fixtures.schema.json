@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://packfit.local/schemas/fixtures.schema.json",
+  "$id": "https://snugly.local/schemas/fixtures.schema.json",
   "title": "Fixture files",
   "description": "Shapes of the files in schemas/fixtures/. Fixture items and containers are the base types plus a required _source provenance string. The property lists must match the base schemas; schemas/scripts/check.mjs fails if they drift, and also validates every fixture object (with _source removed) against the base schema.",
   "$defs": {

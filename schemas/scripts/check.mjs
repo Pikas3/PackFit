@@ -8,7 +8,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const fixtures = join(root, "fixtures");
 const read = (p) => JSON.parse(readFileSync(p, "utf8"));
-const BASE = "https://packfit.local/schemas/";
+const BASE = "https://snugly.local/schemas/";
 
 const ajv = new Ajv2020({ allErrors: true, strict: true });
 for (const f of readdirSync(root).filter((f) => f.endsWith(".schema.json"))) {

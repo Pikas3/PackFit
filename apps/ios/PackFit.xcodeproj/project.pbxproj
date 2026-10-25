@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		043A044D40058B4FD93034A2 /* Scan/Measurement/RectFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51101A24C29803BD819ACA7 /* Scan/Measurement/RectFit.swift */; };
-		0DFEB8EBA44D30131E86090E /* App/PackFitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090FFBE868FA2262A05105D6 /* App/PackFitApp.swift */; };
+		0DFEB8EBA44D30131E86090E /* App/SnuglyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090FFBE868FA2262A05105D6 /* App/SnuglyApp.swift */; };
 		0E1773D78C7C806428582046 /* Bag/BackpackEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766AAD86A3BC760EAF309F29 /* Bag/BackpackEditorView.swift */; };
 		0E191DEE2F928DE346813B9E /* Components/EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AD92DD3741F52867232BEA /* Components/EmptyStateView.swift */; };
 		13BE9B3EBD7C636000D59103 /* Theme/Tokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F2CE94E61FAD274AECF24A /* Theme/Tokens.swift */; };
@@ -43,7 +43,7 @@
 		C1A7E0D5ITEMMODELS00001 /* Viewer/ItemModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5ITEMMODELS00002 /* Viewer/ItemModels.swift */; };
 		C1A7E0D5PACKINGPLAN0001 /* Viewer/PackingPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */; };
 		C1A7E0D5DASHBOARD000001 /* Trip/DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */; };
-		C1A7E0D5PACKFITKIT00001 /* Components/PackFitKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */; };
+		C1A7E0D5PACKFITKIT00001 /* Components/SnuglyKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5PACKFITKIT00002 /* Components/SnuglyKit.swift */; };
 		C1A7E0D5LOADINGMOD00001 /* Components/LoadingModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A7E0D5LOADINGMOD00002 /* Components/LoadingModal.swift */; };
 		8645FE56D70A3836978D09FC /* Fixtures/AppFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C37326FA86B1FAB0AFEFA4 /* Fixtures/AppFixtures.swift */; };
 		8AF00A0F049540687D771375 /* API/LiveAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC42A8E2E5AB9B31725AD363 /* API/LiveAPIClient.swift */; };
@@ -96,7 +96,7 @@
 /* Begin PBXFileReference section */
 		03A3523DF5FBF2CC57EE8249 /* PackFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PackFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		08F3A3360D4792AB0E26C18F /* API/APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API/APIModels.swift; sourceTree = "<group>"; };
-		090FFBE868FA2262A05105D6 /* App/PackFitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/PackFitApp.swift; sourceTree = "<group>"; };
+		090FFBE868FA2262A05105D6 /* App/SnuglyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/SnuglyApp.swift; sourceTree = "<group>"; };
 		0A9B039218A877058BD20208 /* Scan/ImageCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/ImageCapture.swift; sourceTree = "<group>"; };
 		0EEF0C19C2FAB59249B7B900 /* Viewer/CategoryMaterials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/CategoryMaterials.swift; sourceTree = "<group>"; };
 		158BDD27A320E6198404E50A /* Bag/ContainerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bag/ContainerFactory.swift; sourceTree = "<group>"; };
@@ -144,7 +144,7 @@
 		C1A7E0D5ITEMMODELS00002 /* Viewer/ItemModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/ItemModels.swift; sourceTree = "<group>"; };
 		C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Viewer/PackingPlanView.swift; sourceTree = "<group>"; };
 		C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip/DashboardView.swift; sourceTree = "<group>"; };
-		C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/PackFitKit.swift; sourceTree = "<group>"; };
+		C1A7E0D5PACKFITKIT00002 /* Components/SnuglyKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/SnuglyKit.swift; sourceTree = "<group>"; };
 		C1A7E0D5LOADINGMOD00002 /* Components/LoadingModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/LoadingModal.swift; sourceTree = "<group>"; };
 		B51101A24C29803BD819ACA7 /* Scan/Measurement/RectFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan/Measurement/RectFit.swift; sourceTree = "<group>"; };
 		B72799E8B1EDACCBDAEE30AC /* Components/ConfidenceBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components/ConfidenceBadge.swift; sourceTree = "<group>"; };
@@ -205,7 +205,7 @@
 				FC42A8E2E5AB9B31725AD363 /* API/LiveAPIClient.swift */,
 				421EB981FB9A453BA46D7E28 /* API/MockAPIClient.swift */,
 				A3467DF633313A8EC8841DFC /* App/AppConfig.swift */,
-				090FFBE868FA2262A05105D6 /* App/PackFitApp.swift */,
+				090FFBE868FA2262A05105D6 /* App/SnuglyApp.swift */,
 				97C14EB720F640176AE2C558 /* App/RootView.swift */,
 				8333C6DE760161CAE93C1C52 /* App/Route.swift */,
 				C3F89F00E16174E2212EBC12 /* App/SchemaExports.swift */,
@@ -242,7 +242,7 @@
 				C1A7E0D5ITEMMODELS00002 /* Viewer/ItemModels.swift */,
 				C1A7E0D5PACKINGPLAN0002 /* Viewer/PackingPlanView.swift */,
 				C1A7E0D5DASHBOARD000002 /* Trip/DashboardView.swift */,
-				C1A7E0D5PACKFITKIT00002 /* Components/PackFitKit.swift */,
+				C1A7E0D5PACKFITKIT00002 /* Components/SnuglyKit.swift */,
 				C1A7E0D5LOADINGMOD00002 /* Components/LoadingModal.swift */,
 				58A12493A45D71A84E6E9B01 /* Assets.xcassets */,
 				C1A7E0D5FONT05FILEREF01 /* Theme/Fonts/Nunito-ExtraBold.ttf */,
@@ -428,7 +428,7 @@
 				8AF00A0F049540687D771375 /* API/LiveAPIClient.swift in Sources */,
 				2D7B759A62D7215890790D94 /* API/MockAPIClient.swift in Sources */,
 				BD06E43EF8672AFAE24395B7 /* App/AppConfig.swift in Sources */,
-				0DFEB8EBA44D30131E86090E /* App/PackFitApp.swift in Sources */,
+				0DFEB8EBA44D30131E86090E /* App/SnuglyApp.swift in Sources */,
 				F755594F4E512B33FF66F3FF /* App/RootView.swift in Sources */,
 				20B1DD80B6AC802BE111161A /* App/Route.swift in Sources */,
 				FA1B9A13D587789F07FD1529 /* App/SchemaExports.swift in Sources */,
@@ -465,7 +465,7 @@
 				C1A7E0D5ITEMMODELS00001 /* Viewer/ItemModels.swift in Sources */,
 				C1A7E0D5PACKINGPLAN0001 /* Viewer/PackingPlanView.swift in Sources */,
 				C1A7E0D5DASHBOARD000001 /* Trip/DashboardView.swift in Sources */,
-				C1A7E0D5PACKFITKIT00001 /* Components/PackFitKit.swift in Sources */,
+				C1A7E0D5PACKFITKIT00001 /* Components/SnuglyKit.swift in Sources */,
 				C1A7E0D5LOADINGMOD00001 /* Components/LoadingModal.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -85,7 +85,8 @@ struct RootView: View {
         tripStore.trip = trip
         // `-previewNoBag` leaves the bag unset, to check the screens that ask for one.
         tripStore.bag = args.contains("-previewNoBag") ? nil : trip.checked
-        itemsStore.items = AppFixtures.items()
+        // `-previewNoItems` starts with an empty list, e.g. to see every packing idea on Home.
+        itemsStore.items = args.contains("-previewNoItems") ? [] : AppFixtures.items()
         tripStore.suggestions = AppFixtures.tripSuggestFallback(for: trip).suggestions
         switch UserDefaults.standard.string(forKey: "previewTab") {
         case "suggestions":

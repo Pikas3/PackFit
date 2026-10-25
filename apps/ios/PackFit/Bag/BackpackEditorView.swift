@@ -42,7 +42,7 @@ struct BackpackEditorView: View {
                     }
                 }
             }
-            .packFitCanvas()
+            .snuglyCanvas()
             .navigationTitle("Backpack")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

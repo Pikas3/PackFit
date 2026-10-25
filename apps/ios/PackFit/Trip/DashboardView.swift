@@ -24,15 +24,24 @@ struct DashboardView: View {
                 nextTripCard
                 photosSection
                 itinerarySection
+                if trip != nil {
+                    ideasSection
+                }
                 cta
             }
             .padding(.horizontal, Tokens.Spacing.screen)
             .padding(.vertical, Tokens.Spacing.sm)
         }
-        .packFitCanvas()
+        .snuglyCanvas()
         .toolbar(.hidden, for: .navigationBar)
         // Refetch the weather whenever the destination or the dates change, and on launch.
         .task(id: weatherKey) { await tripStore.loadWeather() }
+        // A trip restored at launch has no ideas yet; fetch them so section 3 isn't empty.
+        .task(id: trip?.to) {
+            if trip != nil, tripStore.suggestions.isEmpty {
+                await tripStore.loadDestinationContext(client: client)
+            }
+        }
         .sheet(isPresented: $showTripSheet) {
             TripPickerView { showTripSheet = false }
         }
@@ -48,7 +57,7 @@ struct DashboardView: View {
                     .foregroundStyle(P.pink800)
                     .frame(width: 34, height: 34)
                     .background(P.pink300, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
-                (Text("Pack").foregroundStyle(P.textPrimary) + Text("Fit").foregroundStyle(P.pink700))
+                (Text(Copy.App.wordmarkLead).foregroundStyle(P.textPrimary) + Text(Copy.App.wordmarkTail).foregroundStyle(P.pink700))
                     .font(T.wordmark)
             }
             .accessibilityElement(children: .ignore)
@@ -255,18 +264,102 @@ struct DashboardView: View {
                 weatherSection
             }
             .cardStyle()
+        }
+    }
 
-            if trip != nil {
-                HStack(spacing: Tokens.Spacing.sm) {
-                    Button { path.append(.suggestions) } label: {
-                        PillLabel(title: Copy.Home.packingIdeas, systemImage: "sparkles")
+    // MARK: Packing ideas
+
+    /// Ideas still open for this trip, essentials first, repeats stacked into one row.
+    private var ideaGroups: [SuggestionGroup] {
+        let groups = SuggestionGroup.group(tripStore.openSuggestions(excluding: itemsStore.items))
+        return groups.filter(\.essential) + groups.filter { !$0.essential }
+    }
+
+    /// Section 3: the top ideas inline, so adding them is part of getting ready to pack.
+    private var ideasSection: some View {
+        let groups = ideaGroups
+        let done = !tripStore.isLoadingSuggest && !tripStore.suggestions.isEmpty && groups.isEmpty
+        return VStack(alignment: .leading, spacing: 14) {
+            SectionHeader(
+                number: "3",
+                title: Copy.Home.packingIdeas,
+                caption: Copy.Home.ideasCaption(trip.flatMap { AirportCatalog.name(for: $0.to) }),
+                tone: done ? .green : .pink
+            )
+            VStack(alignment: .leading, spacing: 12) {
+                if tripStore.isLoadingSuggest && groups.isEmpty {
+                    HStack(spacing: Tokens.Spacing.sm) {
+                        ProgressView().tint(P.pink700)
+                        Text(Copy.Trip.loadingSuggestions)
                     }
-                    Button { path.append(.beforeYouGo) } label: {
-                        PillLabel(title: Copy.Trip.beforeYouGoCTA, systemImage: "globe")
+                    .font(T.caption)
+                    .foregroundStyle(P.textSecondary)
+                } else if done {
+                    Label(Copy.Home.ideasDone, systemImage: "checkmark.circle.fill")
+                        .font(T.bodyBold)
+                        .foregroundStyle(P.green700)
+                } else if groups.isEmpty {
+                    Text(tripStore.suggestError ?? Copy.Home.ideasNone)
+                        .font(T.caption)
+                        .foregroundStyle(P.textSecondary)
+                } else {
+                    ForEach(Array(groups.prefix(3).enumerated()), id: \.element.id) { index, group in
+                        if index > 0 { divider }
+                        ideaRow(group)
+                    }
+                    Button { path.append(.suggestions) } label: {
+                        HStack(spacing: Tokens.Spacing.xs) {
+                            Text(groups.count > 3 ? Copy.Home.seeAllIdeas(groups.count) : Copy.Home.pickHowMany)
+                            Image(systemName: "chevron.right").font(.caption2.weight(.bold))
+                        }
+                        .font(T.caption.weight(.bold))
+                        .foregroundStyle(P.pink700)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 2)
+                }
+            }
+            .cardStyle()
+            .animation(.easeOut(duration: Tokens.Motion.standard), value: groups.map(\.id))
+        }
+    }
+
+    private func ideaRow(_ group: SuggestionGroup) -> some View {
+        HStack(spacing: 12) {
+            IconBubble(systemImage: group.category.systemImage, size: 40, iconSize: 18, radius: 14, fill: group.category.swatch)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(group.name)
+                        .font(T.h3)
+                        .foregroundStyle(P.textPrimary)
+                        .lineLimit(1)
+                    if group.count > 1 {
+                        Text("×\(group.count)")
+                            .font(T.caption)
+                            .foregroundStyle(P.pink800)
+                            .padding(.horizontal, 6)
+                            .background(P.pink200, in: Capsule())
                     }
                 }
-                .buttonStyle(.plain)
+                Text(group.members[0].reason)
+                    .font(T.caption)
+                    .foregroundStyle(P.textSecondary)
+                    .lineLimit(1)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Button {
+                withAnimation {
+                    for suggestion in group.members { itemsStore.append(suggestion.asItem()) }
+                }
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(P.pink800)
+                    .frame(width: 40, height: 40)
+                    .background(P.pink300, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Copy.Home.addIdea(group.name, count: group.count))
         }
     }
 
@@ -430,7 +523,7 @@ struct DashboardView: View {
                     Text(Copy.Home.optimize)
                 }
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
             .disabled(!canPack || planStore.isPacking)
 
             Text(canPack ? Copy.Home.optimizeCaption(itemsStore.items.count) : Copy.Home.needTrip)

@@ -11,7 +11,7 @@ mirror `schemas/*.schema.json`.
 
 ## Conventions
 
-- Header `x-packfit-token: <APP_TOKEN>` on every request. A shared static token from `.env`;
+- Header `x-snugly-token: <APP_TOKEN>` on every request (the server still accepts the old `x-packfit-token`). A shared static token from `.env`;
   it stops drive-by use of the deployed API, nothing more.
 - Errors: `{ "error": { "code": string, "message": string } }` with 4xx/5xx. Codes:
   `bad_request`, `unauthorized`, `model_output_invalid`, `upstream_unavailable`,

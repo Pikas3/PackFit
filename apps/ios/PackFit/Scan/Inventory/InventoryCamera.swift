@@ -46,7 +46,7 @@ final class InventoryCamera: NSObject {
     @ObservationIgnored nonisolated(unsafe) let session = AVCaptureSession()
     @ObservationIgnored nonisolated(unsafe) private let photoOutput = AVCapturePhotoOutput()
     @ObservationIgnored nonisolated(unsafe) private let videoOutput = AVCaptureVideoDataOutput()
-    @ObservationIgnored private let queue = DispatchQueue(label: "packfit.inventory.capture", qos: .userInitiated)
+    @ObservationIgnored private let queue = DispatchQueue(label: "snugly.inventory.capture", qos: .userInitiated)
     @ObservationIgnored private var pending: [Int64: CheckedContinuation<Capture, Error>] = [:]
     @ObservationIgnored private var configured = false
     /// Horizontal field of view of the sensor's long side, degrees.

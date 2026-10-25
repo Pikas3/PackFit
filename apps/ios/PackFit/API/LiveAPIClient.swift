@@ -92,7 +92,7 @@ struct LiveAPIClient: APIClient, Sendable {
         var request = URLRequest(url: config.apiBaseURL.appending(path: path))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(config.appToken, forHTTPHeaderField: "x-packfit-token")
+        request.setValue(config.appToken, forHTTPHeaderField: "x-snugly-token")
         request.httpBody = try encoder.encode(body)
         request.timeoutInterval = 25
 

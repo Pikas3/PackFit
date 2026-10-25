@@ -3,6 +3,9 @@ import Foundation
 enum Copy {
     enum App {
         static let name = "Snugly"
+        /// The wordmark's two colours: "Snug" dark, "ly" pink. Together they spell `name`.
+        static let wordmarkLead = "Snug"
+        static let wordmarkTail = "ly"
         static let tagline = "Scan it. Pack it. Fly home under 23 kg."
     }
 
@@ -62,7 +65,6 @@ enum Copy {
         static let needReturnDate = "Pick a return day too, or clear the dates."
         static func nights(_ n: Int) -> String { n == 1 ? "1 night" : "\(n) nights" }
         static let suggestionsCTA = "Packing suggestions"
-        static let beforeYouGoCTA = "Before you go"
         static let suggestionsTitle = "Suggestions"
         static let suggestionsEmpty = "No new suggestions — you’ve already added these, or none came back."
         static let loadingSuggestions = "Loading suggestions…"
@@ -252,6 +254,14 @@ enum Copy {
             "The forecast only reaches \(last.formatted(DestinationWeather.dayStyle.month(.abbreviated).day())). Check again closer to the trip."
         }
         static let packingIdeas = "Packing ideas"
+        static func ideasCaption(_ place: String?) -> String {
+            place.map { "Things worth bringing to \($0)" } ?? "Things worth bringing on this trip"
+        }
+        static let ideasDone = "You’ve added everything we’d suggest."
+        static let ideasNone = "No ideas for this trip yet."
+        static func seeAllIdeas(_ n: Int) -> String { "See all \(n) ideas" }
+        static let pickHowMany = "Choose how many to add"
+        static func addIdea(_ name: String, count: Int) -> String { count > 1 ? "Add \(count) \(name)" : "Add \(name)" }
         static let optimize = "Optimize my packing"
         static func optimizeCaption(_ items: Int) -> String {
             "Takes a few seconds · \(items) item\(items == 1 ? "" : "s"), 1 bag"

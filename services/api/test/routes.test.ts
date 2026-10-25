@@ -11,7 +11,7 @@ process.env.MOCK_CLAUDE = "1";
 const fixtures = join(dirname(fileURLToPath(import.meta.url)), "../../../schemas/fixtures");
 
 function authHeaders(): Record<string, string> {
-  return { "content-type": "application/json", "x-packfit-token": token };
+  return { "content-type": "application/json", "x-snugly-token": token };
 }
 
 describe("api routes (mock Claude)", () => {

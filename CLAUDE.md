@@ -4,6 +4,10 @@ Cal Hacks 13.0 travel app (formerly PackFit). Snap one photo of your items, then
 bag in 3D, with voice guidance and live travel rules. Target user: international students flying
 home with a 23 kg checked-bag limit.
 
+Build and package names stay PackFit on purpose: the Xcode project, target and scheme, the
+`apps/ios/PackFit/` folder, `PackFitSchemas`, the bundle ID `com.packfit.app.*`, and the Apify
+actor IDs. Everything user-facing, and new code, says Snugly.
+
 **Demo spine (2 min):** messy pile -> one photo with a credit card for scale -> voice coach walks the 3D plan ->
 one rule flag with a source link. If a feature is not on this spine, cut it.
 

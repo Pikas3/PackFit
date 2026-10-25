@@ -57,10 +57,6 @@
   ],
   "warnings": [
     {
-      "kind": "weather_unavailable",
-      "message": "Open-Meteo unavailable; offline defaults applied."
-    },
-    {
       "kind": "unknown_airline",
       "message": "Airline FI isn’t in our short list — baggage limits may be wrong. Check the airline site."
     },
@@ -70,11 +66,11 @@
     }
   ],
   "weather": {
-    "summary": "Live weather is unavailable — using a mild default. Pack layers to be safe.",
-    "lowC": 12,
-    "highC": 22,
-    "precipChance": 0.25,
-    "sourceUrl": "https://open-meteo.com/"
+    "summary": "Too far ahead for a forecast. Last year on these dates (12 Jan–18 Jan 2026): highs around 7°C and lows around -2°C.",
+    "lowC": -2.4,
+    "highC": 6.9,
+    "precipChance": 0.14285714285714285,
+    "sourceUrl": "https://archive-api.open-meteo.com/v1/archive?latitude=63.985&longitude=-22.6056&daily=temperature_2m_max%2Ctemperature_2m_min%2Cprecipitation_sum&timezone=auto&start_date=2026-01-12&end_date=2026-01-18"
   },
   "beforeYouGo": {
     "pack": [

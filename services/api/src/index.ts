@@ -25,9 +25,10 @@ app.use("*", async (c, next) => {
   c.header("x-request-id", requestId);
 
   if (c.req.path !== "/health") {
-    const token = c.req.header("x-packfit-token");
+    // x-packfit-token is the pre-rename header; older app builds still send it.
+    const token = c.req.header("x-snugly-token") ?? c.req.header("x-packfit-token");
     if (!token || token !== env.appToken) {
-      return c.json({ error: { code: "unauthorized", message: "Missing or invalid x-packfit-token" } }, 401);
+      return c.json({ error: { code: "unauthorized", message: "Missing or invalid x-snugly-token" } }, 401);
     }
   }
 

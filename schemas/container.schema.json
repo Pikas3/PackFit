@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://packfit.local/schemas/container.schema.json",
+  "$id": "https://snugly.local/schemas/container.schema.json",
   "title": "Container",
   "description": "A bag. outer and compartment dims are [w, h, d] in cm.",
   "type": "object",

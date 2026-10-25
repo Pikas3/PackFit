@@ -87,7 +87,7 @@ struct ItemListView: View {
                 ))
             }
         }
-        .packFitCanvas()
+        .snuglyCanvas()
         .safeAreaInset(edge: .bottom) {
             if !itemsStore.items.isEmpty {
                 optimizeButton
@@ -127,7 +127,7 @@ struct ItemListView: View {
                         editing = item
                     }
                 }
-                .packFitScreenPadding()
+                .snuglyScreenPadding()
                 .navigationTitle(Copy.Items.confirmTitle)
                 .navigationBarTitleDisplayMode(.inline)
             }
@@ -171,12 +171,12 @@ struct ItemListView: View {
             Button { path.removeAll() } label: {
                 Label(Copy.Items.needFlight, systemImage: "airplane")
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
         } else if tripStore.bag == nil {
             Button { path.append(.bagSetup) } label: {
                 Label(Copy.Items.needBag, systemImage: "suitcase")
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
         } else {
             Button {
                 Task { await packAndContinue() }
@@ -190,7 +190,7 @@ struct ItemListView: View {
                     Text(Copy.Home.optimize)
                 }
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
             .disabled(planStore.isPacking)
         }
     }

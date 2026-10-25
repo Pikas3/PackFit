@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://packfit.local/schemas/trip.schema.json",
+  "$id": "https://snugly.local/schemas/trip.schema.json",
   "title": "Trip",
   "type": "object",
   "additionalProperties": false,

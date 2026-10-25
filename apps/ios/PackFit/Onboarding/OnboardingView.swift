@@ -28,7 +28,7 @@ struct OnboardingView: View {
                 .background(Tokens.Palette.pink300, in: RoundedRectangle(cornerRadius: 30, style: .continuous))
                 .shadow(color: Tokens.Palette.buttonShadow, radius: 10, y: 8)
                 .accessibilityHidden(true)
-            (Text("Pack").foregroundStyle(Tokens.Palette.textPrimary) + Text("Fit").foregroundStyle(Tokens.Palette.pink700))
+            (Text(Copy.App.wordmarkLead).foregroundStyle(Tokens.Palette.textPrimary) + Text(Copy.App.wordmarkTail).foregroundStyle(Tokens.Palette.pink700))
                 .font(Tokens.TypeScale.display)
             Text(pages[page].title)
                 .font(Tokens.TypeScale.h1)
@@ -55,7 +55,7 @@ struct OnboardingView: View {
                     withAnimation(.easeInOut(duration: Tokens.Motion.standard)) { page += 1 }
                 }
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
         }
         .padding(.horizontal, Tokens.Spacing.screen)
         .padding(.vertical, Tokens.Spacing.md)

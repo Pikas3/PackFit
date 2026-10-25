@@ -50,16 +50,27 @@ struct SuggestionsView: View {
                 }
             }
         }
-        .packFitCanvas()
+        .snuglyCanvas()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 NavTitle(title: Copy.Trip.suggestionsTitle, subtitle: Copy.Trip.suggestionsCaption(SuggestionGroup.group(open).count))
             }
-            ToolbarItem(placement: .confirmationAction) {
-                Button(Copy.Trip.continueScan) { path.append(.itemList) }
+            // The pill is the button's whole look, so drop iOS 26's glass capsule around it.
+            if #available(iOS 26, *) {
+                ToolbarItem(placement: .confirmationAction) { scanButton }
+                    .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .confirmationAction) { scanButton }
             }
         }
+    }
+
+    private var scanButton: some View {
+        Button { path.append(.itemList) } label: {
+            PillLabel(title: Copy.Trip.continueScan, systemImage: "camera.viewfinder")
+        }
+        .buttonStyle(.plain)
     }
 
     private func card(_ group: SuggestionGroup) -> some View {

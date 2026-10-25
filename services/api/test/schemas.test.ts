@@ -14,7 +14,7 @@ import {
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../../schemas");
 const fixtures = join(root, "fixtures");
 const read = (p: string) => JSON.parse(readFileSync(p, "utf8"));
-const BASE = "https://packfit.local/schemas/";
+const BASE = "https://snugly.local/schemas/";
 
 describe("zod + ajv fixture validation", () => {
   const ajv = new Ajv2020({ allErrors: true, strict: true });

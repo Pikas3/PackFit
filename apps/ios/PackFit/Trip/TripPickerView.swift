@@ -42,7 +42,7 @@ struct TripPickerView: View {
                 .onTapGesture { focus = nil }
             }
             .scrollDismissesKeyboard(.interactively)
-            .packFitCanvas()
+            .snuglyCanvas()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -126,7 +126,7 @@ struct TripPickerView: View {
                     Text(tripStore.isLookingUp ? Copy.Trip.lookingUp : Copy.Trip.lookupFlight)
                 }
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
             .disabled(tripStore.isLookingUp)
             if let formError {
                 Text(formError).font(T.caption).foregroundStyle(P.coral500)
@@ -170,7 +170,7 @@ struct TripPickerView: View {
             } label: {
                 Label(Copy.Trip.useThisFlight, systemImage: "checkmark")
             }
-            .buttonStyle(.packFitPrimary)
+            .buttonStyle(.snuglyPrimary)
         }
         .cardStyle(fill: P.green100, stroke: P.green400, shadow: false)
     }

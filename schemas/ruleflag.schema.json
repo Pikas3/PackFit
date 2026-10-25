@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://packfit.local/schemas/ruleflag.schema.json",
+  "$id": "https://snugly.local/schemas/ruleflag.schema.json",
   "title": "RuleFlag",
   "description": "Travel-rule guidance for one item. Guidance, never authority: always carries a source and a verification date.",
   "type": "object",

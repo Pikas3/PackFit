@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 @main
-struct PackFitApp: App {
+struct SnuglyApp: App {
     @State private var tripStore = TripStore()
     @State private var itemsStore = ItemsStore()
     @State private var planStore = PlanStore()
