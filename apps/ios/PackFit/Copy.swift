@@ -20,10 +20,49 @@ enum Copy {
 
     enum Trip {
         static let title = "Your trip"
-        static let sampleHeader = "Sample trips"
-        static let newTrip = "New trip"
-        static let continueButton = "Choose bag"
-        static let empty = "Pick a sample trip to start the demo."
+        static let continueButton = "Continue to bag / scan"
+        static let cancel = "Cancel"
+        static let flightHeader = "Find your flight"
+        static let flightIntro = "Enter the airline code and flight number. We’ll fill origin, destination, weather, and packing rules for that route."
+        static let airlineField = "Airline (IATA, e.g. UA)"
+        static let flightNumberField = "Flight number (e.g. 88)"
+        static let lookupFlight = "Look up flight"
+        static let lookingUp = "Looking up flight…"
+        static let flightFound = "Flight found"
+        static let useThisFlight = "Use this flight"
+        static let needFlightFields = "Enter both an airline code and a flight number."
+        static let flightNotFound = "Couldn’t find that flight. Try a demo like UA 88."
+        static let demoFlightsHint = "Demo flights (offline): UA 88 SFO→DEL, BA 178 JFK→LHR, AS 204 SEA→KEF, DL 188 LAX→ICN, AA 100 SFO→LAX."
+        static let loadingDestination = "Loading destination weather and tips…"
+        static let weatherHeader = "Weather at destination"
+        static func weatherAtDestination(_ code: String) -> String { "Forecast for \(code) only — after your flight is selected." }
+        static let routeRulesHeader = "What you can / can’t bring"
+        static func internationalRoute(_ from: String, _ to: String) -> String { "International: \(from) → \(to). Destination customs apply." }
+        static let nightsField = "Nights"
+        static let departField = "Depart (YYYY-MM-DD)"
+        static let bagField = "Bag for this trip"
+        static let checkedBag = "Checked"
+        static let carryOnBag = "Carry-on"
+        static let activitiesHeader = "Activities"
+        static let activityOther = "Other activity"
+        static let invalidDate = "Use depart date as YYYY-MM-DD, or leave it blank."
+        static let suggestionsCTA = "Packing suggestions"
+        static let beforeYouGoCTA = "Before you go"
+        static let suggestionsTitle = "Suggestions"
+        static let suggestionsEmpty = "No new suggestions — you’ve already added these, or none came back."
+        static let loadingSuggestions = "Loading suggestions…"
+        static let continueScan = "Scan items"
+        static let essential = "Essential"
+        static let accept = "Add"
+        static let beforeYouGoTitle = "Before you go"
+        static let beforeYouGoEmpty = "No destination tips yet. Continue offline with the sample list."
+        static func destinationCountry(_ code: String) -> String { "Destination country: \(code)" }
+        static let packThese = "Pack these"
+        static let leaveOrDeclare = "Leave behind or declare"
+        static let medsFood = "Medication & food"
+        static let packedWarnings = "Packed items to review"
+        static let weightWarning = "Weight"
+        static let sourceLink = "Source"
     }
 
     enum Bag {
@@ -47,6 +86,13 @@ enum Copy {
         static let empty = "No items yet. Scan three things from the pile."
         static let emptyAction = "Scan an item"
         static let delete = "Delete"
+        static let flagsHint = "Open flags for guidance with source links."
+        static let reviewFlags = "Review all flags"
+        static let confirmTitle = "Confirm item"
+        static let confirmIdentity = "We’re not sure what this is"
+        static let confirmIdentityBody = "Low confidence identification. Confirm the name before packing."
+        static let confirmYes = "Looks right"
+        static let confirmEdit = "Edit name"
     }
 
     enum Inventory {
@@ -187,5 +233,6 @@ enum Copy {
         static let generic = "Something went wrong."
         static let retry = "Try again"
         static let network = "Couldn’t reach the server. Using offline demo data."
+        static let serverUnreachable = "Couldn’t reach the server. Check your connection and try again."
     }
 }

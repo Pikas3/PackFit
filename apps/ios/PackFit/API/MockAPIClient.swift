@@ -100,4 +100,17 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
             rulesLastSynced: "2026-10-01T04:00:00Z"
         )
     }
+
+    func suggestTrip(_ trip: Trip) async throws -> TripSuggestResponse {
+        try await Task.sleep(for: .milliseconds(400))
+        return AppFixtures.tripSuggestFallback(for: trip)
+    }
+
+    func lookupFlight(airline: String, flightNumber: String, departDate: String?) async throws -> FlightLookupResponse {
+        try await Task.sleep(for: .milliseconds(300))
+        guard let flight = AppFixtures.flightLookupFallback(airline: airline, flightNumber: flightNumber, departDate: departDate) else {
+            throw APIError.badRequest(Copy.Trip.flightNotFound)
+        }
+        return flight
+    }
 }

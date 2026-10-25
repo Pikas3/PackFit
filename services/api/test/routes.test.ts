@@ -148,9 +148,14 @@ describe("api routes (mock Claude)", () => {
       const body = await res.json();
       expect(body.suggestions.length).toBeGreaterThan(0);
       for (const s of body.suggestions) {
-        expect(s.source).toBe("suggested");
-        expect(s.confidence).toBe(1);
+        expect(s.name).toBeTruthy();
+        expect(s.reason).toBeTruthy();
+        expect(Array.isArray(s.estDims)).toBe(true);
+        expect(s.estDims).toHaveLength(3);
+        expect(typeof s.essential).toBe("boolean");
       }
+      expect(body.beforeYouGo).toBeTruthy();
+      expect(body.destinationCountry).toBeTruthy();
       // write snapshot-ish artifact for status
       const id = (trip as { id?: string }).id ?? "trip";
       await import("node:fs").then((fs) =>
@@ -158,12 +163,18 @@ describe("api routes (mock Claude)", () => {
           join(dirname(fileURLToPath(import.meta.url)), "snapshots", `${id}.json`),
           JSON.stringify(
             {
-              suggestions: body.suggestions.map((s: { name: string; category: string }) => ({
-                name: s.name,
-                category: s.category,
-              })),
+              suggestions: body.suggestions.map(
+                (s: { name: string; category: string; reason: string; essential: boolean }) => ({
+                  name: s.name,
+                  category: s.category,
+                  reason: s.reason,
+                  essential: s.essential,
+                }),
+              ),
               warnings: body.warnings,
               weather: body.weather,
+              beforeYouGo: body.beforeYouGo,
+              destinationCountry: body.destinationCountry,
             },
             null,
             2,

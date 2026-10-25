@@ -9,6 +9,8 @@ struct ItemListView: View {
     @Binding var path: [Route]
 
     @State private var editing: Item?
+    @State private var confirmItem: Item?
+    @State private var showFlagSummary = false
     private let client = APIClientFactory.make()
 
     var body: some View {
@@ -23,9 +25,23 @@ struct ItemListView: View {
                 }
             } else {
                 List {
+                    if !rulesStore.flags.isEmpty || rulesStore.stale {
+                        Section {
+                            Text(rulesStore.summary.isEmpty ? Copy.Items.flagsHint : rulesStore.summary)
+                                .font(Tokens.TypeScale.caption)
+                            Text(Copy.Rules.guidance)
+                                .font(Tokens.TypeScale.caption)
+                                .foregroundStyle(.secondary)
+                            Button(Copy.Items.reviewFlags) { showFlagSummary = true }
+                        }
+                    }
                     ForEach(itemsStore.items) { item in
                         Button {
-                            editing = item
+                            if (item.measurement?.confidence ?? item.confidence) < 0.6 {
+                                confirmItem = item
+                            } else {
+                                editing = item
+                            }
                         } label: {
                             HStack(spacing: Tokens.Spacing.md) {
                                 RoundedRectangle(cornerRadius: Tokens.Radius.sm)
@@ -46,16 +62,33 @@ struct ItemListView: View {
                                         MeasurementMethodBadge(method: item.measurement?.method, tapMeasured: itemsStore.tapMeasuredIDs.contains(item.id))
                                         ConfidenceBadge(confidence: item.measurement?.confidence ?? item.confidence)
                                     }
+                                    let flags = rulesStore.flags(for: item.id)
+                                    if !flags.isEmpty {
+                                        HStack {
+                                            Text(PackAdvice.forFlags(flags).rawValue)
+                                                .font(Tokens.TypeScale.caption.weight(.semibold))
+                                                .foregroundStyle(flagColor(flags))
+                                            Text("· \(flags.count) flag\(flags.count == 1 ? "" : "s")")
+                                                .font(Tokens.TypeScale.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                    .onDelete { itemsStore.remove(at: $0) }
+                    .onDelete { offsets in
+                        itemsStore.remove(at: offsets)
+                        Task { await refreshFlags() }
+                    }
                 }
             }
         }
         .navigationTitle(Copy.Items.title)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(Copy.Trip.suggestionsTitle) { path.append(.suggestions) }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Menu(Copy.Items.scan) {
                     Button(Copy.Items.scan) { path.append(caps.supportsGuidedScan ? .guidedScan : .scan) }
@@ -71,17 +104,78 @@ struct ItemListView: View {
                 .disabled(itemsStore.items.isEmpty || planStore.isPacking)
             }
         }
+        .task(id: itemsStore.items.map(\.id)) {
+            await refreshFlags()
+        }
         .sheet(item: $editing) { item in
             ItemDetailView(item: item, flags: rulesStore.flags(for: item.id)) { updated in
                 itemsStore.update(updated)
                 editing = nil
+                Task { await refreshFlags() }
+            }
+        }
+        .sheet(item: $confirmItem) { item in
+            NavigationStack {
+                VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
+                    Text(Copy.Items.confirmIdentity)
+                        .font(Tokens.TypeScale.title)
+                    Text(item.name)
+                        .font(Tokens.TypeScale.body)
+                    Text(Copy.Items.confirmIdentityBody)
+                        .font(Tokens.TypeScale.callout)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button(Copy.Items.confirmYes) {
+                        confirmItem = nil
+                        editing = item
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Tokens.Color.brand)
+                    Button(Copy.Items.confirmEdit) {
+                        confirmItem = nil
+                        editing = item
+                    }
+                }
+                .packFitScreenPadding()
+                .navigationTitle(Copy.Items.confirmTitle)
+                .navigationBarTitleDisplayMode(.inline)
+            }
+            .presentationDetents([.medium])
+        }
+        .sheet(isPresented: $showFlagSummary) {
+            NavigationStack {
+                RulesView()
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(Copy.Trip.cancel) { showFlagSummary = false }
+                        }
+                    }
             }
         }
     }
 
+    private func flagColor(_ flags: [RuleFlag]) -> Color {
+        if flags.contains(where: { $0.severity == .banned }) { return Tokens.Color.banned }
+        if flags.contains(where: { $0.severity == .restricted }) { return Tokens.Color.restricted }
+        return Tokens.Color.brand
+    }
+
+    private func refreshFlags() async {
+        guard let trip = tripStore.trip else { return }
+        await rulesStore.check(
+            items: itemsStore.items,
+            trip: trip,
+            bag: tripStore.useChecked ? "checked" : "carryOn",
+            client: client
+        )
+    }
+
     private func packAndContinue() async {
         guard let bag = tripStore.bag, let trip = tripStore.trip else { return }
-        await planStore.computePlan(items: itemsStore.items, into: bag)
+        // Drop banned items from the pack list after confirming advice.
+        let bannedIds = Set(rulesStore.flags.filter { $0.severity == .banned }.map(\.itemId))
+        let packable = itemsStore.items.filter { !bannedIds.contains($0.id) }
+        await planStore.computePlan(items: packable, into: bag)
         await rulesStore.check(
             items: itemsStore.items,
             trip: trip,

@@ -12,4 +12,6 @@ enum Route: Hashable {
     case guidedScan
     /// One photo of the pile; Claude names every object in it.
     case inventoryScan
+    case suggestions
+    case beforeYouGo
 }

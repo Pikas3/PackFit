@@ -31,6 +31,10 @@ struct RootView: View {
                                 InventoryScanView(path: $path, client: client)
                             case .arOverlay, .guidedScan:
                                 GuidedScanView(path: $path, client: client)
+                            case .suggestions:
+                                SuggestionsView(path: $path)
+                            case .beforeYouGo:
+                                BeforeYouGoView()
                             }
                         }
                 }
