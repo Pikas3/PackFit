@@ -89,6 +89,10 @@ enum Copy {
         static let wheelsPrompt = "Where are the wheels?"
         static let wheelsBack = "Back"
         static let wheelsBottom = "Bottom"
+        static let shellPrompt = "How does your suitcase open?"
+        static let shellMessage = "Some bags are one open shell. Others zip into two sides (base and lid)."
+        static let shellSingle = "One main cavity"
+        static let shellTwoSided = "Two sides (zipper)"
         static let continueItems = "Add items"
         static let weightLimit = "Weight limit (kg)"
     }

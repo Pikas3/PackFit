@@ -265,12 +265,24 @@ struct FitConfidenceTests {
 }
 
 struct ContainerMappingTests {
-    @Test func cavityBecomesLyingOpenSuitcase() {
+    @Test func cavityBecomesTwoSidedClamshell() {
         let bag = ContainerFactory.fromCavity(innerLongCm: 72, innerShortCm: 47, shellDepthCm: 11, confidence: 0.9)
-        #expect(bag.compartments.first?.dims == [72, 22, 47])
+        #expect(bag.compartments.map(\.name) == ["base", "lid"])
+        #expect(bag.compartments.map(\.dims) == [[72, 11, 47], [72, 11, 47]])
         #expect(bag.outer == [78, 28, 53])
         #expect(bag.wheelsSide == .back)
         #expect(bag.measurement?.method == .lidar)
         #expect(bag.type == .suitcase)
+    }
+
+    @Test func applyingTwoSidedSplitsPreset() {
+        let single = ContainerFactory.custom(outer: [55, 23, 40], method: .manual, confidence: 1, shell: .single)
+        let two = ContainerFactory.applying(.twoSided, to: single)
+        #expect(two.compartments.map(\.name) == ["base", "lid"])
+        #expect(two.compartments[0].dims[1] == two.compartments[1].dims[1])
+        #expect(two.compartments[0].dims[1] * 2 == single.compartments[0].dims[1]
+            || abs(two.compartments[0].dims[1] * 2 - single.compartments[0].dims[1]) < 0.2)
+        let bounds = ContainerFactory.openBoundsCm(of: two)
+        #expect(bounds[2] > two.compartments[0].dims[2])
     }
 }

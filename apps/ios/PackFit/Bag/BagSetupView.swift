@@ -7,6 +7,7 @@ struct BagSetupView: View {
 
     @State private var showManual = false
     @State private var showWheels = false
+    @State private var showShell = false
     @State private var pendingBag: Container?
     @State private var showBackpackEditor = false
 
@@ -18,6 +19,9 @@ struct BagSetupView: View {
                         if bag.type == .backpack {
                             pendingBag = bag
                             showBackpackEditor = true
+                        } else if bag.type == .suitcase {
+                            pendingBag = bag
+                            showShell = true
                         } else {
                             tripStore.setBag(bag)
                             path.append(.itemList)
@@ -34,7 +38,9 @@ struct BagSetupView: View {
                                     .foregroundStyle(Tokens.Palette.textSecondary)
                             }
                             Spacer()
-                            if tripStore.bag?.id == bag.id {
+                            if tripStore.bag?.id == bag.id
+                                || (tripStore.bag?.name.hasPrefix(bag.name) == true
+                                    && tripStore.bag?.type == bag.type) {
                                 Image(systemName: "checkmark.circle.fill").foregroundStyle(Tokens.Palette.green600)
                             }
                         }
@@ -65,6 +71,12 @@ struct BagSetupView: View {
             Button(Copy.Bag.wheelsBack) { finishWheels(.back) }
             Button(Copy.Bag.wheelsBottom) { finishWheels(.bottom) }
         }
+        .confirmationDialog(Copy.Bag.shellPrompt, isPresented: $showShell, titleVisibility: .visible) {
+            Button(Copy.Bag.shellSingle) { finishShell(.single) }
+            Button(Copy.Bag.shellTwoSided) { finishShell(.twoSided) }
+        } message: {
+            Text(Copy.Bag.shellMessage)
+        }
         .sheet(isPresented: $showBackpackEditor) {
             if let bag = pendingBag {
                 BackpackEditorView(bag: bag) { edited in
@@ -79,7 +91,19 @@ struct BagSetupView: View {
     private func finishWheels(_ side: WheelsSide) {
         guard var bag = pendingBag else { return }
         bag.wheelsSide = side
-        tripStore.setBag(bag)
+        pendingBag = bag
+        if bag.type == .suitcase {
+            showShell = true
+        } else {
+            tripStore.setBag(bag)
+            path.append(.itemList)
+        }
+    }
+
+    private func finishShell(_ shell: SuitcaseShell) {
+        guard let bag = pendingBag else { return }
+        tripStore.setBag(ContainerFactory.applying(shell, to: bag))
+        pendingBag = nil
         path.append(.itemList)
     }
 
