@@ -22,6 +22,7 @@ enum Copy {
         static let title = "Your trip"
         static let continueButton = "Continue to bag / scan"
         static let cancel = "Cancel"
+        static let keyboardDone = "Done"
         static let flightHeader = "Find your flight"
         static let flightIntro = "Enter the airline code and flight number. We’ll fill origin, destination, weather, and packing rules for that route."
         static let airlineField = "Airline (IATA, e.g. UA)"
